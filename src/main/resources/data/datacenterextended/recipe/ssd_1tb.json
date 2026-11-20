@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/gold",
+    "S": "datacenterextended:silicon",
+    "$": "datacenterextended:credit",
+    "X": "datacenterextended:hdd_500gb"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:ssd_1tb"
+  }
+}

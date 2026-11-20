@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "X": "datacenterextended:cat5e_cable",
+    "G": "#c:ingots/gold"
+  },
+  "pattern": [
+    "XXX",
+    "XGX",
+    "XXX"
+  ],
+  "result": {
+    "id": "datacenterextended:cat6a_cable",
+    "count": 8
+  }
+}

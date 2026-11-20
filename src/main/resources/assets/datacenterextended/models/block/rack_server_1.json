@@ -1,0 +1,37 @@
+{
+  "textures": {
+    "plate": "datacenterextended:block/rack_server",
+    "particle": "datacenterextended:block/rack_server"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        8,
+        -0.5
+      ],
+      "to": [
+        14,
+        11,
+        0.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plate"
+        },
+        "east": {
+          "texture": "#plate"
+        },
+        "west": {
+          "texture": "#plate"
+        },
+        "up": {
+          "texture": "#plate"
+        },
+        "down": {
+          "texture": "#plate"
+        }
+      }
+    }
+  ]
+}

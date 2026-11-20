@@ -1,0 +1,142 @@
+package de.f4ked.datacenterextended.client;
+
+import de.f4ked.datacenterextended.Config;
+import de.f4ked.datacenterextended.block.RackBlockEntity;
+import de.f4ked.datacenterextended.block.RackStatus;
+import de.f4ked.datacenterextended.block.RackType;
+import de.f4ked.datacenterextended.hardware.DataUnits;
+import de.f4ked.datacenterextended.hardware.ServerProblem;
+import de.f4ked.datacenterextended.menu.RackMenu;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
+
+import static de.f4ked.datacenterextended.menu.RackMenu.*;
+
+public class RackScreen extends AbstractContainerScreen<RackMenu> {
+    private static final int INFO_X = 8, INFO_Y = 86, INFO_W = 160, INFO_H = 46;
+    private static final int LED_RUNNING = 0xFF3CE07A, LED_PROBLEM = 0xFFE04040, LED_EMPTY = 0xFF2A2A2A;
+
+    public RackScreen(RackMenu menu, Inventory inventory, Component title) {
+        super(menu, inventory, title, IMAGE_WIDTH, IMAGE_HEIGHT);
+        this.inventoryLabelY = INVENTORY_Y - 11;
+    }
+
+    @Override
+    public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(g, mouseX, mouseY, partialTick);
+        int x = leftPos, y = topPos;
+        GuiDraw.window(g, x, y, imageWidth, imageHeight);
+
+        for (Slot slot : menu.slots) {
+            GuiDraw.slot(g, x + slot.x, y + slot.y);
+        }
+        // status LED bar below every server bay
+        for (int i = 0; i < menu.serverSlotCount(); i++) {
+            Slot slot = menu.slots.get(i);
+            int code = menu.serverCode(i);
+            int color = code == RackBlockEntity.CODE_EMPTY ? LED_EMPTY : code == RackBlockEntity.CODE_RUNNING ? LED_RUNNING : LED_PROBLEM;
+            g.fill(x + slot.x, y + slot.y + 18, x + slot.x + 16, y + slot.y + 20, color);
+        }
+
+        GuiDraw.monitor(g, x + INFO_X, y + INFO_Y, INFO_W, INFO_H);
+        long goal = menu.goal();
+        double fraction = goal > 0 ? (double) menu.progress() / goal : 0;
+        GuiDraw.bar(g, x + BAR_X, y + BAR_Y, BAR_W, BAR_H, fraction, menu.status() == RackStatus.RUNNING ? 0xFF3CB371 : 0xFF8B6914);
+    }
+
+    @Override
+    protected void extractLabels(GuiGraphicsExtractor g, int mouseX, int mouseY) {
+        super.extractLabels(g, mouseX, mouseY);
+        RackType type = menu.type();
+        RackStatus status = menu.status();
+        int tx = INFO_X + 4, ty = INFO_Y + 2;
+        boolean mining = type == RackType.MINING;
+
+        // 1: status
+        g.text(font, Component.translatable(status.translationKey()), tx, ty, status.ok() ? GuiDraw.TEXT_OK : GuiDraw.TEXT_ERR, false);
+
+        // 2: performance
+        Component perf = mining
+                ? Component.translatable("gui.datacenterextended.rack.hashrate", DataUnits.formatHashrate(menu.localRate()))
+                : Component.translatable("gui.datacenterextended.rack.compute",
+                DataUnits.formatBytesPerSecond(menu.localRate()), DataUnits.formatBytesPerSecond(menu.effectiveRate()));
+        g.text(font, perf, tx, ty + 9, GuiDraw.TEXT_INFO, false);
+
+        // 3: network
+        Component net;
+        int netColor = GuiDraw.TEXT_INFO;
+        if (mining) {
+            net = Component.translatable("gui.datacenterextended.rack.standalone");
+        } else if (!menu.networked()) {
+            net = Component.translatable("gui.datacenterextended.rack.no_network");
+            netColor = GuiDraw.TEXT_WARN;
+        } else {
+            net = Component.translatable("gui.datacenterextended.rack.network",
+                    DataUnits.formatBytesPerSecond(menu.received()), DataUnits.formatBytesPerSecond(menu.exported()),
+                    DataUnits.formatBytesPerSecond(menu.bandwidth()));
+        }
+        g.text(font, net, tx, ty + 18, netColor, false);
+
+        // 4: power (+ FE)
+        g.text(font, Component.translatable("gui.datacenterextended.rack.power", menu.watts()), tx, ty + 27, GuiDraw.TEXT_INFO, false);
+        if (Config.safe(Config.REQUIRE_ENERGY, false) && menu.energyCapacity() > 0) {
+            String fe = (100 * menu.energy() / menu.energyCapacity()) + "% FE";
+            g.text(font, fe, INFO_X + INFO_W - 4 - font.width(fe), ty + 27, GuiDraw.TEXT_INFO, false);
+        }
+
+        // 5: progress / ETA (+ hosting storage bonus)
+        long goal = menu.goal();
+        if (goal > 0) {
+            double speed = switch (type) {
+                case HOSTING -> 1.0 + menu.storageBonus();
+                case FABRICATING -> Config.safe(Config.FABRICATION_SPEED, 1.0);
+                case MINING -> 1.0;
+            };
+            double rate = menu.effectiveRate() * speed;
+            String eta = rate > 0 ? DataUnits.formatDuration((goal - menu.progress()) / rate) : "∞";
+            Component line = switch (type) {
+                case MINING -> Component.translatable("gui.datacenterextended.next_bitcoin", eta);
+                case HOSTING -> Component.translatable("gui.datacenterextended.next_credit_bonus", eta, Math.round(menu.storageBonus() * 100));
+                case FABRICATING -> Component.translatable("gui.datacenterextended.fabricating",
+                        DataUnits.formatBytes(menu.progress()), DataUnits.formatBytes(goal), eta);
+            };
+            g.text(font, line, tx, ty + 36, GuiDraw.TEXT_INFO, false);
+        }
+    }
+
+    @Override
+    protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
+        List<Component> tooltip = super.getTooltipFromContainerItem(stack);
+        Slot slot = hoveredSlot;
+        if (slot != null && slot.index < menu.serverSlotCount()) {
+            tooltip.add(serverState(menu.serverCode(slot.index)));
+        }
+        return tooltip;
+    }
+
+    private static Component serverState(int code) {
+        if (code == RackBlockEntity.CODE_RUNNING) {
+            return Component.translatable("gui.datacenterextended.server.running").withStyle(ChatFormatting.GREEN);
+        }
+        return Component.translatable(ServerProblem.byId(code - 2).translationKey()).withStyle(ChatFormatting.RED);
+    }
+
+    @Override
+    protected void extractTooltip(GuiGraphicsExtractor g, int mouseX, int mouseY) {
+        super.extractTooltip(g, mouseX, mouseY);
+        Slot slot = hoveredSlot;
+        if (slot == null || slot.hasItem() || !menu.getCarried().isEmpty() || slot.index >= menu.slots.size() - 36) return;
+        String key;
+        if (slot.index < menu.serverSlotCount()) key = "server_bay";
+        else if (menu.type() == RackType.FABRICATING && slot.index == menu.serverSlotCount()) key = "target";
+        else key = "output";
+        g.setTooltipForNextFrame(font, Component.translatable("gui.datacenterextended.slot." + key), mouseX, mouseY);
+    }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "I": "#c:ingots/iron",
+    "C": "datacenterextended:circuit_board",
+    "T": "minecraft:crafting_table"
+  },
+  "pattern": [
+    "III",
+    "CTC",
+    "I I"
+  ],
+  "result": {
+    "id": "datacenterextended:server_workbench"
+  }
+}

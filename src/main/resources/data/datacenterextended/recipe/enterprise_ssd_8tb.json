@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:gems/emerald",
+    "S": "datacenterextended:silicon",
+    "$": "datacenterextended:credit_crate",
+    "X": "datacenterextended:nvme_2tb"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:enterprise_ssd_8tb"
+  }
+}

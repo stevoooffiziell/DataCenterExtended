@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "datacenterextended:block/cat5e_cable_inventory"
+  }
+}

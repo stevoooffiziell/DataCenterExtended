@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "X": "datacenterextended:cat6a_cable",
+    "P": "#c:glass_panes",
+    "D": "#c:gems/diamond"
+  },
+  "pattern": [
+    "XXX",
+    "PDP",
+    "XXX"
+  ],
+  "result": {
+    "id": "datacenterextended:fiber_cable",
+    "count": 8
+  }
+}

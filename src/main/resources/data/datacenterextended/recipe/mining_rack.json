@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "I": "#c:ingots/iron",
+    "B": "minecraft:iron_bars",
+    "X": "#c:ingots/gold"
+  },
+  "pattern": [
+    "IBI",
+    "IXI",
+    "IBI"
+  ],
+  "result": {
+    "id": "datacenterextended:mining_rack"
+  }
+}

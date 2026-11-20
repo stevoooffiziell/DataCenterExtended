@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "datacenterextended:block/fabricating_rack_front_top",
+    "side": "datacenterextended:block/rack_side_top",
+    "top": "datacenterextended:block/rack_top"
+  }
+}

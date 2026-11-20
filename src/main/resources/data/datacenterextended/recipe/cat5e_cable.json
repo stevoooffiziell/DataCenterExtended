@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "X": "datacenterextended:coax_cable",
+    "C": "datacenterextended:circuit_board"
+  },
+  "pattern": [
+    "XXX",
+    "XCX",
+    "XXX"
+  ],
+  "result": {
+    "id": "datacenterextended:cat5e_cable",
+    "count": 8
+  }
+}

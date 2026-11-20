@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": "#c:ingots/copper",
+    "R": "#c:dusts/redstone",
+    "S": "#c:strings"
+  },
+  "pattern": [
+    "CCC",
+    "RSR",
+    "CCC"
+  ],
+  "result": {
+    "id": "datacenterextended:coax_cable",
+    "count": 8
+  }
+}

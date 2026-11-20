@@ -1,0 +1,504 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north",
+        "part": "single"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_single"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "bottom"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_bottom"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "middle"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_middle"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "top"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_top"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "server_0": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_0"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "server_0": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_0_on"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "server_1": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_1"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "server_1": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_1_on"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "server_2": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_2"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "server_2": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_2_on"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "server_3": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_3"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "server_3": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_3_on"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "single"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_single",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "bottom"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_bottom",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "middle"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_middle",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "top"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_top",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "server_0": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_0",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "server_0": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_0_on",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "server_1": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_1",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "server_1": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_1_on",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "server_2": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_2",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "server_2": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_2_on",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "server_3": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_3",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "server_3": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_3_on",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "single"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_single",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "bottom"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_bottom",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "middle"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_middle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "top"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_top",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "server_0": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_0",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "server_0": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_0_on",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "server_1": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_1",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "server_1": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_1_on",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "server_2": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_2",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "server_2": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_2_on",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "server_3": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_3",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "server_3": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_3_on",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "single"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_single",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "bottom"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_bottom",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "middle"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_middle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "top"
+      },
+      "apply": {
+        "model": "datacenterextended:block/hosting_rack_top",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "server_0": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_0",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "server_0": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_0_on",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "server_1": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_1",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "server_1": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_1_on",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "server_2": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_2",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "server_2": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_2_on",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "server_3": "true",
+        "running": "false"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_3",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "server_3": "true",
+        "running": "true"
+      },
+      "apply": {
+        "model": "datacenterextended:block/rack_server_3_on",
+        "y": 270
+      }
+    }
+  ]
+}

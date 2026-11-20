@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:gems/diamond",
+    "S": "datacenterextended:silicon",
+    "$": "datacenterextended:credit_bundle",
+    "X": "datacenterextended:ssd_1tb"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:nvme_2tb"
+  }
+}
