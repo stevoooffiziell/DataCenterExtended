@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/gold",
+    "S": "datacenterextended:silicon",
+    "$": "datacenterextended:credit_bundle",
+    "X": "datacenterextended:amd_fx_4300"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:core_i5_2500k"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/copper",
+    "S": "datacenterextended:circuit_board",
+    "$": "datacenterextended:credit",
+    "X": "datacenterextended:office_motherboard"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:gaming_motherboard"
+  }
+}

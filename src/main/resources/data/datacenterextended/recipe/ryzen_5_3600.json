@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:storage_blocks/redstone",
+    "S": "datacenterextended:silicon",
+    "$": "datacenterextended:credit_bundle",
+    "X": "datacenterextended:core_i5_2500k"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:ryzen_5_3600"
+  }
+}

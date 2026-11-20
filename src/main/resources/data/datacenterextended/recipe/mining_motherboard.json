@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/gold",
+    "S": "datacenterextended:circuit_board",
+    "$": "datacenterextended:credit_bundle",
+    "X": "datacenterextended:geforce_gtx_460"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:mining_motherboard"
+  }
+}

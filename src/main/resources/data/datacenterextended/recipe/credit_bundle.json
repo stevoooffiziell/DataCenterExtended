@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "datacenterextended:credit",
+    "datacenterextended:credit",
+    "datacenterextended:credit",
+    "datacenterextended:credit",
+    "datacenterextended:credit",
+    "datacenterextended:credit",
+    "datacenterextended:credit",
+    "datacenterextended:credit",
+    "datacenterextended:credit"
+  ],
+  "result": {
+    "id": "datacenterextended:credit_bundle"
+  }
+}

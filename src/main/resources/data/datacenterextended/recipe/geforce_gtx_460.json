@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/iron",
+    "S": "#c:ingots/copper",
+    "$": "#c:dusts/redstone",
+    "X": "datacenterextended:circuit_board"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:geforce_gtx_460"
+  }
+}

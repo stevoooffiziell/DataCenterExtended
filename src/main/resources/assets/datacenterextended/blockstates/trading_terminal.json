@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "datacenterextended:block/trading_terminal"
+    },
+    "facing=east": {
+      "model": "datacenterextended:block/trading_terminal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "datacenterextended:block/trading_terminal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "datacenterextended:block/trading_terminal",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/netherite",
+    "S": "#c:dusts/redstone",
+    "$": "datacenterextended:credit_crate",
+    "X": "datacenterextended:psu_2000w"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:psu_3200w"
+  }
+}

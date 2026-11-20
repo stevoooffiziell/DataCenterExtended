@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:storage_blocks/iron",
+    "S": "#c:dusts/redstone",
+    "$": "datacenterextended:credit_bundle",
+    "X": "datacenterextended:psu_850w"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:psu_1200w"
+  }
+}

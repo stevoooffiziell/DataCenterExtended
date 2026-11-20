@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "datacenterextended:credit_bundle"
+  ],
+  "result": {
+    "id": "datacenterextended:credit",
+    "count": 9
+  }
+}

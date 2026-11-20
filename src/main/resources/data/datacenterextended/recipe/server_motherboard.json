@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:gems/diamond",
+    "S": "datacenterextended:circuit_board",
+    "$": "datacenterextended:credit_crate",
+    "X": "datacenterextended:workstation_motherboard"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:server_motherboard"
+  }
+}

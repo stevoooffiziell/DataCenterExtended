@@ -1,0 +1,154 @@
+{
+  "values": {
+    "datacenterextended:pentium_4": {
+      "type": "cpu",
+      "compute": 4,
+      "power": 85
+    },
+    "datacenterextended:amd_fx_4300": {
+      "type": "cpu",
+      "compute": 10,
+      "power": 95
+    },
+    "datacenterextended:core_i5_2500k": {
+      "type": "cpu",
+      "compute": 24,
+      "power": 95
+    },
+    "datacenterextended:ryzen_5_3600": {
+      "type": "cpu",
+      "compute": 64,
+      "power": 65
+    },
+    "datacenterextended:core_i9_9900k": {
+      "type": "cpu",
+      "compute": 128,
+      "power": 95
+    },
+    "datacenterextended:ryzen_9_7950x": {
+      "type": "cpu",
+      "compute": 512,
+      "power": 170
+    },
+    "datacenterextended:epyc_9654": {
+      "type": "cpu",
+      "compute": 2048,
+      "power": 360
+    },
+    "datacenterextended:geforce_gtx_460": {
+      "type": "gpu",
+      "hashrate": 1.0,
+      "power": 160
+    },
+    "datacenterextended:radeon_hd_7970": {
+      "type": "gpu",
+      "hashrate": 2.5,
+      "power": 250
+    },
+    "datacenterextended:radeon_rx_580": {
+      "type": "gpu",
+      "hashrate": 4.0,
+      "power": 185
+    },
+    "datacenterextended:geforce_gtx_1080_ti": {
+      "type": "gpu",
+      "hashrate": 8.0,
+      "power": 250
+    },
+    "datacenterextended:geforce_rtx_3090": {
+      "type": "gpu",
+      "hashrate": 20.0,
+      "power": 350
+    },
+    "datacenterextended:geforce_rtx_4090": {
+      "type": "gpu",
+      "hashrate": 40.0,
+      "power": 450
+    },
+    "datacenterextended:office_motherboard": {
+      "type": "motherboard",
+      "cpu_sockets": 1,
+      "gpu_slots": 1,
+      "storage_slots": 1,
+      "power": 15
+    },
+    "datacenterextended:gaming_motherboard": {
+      "type": "motherboard",
+      "cpu_sockets": 1,
+      "gpu_slots": 2,
+      "storage_slots": 2,
+      "power": 25
+    },
+    "datacenterextended:workstation_motherboard": {
+      "type": "motherboard",
+      "cpu_sockets": 2,
+      "gpu_slots": 3,
+      "storage_slots": 4,
+      "power": 40
+    },
+    "datacenterextended:mining_motherboard": {
+      "type": "motherboard",
+      "cpu_sockets": 1,
+      "gpu_slots": 6,
+      "storage_slots": 1,
+      "power": 35
+    },
+    "datacenterextended:server_motherboard": {
+      "type": "motherboard",
+      "cpu_sockets": 4,
+      "gpu_slots": 4,
+      "storage_slots": 4,
+      "power": 60
+    },
+    "datacenterextended:psu_300w": {
+      "type": "psu",
+      "power": 300,
+      "efficiency": 0.75
+    },
+    "datacenterextended:psu_550w": {
+      "type": "psu",
+      "power": 550,
+      "efficiency": 0.82
+    },
+    "datacenterextended:psu_850w": {
+      "type": "psu",
+      "power": 850,
+      "efficiency": 0.87
+    },
+    "datacenterextended:psu_1200w": {
+      "type": "psu",
+      "power": 1200,
+      "efficiency": 0.9
+    },
+    "datacenterextended:psu_2000w": {
+      "type": "psu",
+      "power": 2000,
+      "efficiency": 0.92
+    },
+    "datacenterextended:psu_3200w": {
+      "type": "psu",
+      "power": 3200,
+      "efficiency": 0.94
+    },
+    "datacenterextended:hdd_500gb": {
+      "type": "storage",
+      "storage": 500,
+      "power": 8
+    },
+    "datacenterextended:ssd_1tb": {
+      "type": "storage",
+      "storage": 1024,
+      "power": 5
+    },
+    "datacenterextended:nvme_2tb": {
+      "type": "storage",
+      "storage": 2048,
+      "power": 7
+    },
+    "datacenterextended:enterprise_ssd_8tb": {
+      "type": "storage",
+      "storage": 8192,
+      "power": 12
+    }
+  }
+}
