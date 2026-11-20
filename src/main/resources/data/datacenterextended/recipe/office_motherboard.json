@@ -5,7 +5,7 @@
     "M": "#c:ingots/iron",
     "S": "datacenterextended:circuit_board",
     "$": "#c:dusts/redstone",
-    "X": "datacenterextended:silicon"
+    "X": "datacenterextended:circuit_board"
   },
   "pattern": [
     "MSM",

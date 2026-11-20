@@ -5,7 +5,7 @@
     "M": "#c:ingots/gold",
     "S": "datacenterextended:circuit_board",
     "$": "datacenterextended:credit_bundle",
-    "X": "datacenterextended:gaming_motherboard"
+    "X": "datacenterextended:z77_motherboard"
   },
   "pattern": [
     "MSM",

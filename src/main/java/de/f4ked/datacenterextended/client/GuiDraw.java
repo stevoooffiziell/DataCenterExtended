@@ -15,6 +15,8 @@ public final class GuiDraw {
     public static final int TEXT_WARN = 0xFFFFC857;
     public static final int TEXT_ERR = 0xFFFF5555;
     public static final int LOCKED = 0x90601010;
+    public static final int INCOMPATIBLE = 0xC0C04020;
+    public static final int ENERGY = 0xFFE53935;
 
     private GuiDraw() {
     }
@@ -37,6 +39,21 @@ public final class GuiDraw {
 
     public static void lockedOverlay(GuiGraphicsExtractor g, int x, int y) {
         g.fill(x, y, x + 16, y + 16, LOCKED);
+    }
+
+    /** Orange-red slot background for a part that does not fit the motherboard. */
+    public static void incompatibleOverlay(GuiGraphicsExtractor g, int x, int y) {
+        g.fill(x, y, x + 16, y + 16, INCOMPATIBLE);
+    }
+
+    /** Vertical gauge filling from the bottom. */
+    public static void verticalBar(GuiGraphicsExtractor g, int x, int y, int w, int h, double fraction, int color) {
+        g.fill(x - 1, y - 1, x + w + 1, y + h + 1, SLOT_DARK);
+        g.fill(x, y, x + w, y + h, 0xFF202020);
+        int filled = (int) Math.round(Math.max(0, Math.min(1, fraction)) * h);
+        if (filled > 0) {
+            g.fill(x, y + h - filled, x + w, y + h, color);
+        }
     }
 
     /** Dark "monitor" panel with a bevel. */

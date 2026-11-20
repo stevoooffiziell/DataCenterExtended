@@ -17,19 +17,49 @@
       ],
       "faces": {
         "north": {
-          "texture": "#plate"
+          "texture": "#plate",
+          "uv": [
+            2,
+            9,
+            14,
+            12
+          ]
         },
         "east": {
-          "texture": "#plate"
+          "texture": "#plate",
+          "uv": [
+            2,
+            9,
+            3,
+            12
+          ]
         },
         "west": {
-          "texture": "#plate"
+          "texture": "#plate",
+          "uv": [
+            2,
+            9,
+            3,
+            12
+          ]
         },
         "up": {
-          "texture": "#plate"
+          "texture": "#plate",
+          "uv": [
+            2,
+            9,
+            14,
+            10
+          ]
         },
         "down": {
-          "texture": "#plate"
+          "texture": "#plate",
+          "uv": [
+            2,
+            11,
+            14,
+            12
+          ]
         }
       }
     }

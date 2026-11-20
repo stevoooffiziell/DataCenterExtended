@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "datacenterextended:item/geforce_rtx_2080_ti"
+  }
+}

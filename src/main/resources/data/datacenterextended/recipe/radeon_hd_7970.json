@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "#c:ingots/gold",
+    "M": "#c:ingots/iron",
     "S": "#c:ingots/copper",
     "$": "datacenterextended:credit",
     "X": "datacenterextended:geforce_gtx_460"

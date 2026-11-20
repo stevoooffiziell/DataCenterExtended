@@ -31,6 +31,8 @@ public class RackMenu extends AbstractContainerMenu {
     public static final int TARGET_X = 98, TARGET_Y = 18;
     public static final int OUTPUT_Y = 40;
     public static final int BAR_X = 98, BAR_Y = 64, BAR_W = 70, BAR_H = 6;
+    /** Vertical FE gauge between the server bays and the production slots. */
+    public static final int ENERGY_X = 85, ENERGY_Y = 18, ENERGY_W = 6, ENERGY_H = 62;
     public static final int INVENTORY_Y = 146;
 
     private final RackType type;
@@ -190,6 +192,10 @@ public class RackMenu extends AbstractContainerMenu {
 
     public long energyCapacity() {
         return DataSlots.readLong(data, DATA_ENERGY_CAP);
+    }
+
+    public long fePerTick() {
+        return DataSlots.readLong(data, DATA_FE_PER_TICK);
     }
 
     public double storageBonus() {

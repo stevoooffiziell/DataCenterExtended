@@ -10,7 +10,8 @@ public enum HardwareType implements StringRepresentable {
     CPU,
     GPU,
     PSU,
-    STORAGE;
+    STORAGE,
+    MEMORY;
 
     public static final Codec<HardwareType> CODEC = StringRepresentable.fromEnum(HardwareType::values);
 

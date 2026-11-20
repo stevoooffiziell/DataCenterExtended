@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "#c:ingots/gold",
+    "M": "#c:ingots/iron",
     "S": "datacenterextended:silicon",
-    "$": "datacenterextended:credit_bundle",
-    "X": "datacenterextended:amd_fx_4300"
+    "$": "datacenterextended:credit",
+    "X": "datacenterextended:amd_fx_8350"
   },
   "pattern": [
     "MSM",

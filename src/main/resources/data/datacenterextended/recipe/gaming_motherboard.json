@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "#c:ingots/copper",
+    "M": "#c:ingots/gold",
     "S": "datacenterextended:circuit_board",
-    "$": "datacenterextended:credit",
-    "X": "datacenterextended:office_motherboard"
+    "$": "datacenterextended:credit_bundle",
+    "X": "datacenterextended:workstation_motherboard"
   },
   "pattern": [
     "MSM",

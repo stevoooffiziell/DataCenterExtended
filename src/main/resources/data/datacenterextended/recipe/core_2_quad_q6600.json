@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/iron",
+    "S": "datacenterextended:silicon",
+    "$": "datacenterextended:credit",
+    "X": "datacenterextended:pentium_4"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:core_2_quad_q6600"
+  }
+}

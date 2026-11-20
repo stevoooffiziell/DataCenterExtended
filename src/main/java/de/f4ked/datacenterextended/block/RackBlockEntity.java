@@ -38,7 +38,8 @@ import java.util.List;
 
 /**
  * One rack segment (4 servers). The bottom segment of a merged rack is the controller: it runs the logic for the whole
- * stack, owns the target/output slots and the FE buffer, and is the stack's compute network node.
+ * stack, owns the target/output slots and is the stack's compute network node. Every segment has its own FE buffer
+ * (so cables can feed any block); the controller draws from all of them.
  */
 public class RackBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, ComputeNode {
 
@@ -66,7 +67,8 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     public static final int DATA_BONUS_PERMILLE = 54;
     public static final int DATA_NETWORKED = 55;
     public static final int DATA_CABLES = 56;
-    public static final int DATA_COUNT = 57;
+    public static final int DATA_FE_PER_TICK = 57;
+    public static final int DATA_COUNT = 61;
 
     public static final int CODE_EMPTY = 0;
     public static final int CODE_RUNNING = 1;
@@ -82,6 +84,7 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     private double localRate;
     private double effectiveRate;
     private long watts;
+    private long fePerTick;
     private long goal;
     private double storageBonus;
     private long supply;
@@ -110,7 +113,7 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
             if (index == DATA_BONUS_PERMILLE) return (int) Math.round(storageBonus * 1000);
             if (index == DATA_NETWORKED) return hasNetwork() ? 1 : 0;
             if (index == DATA_CABLES) return hasNetwork() ? Math.min(Short.MAX_VALUE, networkInfo.cables()) : 0;
-            int base = DATA_LOCAL + ((index - DATA_LOCAL) / 4) * 4;
+            int base = index >= DATA_FE_PER_TICK ? DATA_FE_PER_TICK : DATA_LOCAL + ((index - DATA_LOCAL) / 4) * 4;
             long value = switch (base) {
                 case DATA_LOCAL -> (long) localRate;
                 case DATA_EFFECTIVE -> (long) effectiveRate;
@@ -120,8 +123,9 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
                 case DATA_WATTS -> watts;
                 case DATA_PROGRESS -> (long) progress;
                 case DATA_GOAL -> goal;
-                case DATA_ENERGY -> energy.getAmountAsLong();
-                case DATA_ENERGY_CAP -> energy.getCapacityAsLong();
+                case DATA_ENERGY -> totalEnergy(false);
+                case DATA_ENERGY_CAP -> totalEnergy(true);
+                case DATA_FE_PER_TICK -> fePerTick;
                 default -> 0L;
             };
             return DataSlots.chunk(value, index, base);
@@ -243,16 +247,25 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
             }
         }
 
-        // ---- 2. energy
-        long fePerTick = running.stream().mapToLong(ServerSpec::energyPerTick).sum();
-        boolean requireEnergy = Config.REQUIRE_ENERGY.get();
-        if (requireEnergy && !running.isEmpty() && energy.getAmountAsLong() < fePerTick) {
-            for (int idx : runningIdx) serverCodes[idx] = 2 + ServerProblem.NO_ENERGY.ordinal();
-            running.clear();
+        // ---- 2. energy: power servers one by one while the buffers of all segments last
+        if (Config.REQUIRE_ENERGY.get()) {
+            long budget = 0;
+            for (RackBlockEntity seg : segs) budget += seg.energy.getAmountAsLong();
+            long needed = 0;
+            List<ServerSpec> powered = new ArrayList<>(running.size());
+            for (int i = 0; i < running.size(); i++) {
+                long cost = running.get(i).energyPerTick();
+                if (needed + cost <= budget) {
+                    needed += cost;
+                    powered.add(running.get(i));
+                } else {
+                    serverCodes[runningIdx.get(i)] = 2 + ServerProblem.NO_ENERGY.ordinal();
+                }
+            }
+            running = powered;
+            drainEnergy(segs, needed);
         }
-        if (requireEnergy && fePerTick > 0 && !running.isEmpty()) {
-            energy.set((int) (energy.getAmountAsLong() - fePerTick));
-        }
+        fePerTick = running.stream().mapToLong(ServerSpec::energyPerTick).sum();
 
         localRate = running.stream().mapToDouble(sp -> mining ? sp.hashesPerSecond() : sp.computeBps()).sum();
         watts = running.stream().mapToLong(ServerSpec::watts).sum();
@@ -319,6 +332,26 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
             seg.setRunningState(powered);
         }
         setChanged();
+    }
+
+    private static void drainEnergy(List<RackBlockEntity> segs, long amount) {
+        for (RackBlockEntity seg : segs) {
+            if (amount <= 0) return;
+            long take = Math.min(amount, seg.energy.getAmountAsLong());
+            if (take > 0) {
+                seg.energy.set((int) (seg.energy.getAmountAsLong() - take));
+                amount -= take;
+            }
+        }
+    }
+
+    /** Stored FE (or capacity) of all segments of this merged rack. */
+    private long totalEnergy(boolean capacity) {
+        long total = 0;
+        for (RackBlockEntity seg : segments()) {
+            total += capacity ? seg.energy.getCapacityAsLong() : seg.energy.getAmountAsLong();
+        }
+        return total;
     }
 
     private RackStatus evaluate(RackType type, boolean noneRunning, ItemStack product) {
@@ -474,9 +507,14 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         if (level instanceof ServerLevel serverLevel) ComputeNetworkManager.unregisterNode(serverLevel, worldPosition);
     }
 
+    /** This block's own FE buffer; the controller draws from the buffers of all segments. */
     public EnergyHandler getEnergyHandler() {
-        RackBlockEntity controller = level == null ? null : controllerOf(level, worldPosition);
-        return controller != null ? controller.energy : energy;
+        return energy;
+    }
+
+    /** FE per tick the running servers of this merged rack use. */
+    public long energyPerTick() {
+        return fePerTick;
     }
 
     public RackBlockEntity controllerOrSelf() {

@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "#c:gems/diamond",
+    "M": "#c:ingots/netherite",
     "S": "datacenterextended:circuit_board",
     "$": "datacenterextended:credit_crate",
-    "X": "datacenterextended:workstation_motherboard"
+    "X": "datacenterextended:x670e_motherboard"
   },
   "pattern": [
     "MSM",

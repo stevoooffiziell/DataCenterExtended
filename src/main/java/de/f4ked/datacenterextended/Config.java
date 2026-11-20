@@ -48,21 +48,48 @@ public final class Config {
     }
 
     public static final ModConfigSpec.BooleanValue REQUIRE_ENERGY = BUILDER
-            .comment("If true, racks need FE from cables/generators of other mods to run.",
-                    "If false, the PSU alone is enough (power is purely a component-limit mechanic).")
-            .define("requireEnergy", false);
+            .comment("If true, racks need FE (from generators/cables of other mods) to run their servers.",
+                    "If false, power is only a PSU-capacity mechanic and racks run for free.")
+            .define("requireEnergy", true);
 
     public static final ModConfigSpec.DoubleValue FE_PER_WATT = BUILDER
-            .comment("FE consumed per tick for each watt of component draw (before PSU efficiency).")
+            .comment("FE per tick for each watt a server draws, divided by the PSU efficiency.",
+                    "Default 0.1: a 500 W server with an 80+ Gold PSU (87%) uses ~58 FE/t.")
             .defineInRange("fePerWattPerTick", 0.1, 0.0, 1000.0);
 
     public static final ModConfigSpec.IntValue ENERGY_CAPACITY = BUILDER
-            .comment("Internal FE buffer of a rack.")
+            .comment("FE buffer of each rack block. A merged rack of 3 blocks holds 3x this amount.")
             .defineInRange("energyCapacity", 200_000, 1, Integer.MAX_VALUE);
 
     public static final ModConfigSpec.IntValue MAX_ENERGY_INPUT = BUILDER
-            .comment("Maximum FE per tick a rack accepts.")
+            .comment("Maximum FE per tick each rack block accepts.")
             .defineInRange("maxEnergyInput", 20_000, 1, Integer.MAX_VALUE);
+
+    static {
+        BUILDER.pop();
+    }
+
+    // ---------------------------------------------------------------- memory
+    static {
+        BUILDER.comment("Memory (RAM). Every CPU recommends an amount of RAM; less RAM slows the server's compute down.").push("memory");
+    }
+
+    public static final ModConfigSpec.BooleanValue REQUIRE_MEMORY = BUILDER
+            .comment("If true, a server needs at least one memory module to boot.")
+            .define("requireMemory", true);
+
+    public static final ModConfigSpec.DoubleValue MEMORY_STARVED_FACTOR = BUILDER
+            .comment("Compute multiplier of a server with (almost) no RAM. Scales linearly up to 1.0 at the recommended amount.")
+            .defineInRange("starvedFactor", 0.25, 0.0, 1.0);
+
+    public static final ModConfigSpec.DoubleValue MEMORY_SPEED_BONUS = BUILDER
+            .comment("Compute bonus per 1000 MT/s of memory speed. All modules run at the speed of the slowest one.",
+                    "Default 0.03: DDR2-800 = +2.4%, DDR5-6000 = +18%.")
+            .defineInRange("speedBonusPer1000MTs", 0.03, 0.0, 10.0);
+
+    public static final ModConfigSpec.DoubleValue MEMORY_CHANNEL_BONUS = BUILDER
+            .comment("Compute bonus when 2 or more memory modules are installed (dual/multi channel).")
+            .defineInRange("multiChannelBonus", 0.10, 0.0, 10.0);
 
     static {
         BUILDER.pop();

@@ -7,10 +7,16 @@ public enum ServerProblem {
     NONE,
     NO_MOTHERBOARD,
     NO_PSU,
+    NO_CPU,
+    /** A CPU does not fit the motherboard's socket (e.g. after swapping the motherboard). */
+    INCOMPATIBLE_CPU,
+    /** A memory module is the wrong type for the motherboard. */
+    INCOMPATIBLE_MEMORY,
+    NO_MEMORY,
     PSU_OVERLOADED,
-    /** Runs, but has no compute – useless in hosting / fabricating racks. */
+    /** Runs, but has no compute: useless in hosting / fabricating racks. */
     NO_COMPUTE,
-    /** Runs, but has no hashrate – useless in mining racks. */
+    /** Runs, but has no hashrate: useless in mining racks. */
     NO_HASHRATE,
     NO_ENERGY;
 

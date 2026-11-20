@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:gems/diamond",
+    "S": "datacenterextended:silicon",
+    "$": "datacenterextended:credit_bundle",
+    "X": "datacenterextended:epyc_7742"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:core_i5_13600k"
+  }
+}

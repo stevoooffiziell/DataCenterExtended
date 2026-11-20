@@ -61,6 +61,11 @@ public final class DataUnits {
     }
 
     /** Human readable duration from seconds, e.g. "1h 4m", "37s". */
+    /** 123456 -> "123,456". */
+    public static String formatNumber(long value) {
+        return String.format(java.util.Locale.ROOT, "%,d", value);
+    }
+
     public static String formatDuration(double seconds) {
         if (Double.isInfinite(seconds) || Double.isNaN(seconds)) return "∞";
         long s = (long) Math.ceil(seconds);

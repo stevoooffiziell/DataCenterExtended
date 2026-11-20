@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "#c:storage_blocks/iron",
+    "M": "#c:ingots/gold",
     "S": "#c:dusts/redstone",
     "$": "datacenterextended:credit_bundle",
     "X": "datacenterextended:psu_850w"

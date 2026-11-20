@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "#c:gems/diamond",
+    "M": "#c:ingots/gold",
     "S": "#c:ingots/copper",
     "$": "datacenterextended:credit_bundle",
     "X": "datacenterextended:radeon_rx_580"

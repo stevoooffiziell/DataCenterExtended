@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "#c:ingots/copper",
+    "M": "#c:ingots/iron",
     "S": "#c:dusts/redstone",
     "$": "datacenterextended:credit",
     "X": "datacenterextended:psu_300w"

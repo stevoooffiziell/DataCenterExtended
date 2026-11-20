@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/iron",
+    "S": "#c:ingots/copper",
+    "$": "datacenterextended:credit",
+    "X": "datacenterextended:radeon_hd_7970"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:geforce_gtx_970"
+  }
+}

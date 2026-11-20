@@ -4,9 +4,14 @@ NeoForge mod for Minecraft 26.3. Assemble **servers**, mount them in **racks** a
 
 ## Gameplay
 
-1. **Server Workbench:** put a **Server (1U)** item in and install a motherboard, PSU, CPUs, GPUs and storage drives.
+1. **Server Workbench:** put a **Server (1U)** item in and install a motherboard, PSU, CPUs, memory, GPUs and storage drives.
    The parts are stored inside the server item, and the tooltip shows its stats.
-   The motherboard decides how many CPU sockets, GPU slots and storage bays are usable. The PSU must cover the power draw.
+   - The **motherboard** has a CPU **socket** (LGA775 … LGA4677, AM3+ … AM5, SP3/SP5), a **memory type** (DDR2–DDR5),
+     a maximum amount of RAM, and the number of CPU, GPU, memory and storage slots.
+     Only matching CPUs and memory modules can be inserted.
+   - A server needs a CPU and at least one memory module to boot. The PSU must cover the power draw.
+   - **Memory affects compute.** Each CPU recommends an amount of RAM; with less, compute drops (down to 25% with almost none).
+     Faster memory (+3% per 1000 MT/s, all modules run at the slowest one's speed) and 2+ modules (+10%, dual channel) add a bonus.
 2. **Racks** hold 4 servers each (4 HU). Up to **3 racks of the same type** stacked on top of each other **merge** into one
    tall rack with one GUI (12 servers). The bottom block is the controller.
 
@@ -22,14 +27,20 @@ NeoForge mod for Minecraft 26.3. Assemble **servers**, mount them in **racks** a
    **A network's bandwidth is its slowest cable**, so one Coax cable in a Fiber backbone limits everything.
    Right-click a cable or rack with the **Network Tester** to see bandwidth, flow and the bottleneck.
 
-Credits come as Credit (1), Credit Bundle (9) and Credit Crate (81). Better hardware costs credits and the previous tier.
+4. **Energy:** each rack block has its own FE buffer (200,000 FE by default; a 3-block rack holds 600,000) that any
+   FE cable can fill. Servers use `watts × 0.1 / PSU efficiency` FE per tick. A 500 W server with an 80+ Gold PSU uses ~58 FE/t.
+   When the buffer runs low, servers shut down one by one. The rack GUI shows a gauge and the FE/t; hover the gauge for details.
+   Turn `energy.requireEnergy` off to play without an energy mod.
+
+Credits come as Credit (1), Credit Bundle (9) and Credit Crate (81). Better hardware costs credits and the previous part of its category.
 
 ## Configuration
 
 ### Global settings: `config/datacenterextended-synced.toml`
 The server sends these settings to clients. Sections:
 - `general`: compute and hashrate multipliers, PSU limit
-- `energy`: optional Forge Energy requirement
+- `energy`: FE requirement (on by default), FE per watt, buffer size and input rate
+- `memory`: RAM requirement, starved factor, speed and multi-channel bonus
 - `mining`, `hosting`, `fabrication`, `trading`: rates and blacklist
 - `network`: capacity of each cable tier, `maxCablesPerNetwork`
 - `racks`: fabricating intake and hosting capacity per segment, storage bonus
@@ -40,13 +51,18 @@ Any item, including items from other mods, can be given hardware stats or a file
 `data/<any_namespace>/data_maps/item/hardware.json`
 ```json
 { "values": {
-    "datacenterextended:amd_fx_4300": { "type": "cpu", "compute": 10, "power": 95 },
+    "datacenterextended:amd_fx_4300": { "type": "cpu", "socket": "am3plus", "compute": 10, "power": 95, "recommended_memory": 4 },
     "datacenterextended:geforce_gtx_460": { "type": "gpu", "hashrate": 1.0, "power": 160 },
-    "datacenterextended:office_motherboard": { "type": "motherboard", "cpu_sockets": 1, "gpu_slots": 1, "storage_slots": 1, "power": 15 },
+    "datacenterextended:x570_motherboard": { "type": "motherboard", "socket": "am4", "memory_type": "ddr4", "max_memory": 128,
+                                             "cpu_sockets": 1, "gpu_slots": 3, "memory_slots": 4, "storage_slots": 4, "power": 30 },
+    "datacenterextended:ddr4_16gb": { "type": "memory", "memory_type": "ddr4", "memory": 16, "speed": 3200, "power": 4 },
     "datacenterextended:psu_550w": { "type": "psu", "power": 550, "efficiency": 0.82 },
     "datacenterextended:ssd_1tb": { "type": "storage", "storage": 1024, "power": 5 }
 } }
 ```
+
+Sockets and memory types are free-form ids; a part or board without one fits everything. Add a lang key
+`socket.datacenterextended.<id>` to give a new socket a display name.
 
 `data/<any_namespace>/data_maps/item/file_size.json`: numbers (bytes) or strings such as `"512 KB"`, `"1 MB"`, `"2.5 GB"`
 ```json

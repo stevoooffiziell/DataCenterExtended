@@ -3,8 +3,8 @@
   "category": "misc",
   "key": {
     "M": "#c:ingots/iron",
-    "S": "#c:dusts/redstone",
-    "$": "#c:ingots/copper",
+    "S": "datacenterextended:silicon",
+    "$": "#c:dusts/redstone",
     "X": "datacenterextended:circuit_board"
   },
   "pattern": [

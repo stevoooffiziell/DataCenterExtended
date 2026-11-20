@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "#c:gems/emerald",
+    "M": "#c:ingots/netherite",
     "S": "datacenterextended:silicon",
     "$": "datacenterextended:credit_crate",
     "X": "datacenterextended:nvme_2tb"

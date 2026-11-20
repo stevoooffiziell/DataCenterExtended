@@ -2,38 +2,129 @@
   "values": {
     "datacenterextended:pentium_4": {
       "type": "cpu",
+      "socket": "lga775",
       "compute": 4,
-      "power": 85
+      "power": 85,
+      "recommended_memory": 1
+    },
+    "datacenterextended:core_2_quad_q6600": {
+      "type": "cpu",
+      "socket": "lga775",
+      "compute": 8,
+      "power": 105,
+      "recommended_memory": 4
     },
     "datacenterextended:amd_fx_4300": {
       "type": "cpu",
+      "socket": "am3plus",
       "compute": 10,
-      "power": 95
+      "power": 95,
+      "recommended_memory": 4
+    },
+    "datacenterextended:amd_fx_8350": {
+      "type": "cpu",
+      "socket": "am3plus",
+      "compute": 18,
+      "power": 125,
+      "recommended_memory": 8
     },
     "datacenterextended:core_i5_2500k": {
       "type": "cpu",
+      "socket": "lga1155",
       "compute": 24,
-      "power": 95
+      "power": 95,
+      "recommended_memory": 8
     },
-    "datacenterextended:ryzen_5_3600": {
+    "datacenterextended:core_i7_3770k": {
       "type": "cpu",
-      "compute": 64,
-      "power": 65
+      "socket": "lga1155",
+      "compute": 32,
+      "power": 77,
+      "recommended_memory": 16
+    },
+    "datacenterextended:xeon_e5_2690": {
+      "type": "cpu",
+      "socket": "lga2011",
+      "compute": 40,
+      "power": 135,
+      "recommended_memory": 32
+    },
+    "datacenterextended:core_i7_8700k": {
+      "type": "cpu",
+      "socket": "lga1151",
+      "compute": 72,
+      "power": 95,
+      "recommended_memory": 16
     },
     "datacenterextended:core_i9_9900k": {
       "type": "cpu",
+      "socket": "lga1151",
       "compute": 128,
-      "power": 95
+      "power": 95,
+      "recommended_memory": 32
+    },
+    "datacenterextended:ryzen_5_3600": {
+      "type": "cpu",
+      "socket": "am4",
+      "compute": 64,
+      "power": 65,
+      "recommended_memory": 16
+    },
+    "datacenterextended:ryzen_7_5800x3d": {
+      "type": "cpu",
+      "socket": "am4",
+      "compute": 160,
+      "power": 105,
+      "recommended_memory": 32
+    },
+    "datacenterextended:epyc_7742": {
+      "type": "cpu",
+      "socket": "sp3",
+      "compute": 1024,
+      "power": 225,
+      "recommended_memory": 256
+    },
+    "datacenterextended:core_i5_13600k": {
+      "type": "cpu",
+      "socket": "lga1700",
+      "compute": 220,
+      "power": 181,
+      "recommended_memory": 32
+    },
+    "datacenterextended:core_i9_13900k": {
+      "type": "cpu",
+      "socket": "lga1700",
+      "compute": 400,
+      "power": 253,
+      "recommended_memory": 64
+    },
+    "datacenterextended:ryzen_7_9800x3d": {
+      "type": "cpu",
+      "socket": "am5",
+      "compute": 360,
+      "power": 120,
+      "recommended_memory": 32
     },
     "datacenterextended:ryzen_9_7950x": {
       "type": "cpu",
+      "socket": "am5",
       "compute": 512,
-      "power": 170
+      "power": 170,
+      "recommended_memory": 64
     },
     "datacenterextended:epyc_9654": {
       "type": "cpu",
+      "socket": "sp5",
       "compute": 2048,
-      "power": 360
+      "power": 360,
+      "recommended_memory": 384
+    },
+    "datacenterextended:xeon_platinum_8480": {
+      "type": "cpu",
+      "socket": "lga4677",
+      "compute": 1536,
+      "power": 350,
+      "recommended_memory": 256
     },
     "datacenterextended:geforce_gtx_460": {
       "type": "gpu",
@@ -45,6 +136,11 @@
       "hashrate": 2.5,
       "power": 250
     },
+    "datacenterextended:geforce_gtx_970": {
+      "type": "gpu",
+      "hashrate": 3.0,
+      "power": 145
+    },
     "datacenterextended:radeon_rx_580": {
       "type": "gpu",
       "hashrate": 4.0,
@@ -55,50 +151,249 @@
       "hashrate": 8.0,
       "power": 250
     },
+    "datacenterextended:geforce_rtx_2080_ti": {
+      "type": "gpu",
+      "hashrate": 12.0,
+      "power": 250
+    },
+    "datacenterextended:radeon_rx_6800_xt": {
+      "type": "gpu",
+      "hashrate": 14.0,
+      "power": 300
+    },
     "datacenterextended:geforce_rtx_3090": {
       "type": "gpu",
       "hashrate": 20.0,
       "power": 350
+    },
+    "datacenterextended:radeon_rx_7900_xtx": {
+      "type": "gpu",
+      "hashrate": 28.0,
+      "power": 355
     },
     "datacenterextended:geforce_rtx_4090": {
       "type": "gpu",
       "hashrate": 40.0,
       "power": 450
     },
+    "datacenterextended:geforce_rtx_5090": {
+      "type": "gpu",
+      "hashrate": 60.0,
+      "power": 575
+    },
+    "datacenterextended:nvidia_h100": {
+      "type": "gpu",
+      "hashrate": 100.0,
+      "power": 700
+    },
     "datacenterextended:office_motherboard": {
       "type": "motherboard",
+      "socket": "lga775",
+      "memory_type": "ddr2",
       "cpu_sockets": 1,
       "gpu_slots": 1,
       "storage_slots": 1,
+      "memory_slots": 2,
+      "max_memory": 8,
       "power": 15
     },
-    "datacenterextended:gaming_motherboard": {
+    "datacenterextended:am3_motherboard": {
       "type": "motherboard",
+      "socket": "am3plus",
+      "memory_type": "ddr3",
       "cpu_sockets": 1,
       "gpu_slots": 2,
       "storage_slots": 2,
-      "power": 25
+      "memory_slots": 4,
+      "max_memory": 32,
+      "power": 20
+    },
+    "datacenterextended:z77_motherboard": {
+      "type": "motherboard",
+      "socket": "lga1155",
+      "memory_type": "ddr3",
+      "cpu_sockets": 1,
+      "gpu_slots": 2,
+      "storage_slots": 2,
+      "memory_slots": 4,
+      "max_memory": 32,
+      "power": 20
     },
     "datacenterextended:workstation_motherboard": {
       "type": "motherboard",
+      "socket": "lga2011",
+      "memory_type": "ddr3",
       "cpu_sockets": 2,
       "gpu_slots": 3,
       "storage_slots": 4,
-      "power": 40
+      "memory_slots": 8,
+      "max_memory": 256,
+      "power": 45
+    },
+    "datacenterextended:gaming_motherboard": {
+      "type": "motherboard",
+      "socket": "lga1151",
+      "memory_type": "ddr4",
+      "cpu_sockets": 1,
+      "gpu_slots": 2,
+      "storage_slots": 3,
+      "memory_slots": 4,
+      "max_memory": 128,
+      "power": 25
     },
     "datacenterextended:mining_motherboard": {
       "type": "motherboard",
+      "socket": "lga1151",
+      "memory_type": "ddr4",
       "cpu_sockets": 1,
       "gpu_slots": 6,
       "storage_slots": 1,
+      "memory_slots": 2,
+      "max_memory": 32,
+      "power": 35
+    },
+    "datacenterextended:x570_motherboard": {
+      "type": "motherboard",
+      "socket": "am4",
+      "memory_type": "ddr4",
+      "cpu_sockets": 1,
+      "gpu_slots": 3,
+      "storage_slots": 4,
+      "memory_slots": 4,
+      "max_memory": 128,
+      "power": 30
+    },
+    "datacenterextended:epyc_sp3_motherboard": {
+      "type": "motherboard",
+      "socket": "sp3",
+      "memory_type": "ddr4",
+      "cpu_sockets": 2,
+      "gpu_slots": 4,
+      "storage_slots": 4,
+      "memory_slots": 8,
+      "max_memory": 2048,
+      "power": 60
+    },
+    "datacenterextended:z790_motherboard": {
+      "type": "motherboard",
+      "socket": "lga1700",
+      "memory_type": "ddr5",
+      "cpu_sockets": 1,
+      "gpu_slots": 3,
+      "storage_slots": 4,
+      "memory_slots": 4,
+      "max_memory": 192,
+      "power": 35
+    },
+    "datacenterextended:x670e_motherboard": {
+      "type": "motherboard",
+      "socket": "am5",
+      "memory_type": "ddr5",
+      "cpu_sockets": 1,
+      "gpu_slots": 3,
+      "storage_slots": 4,
+      "memory_slots": 4,
+      "max_memory": 192,
       "power": 35
     },
     "datacenterextended:server_motherboard": {
       "type": "motherboard",
+      "socket": "sp5",
+      "memory_type": "ddr5",
+      "cpu_sockets": 2,
+      "gpu_slots": 4,
+      "storage_slots": 4,
+      "memory_slots": 8,
+      "max_memory": 3072,
+      "power": 70
+    },
+    "datacenterextended:xeon_quad_motherboard": {
+      "type": "motherboard",
+      "socket": "lga4677",
+      "memory_type": "ddr5",
       "cpu_sockets": 4,
       "gpu_slots": 4,
       "storage_slots": 4,
-      "power": 60
+      "memory_slots": 8,
+      "max_memory": 4096,
+      "power": 90
+    },
+    "datacenterextended:ddr2_1gb": {
+      "type": "memory",
+      "memory_type": "ddr2",
+      "memory": 1,
+      "speed": 667,
+      "power": 2
+    },
+    "datacenterextended:ddr2_2gb": {
+      "type": "memory",
+      "memory_type": "ddr2",
+      "memory": 2,
+      "speed": 800,
+      "power": 2
+    },
+    "datacenterextended:ddr3_4gb": {
+      "type": "memory",
+      "memory_type": "ddr3",
+      "memory": 4,
+      "speed": 1333,
+      "power": 3
+    },
+    "datacenterextended:ddr3_8gb": {
+      "type": "memory",
+      "memory_type": "ddr3",
+      "memory": 8,
+      "speed": 1600,
+      "power": 3
+    },
+    "datacenterextended:ddr3_32gb_ecc": {
+      "type": "memory",
+      "memory_type": "ddr3",
+      "memory": 32,
+      "speed": 1600,
+      "power": 5
+    },
+    "datacenterextended:ddr4_8gb": {
+      "type": "memory",
+      "memory_type": "ddr4",
+      "memory": 8,
+      "speed": 2400,
+      "power": 3
+    },
+    "datacenterextended:ddr4_16gb": {
+      "type": "memory",
+      "memory_type": "ddr4",
+      "memory": 16,
+      "speed": 3200,
+      "power": 4
+    },
+    "datacenterextended:ddr4_64gb_ecc": {
+      "type": "memory",
+      "memory_type": "ddr4",
+      "memory": 64,
+      "speed": 3200,
+      "power": 6
+    },
+    "datacenterextended:ddr5_16gb": {
+      "type": "memory",
+      "memory_type": "ddr5",
+      "memory": 16,
+      "speed": 4800,
+      "power": 4
+    },
+    "datacenterextended:ddr5_32gb": {
+      "type": "memory",
+      "memory_type": "ddr5",
+      "memory": 32,
+      "speed": 6000,
+      "power": 5
+    },
+    "datacenterextended:ddr5_128gb_ecc": {
+      "type": "memory",
+      "memory_type": "ddr5",
+      "memory": 128,
+      "speed": 4800,
+      "power": 8
     },
     "datacenterextended:psu_300w": {
       "type": "psu",

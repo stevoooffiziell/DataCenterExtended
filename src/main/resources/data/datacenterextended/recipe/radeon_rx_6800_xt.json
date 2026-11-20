@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:gems/diamond",
+    "S": "#c:ingots/copper",
+    "$": "datacenterextended:credit_bundle",
+    "X": "datacenterextended:geforce_rtx_2080_ti"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:radeon_rx_6800_xt"
+  }
+}

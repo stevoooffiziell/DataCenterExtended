@@ -13,6 +13,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,43 +58,81 @@ public final class ModItems {
     public static final DeferredItem<Item> SILICON = simple("silicon", Rarity.COMMON, 64);
     public static final DeferredItem<Item> CIRCUIT_BOARD = simple("circuit_board", Rarity.COMMON, 64);
 
-    // ------------------------------------------------------------------ motherboards
-    public static final DeferredItem<Item> OFFICE_MOTHERBOARD = hardware("office_motherboard", Rarity.COMMON);
-    public static final DeferredItem<Item> GAMING_MOTHERBOARD = hardware("gaming_motherboard", Rarity.COMMON);
-    public static final DeferredItem<Item> WORKSTATION_MOTHERBOARD = hardware("workstation_motherboard", Rarity.UNCOMMON);
-    public static final DeferredItem<Item> MINING_MOTHERBOARD = hardware("mining_motherboard", Rarity.UNCOMMON);
-    public static final DeferredItem<Item> SERVER_MOTHERBOARD = hardware("server_motherboard", Rarity.RARE);
+    // ------------------------------------------------------------------ hardware (stats: data_maps/item/hardware.json)
+    /** All hardware items by id, in creative tab order. */
+    public static final Map<String, DeferredItem<Item>> HARDWARE = new LinkedHashMap<>();
 
-    // ------------------------------------------------------------------ CPUs
-    public static final DeferredItem<Item> PENTIUM_4 = hardware("pentium_4", Rarity.COMMON);
-    public static final DeferredItem<Item> AMD_FX_4300 = hardware("amd_fx_4300", Rarity.COMMON);
-    public static final DeferredItem<Item> CORE_I5_2500K = hardware("core_i5_2500k", Rarity.COMMON);
-    public static final DeferredItem<Item> RYZEN_5_3600 = hardware("ryzen_5_3600", Rarity.UNCOMMON);
-    public static final DeferredItem<Item> CORE_I9_9900K = hardware("core_i9_9900k", Rarity.UNCOMMON);
-    public static final DeferredItem<Item> RYZEN_9_7950X = hardware("ryzen_9_7950x", Rarity.RARE);
-    public static final DeferredItem<Item> EPYC_9654 = hardware("epyc_9654", Rarity.EPIC);
-
-    // ------------------------------------------------------------------ GPUs
-    public static final DeferredItem<Item> GEFORCE_GTX_460 = hardware("geforce_gtx_460", Rarity.COMMON);
-    public static final DeferredItem<Item> RADEON_HD_7970 = hardware("radeon_hd_7970", Rarity.COMMON);
-    public static final DeferredItem<Item> RADEON_RX_580 = hardware("radeon_rx_580", Rarity.UNCOMMON);
-    public static final DeferredItem<Item> GEFORCE_GTX_1080_TI = hardware("geforce_gtx_1080_ti", Rarity.UNCOMMON);
-    public static final DeferredItem<Item> GEFORCE_RTX_3090 = hardware("geforce_rtx_3090", Rarity.RARE);
-    public static final DeferredItem<Item> GEFORCE_RTX_4090 = hardware("geforce_rtx_4090", Rarity.EPIC);
-
-    // ------------------------------------------------------------------ PSUs
-    public static final DeferredItem<Item> PSU_300W = hardware("psu_300w", Rarity.COMMON);
-    public static final DeferredItem<Item> PSU_550W = hardware("psu_550w", Rarity.COMMON);
-    public static final DeferredItem<Item> PSU_850W = hardware("psu_850w", Rarity.UNCOMMON);
-    public static final DeferredItem<Item> PSU_1200W = hardware("psu_1200w", Rarity.UNCOMMON);
-    public static final DeferredItem<Item> PSU_2000W = hardware("psu_2000w", Rarity.RARE);
-    public static final DeferredItem<Item> PSU_3200W = hardware("psu_3200w", Rarity.EPIC);
-
-    // ------------------------------------------------------------------ storage
-    public static final DeferredItem<Item> HDD_500GB = hardware("hdd_500gb", Rarity.COMMON);
-    public static final DeferredItem<Item> SSD_1TB = hardware("ssd_1tb", Rarity.UNCOMMON);
-    public static final DeferredItem<Item> NVME_2TB = hardware("nvme_2tb", Rarity.RARE);
-    public static final DeferredItem<Item> ENTERPRISE_SSD_8TB = hardware("enterprise_ssd_8tb", Rarity.EPIC);
+    static {
+        // motherboards (socket + memory type are in the hardware data map)
+        hardware("office_motherboard", Rarity.COMMON);
+        hardware("am3_motherboard", Rarity.COMMON);
+        hardware("z77_motherboard", Rarity.COMMON);
+        hardware("workstation_motherboard", Rarity.UNCOMMON);
+        hardware("gaming_motherboard", Rarity.UNCOMMON);
+        hardware("mining_motherboard", Rarity.UNCOMMON);
+        hardware("x570_motherboard", Rarity.UNCOMMON);
+        hardware("epyc_sp3_motherboard", Rarity.RARE);
+        hardware("z790_motherboard", Rarity.RARE);
+        hardware("x670e_motherboard", Rarity.RARE);
+        hardware("server_motherboard", Rarity.EPIC);
+        hardware("xeon_quad_motherboard", Rarity.EPIC);
+        // CPUs
+        hardware("pentium_4", Rarity.COMMON);
+        hardware("core_2_quad_q6600", Rarity.COMMON);
+        hardware("amd_fx_4300", Rarity.COMMON);
+        hardware("amd_fx_8350", Rarity.COMMON);
+        hardware("core_i5_2500k", Rarity.COMMON);
+        hardware("core_i7_3770k", Rarity.COMMON);
+        hardware("xeon_e5_2690", Rarity.UNCOMMON);
+        hardware("core_i7_8700k", Rarity.UNCOMMON);
+        hardware("core_i9_9900k", Rarity.UNCOMMON);
+        hardware("ryzen_5_3600", Rarity.UNCOMMON);
+        hardware("ryzen_7_5800x3d", Rarity.UNCOMMON);
+        hardware("epyc_7742", Rarity.RARE);
+        hardware("core_i5_13600k", Rarity.RARE);
+        hardware("core_i9_13900k", Rarity.RARE);
+        hardware("ryzen_7_9800x3d", Rarity.RARE);
+        hardware("ryzen_9_7950x", Rarity.RARE);
+        hardware("epyc_9654", Rarity.EPIC);
+        hardware("xeon_platinum_8480", Rarity.EPIC);
+        // GPUs
+        hardware("geforce_gtx_460", Rarity.COMMON);
+        hardware("radeon_hd_7970", Rarity.COMMON);
+        hardware("geforce_gtx_970", Rarity.COMMON);
+        hardware("radeon_rx_580", Rarity.UNCOMMON);
+        hardware("geforce_gtx_1080_ti", Rarity.UNCOMMON);
+        hardware("geforce_rtx_2080_ti", Rarity.UNCOMMON);
+        hardware("radeon_rx_6800_xt", Rarity.RARE);
+        hardware("geforce_rtx_3090", Rarity.RARE);
+        hardware("radeon_rx_7900_xtx", Rarity.RARE);
+        hardware("geforce_rtx_4090", Rarity.EPIC);
+        hardware("geforce_rtx_5090", Rarity.EPIC);
+        hardware("nvidia_h100", Rarity.EPIC);
+        // memory
+        hardware("ddr2_1gb", Rarity.COMMON);
+        hardware("ddr2_2gb", Rarity.COMMON);
+        hardware("ddr3_4gb", Rarity.COMMON);
+        hardware("ddr3_8gb", Rarity.COMMON);
+        hardware("ddr3_32gb_ecc", Rarity.UNCOMMON);
+        hardware("ddr4_8gb", Rarity.UNCOMMON);
+        hardware("ddr4_16gb", Rarity.UNCOMMON);
+        hardware("ddr4_64gb_ecc", Rarity.RARE);
+        hardware("ddr5_16gb", Rarity.RARE);
+        hardware("ddr5_32gb", Rarity.RARE);
+        hardware("ddr5_128gb_ecc", Rarity.EPIC);
+        // PSUs
+        hardware("psu_300w", Rarity.COMMON);
+        hardware("psu_550w", Rarity.COMMON);
+        hardware("psu_850w", Rarity.UNCOMMON);
+        hardware("psu_1200w", Rarity.UNCOMMON);
+        hardware("psu_2000w", Rarity.RARE);
+        hardware("psu_3200w", Rarity.EPIC);
+        // storage
+        hardware("hdd_500gb", Rarity.COMMON);
+        hardware("ssd_1tb", Rarity.UNCOMMON);
+        hardware("nvme_2tb", Rarity.RARE);
+        hardware("enterprise_ssd_8tb", Rarity.EPIC);
+    }
 
     private ModItems() {
     }
@@ -102,8 +141,15 @@ public final class ModItems {
         return add(ITEMS.registerSimpleItem(name, p -> p.rarity(rarity).stacksTo(stackSize)));
     }
 
-    private static DeferredItem<Item> hardware(String name, Rarity rarity) {
-        return simple(name, rarity, 16);
+    private static void hardware(String name, Rarity rarity) {
+        HARDWARE.put(name, simple(name, rarity, 16));
+    }
+
+    /** A hardware item by id, e.g. {@code hardware("epyc_9654")}. */
+    public static Item hardware(String name) {
+        DeferredItem<Item> item = HARDWARE.get(name);
+        if (item == null) throw new IllegalArgumentException("Unknown hardware item " + name);
+        return item.get();
     }
 
     private static <T extends Item> DeferredItem<T> add(DeferredItem<T> item) {

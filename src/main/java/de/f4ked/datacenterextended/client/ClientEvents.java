@@ -46,7 +46,18 @@ public final class ClientEvents {
         if (hw != null) {
             tooltip.add(Component.translatable(hw.type().translationKey()).withStyle(ChatFormatting.GOLD));
             switch (hw.type()) {
-                case MOTHERBOARD -> tooltip.add(stat("tooltip.datacenterextended.slots", hw.cpuSockets(), hw.gpuSlots(), hw.storageSlots()));
+                case MOTHERBOARD -> {
+                    tooltip.add(HardwareText.boardRequirements(hw).withStyle(ChatFormatting.GRAY));
+                    tooltip.add(stat("tooltip.datacenterextended.slots", hw.cpuSockets(), hw.gpuSlots(), hw.memorySlots(), hw.storageSlots()));
+                }
+                case CPU -> {
+                    if (!hw.socket().isEmpty()) tooltip.add(stat("tooltip.datacenterextended.socket", HardwareText.socket(hw.socket())));
+                    if (hw.recommendedMemory() > 0) {
+                        tooltip.add(stat("tooltip.datacenterextended.recommended_memory", HardwareText.gb(hw.recommendedMemory())));
+                    }
+                }
+                case MEMORY -> tooltip.add(stat("tooltip.datacenterextended.memory_module", HardwareText.gb(hw.memory()),
+                        hw.memoryType().isEmpty() ? "RAM" : HardwareText.memoryType(hw.memoryType()), hw.speed()));
                 case PSU -> {
                     tooltip.add(stat("tooltip.datacenterextended.capacity", hw.power()));
                     tooltip.add(stat("tooltip.datacenterextended.efficiency", Math.round(hw.efficiency() * 100)));
@@ -65,6 +76,9 @@ public final class ClientEvents {
             }
             if (hw.type() != HardwareType.PSU && hw.power() > 0) {
                 tooltip.add(stat("tooltip.datacenterextended.power", hw.power()));
+            }
+            if (hw.type() == HardwareType.PSU) {
+                tooltip.add(stat("tooltip.datacenterextended.psu_fe", DataUnits.formatNumber(ServerSpec.energyPerTick(hw.power(), hw.efficiency()))));
             }
         }
 
@@ -88,7 +102,9 @@ public final class ClientEvents {
         }
         tooltip.add(stat("tooltip.datacenterextended.compute", DataUnits.formatBytesPerSecond(spec.computeBps())));
         tooltip.add(stat("tooltip.datacenterextended.hashrate", DataUnits.formatHashrate(spec.hashesPerSecond())));
-        tooltip.add(stat("gui.datacenterextended.power", spec.watts(), spec.psuCapacity()));
+        HardwareStats board = ServerLayout.statsIn(parts, ServerLayout.SLOT_MOTHERBOARD, HardwareType.MOTHERBOARD);
+        tooltip.add(HardwareText.memoryLine(spec, board != null ? board.memoryType() : "").withStyle(ChatFormatting.GRAY));
+        tooltip.add(stat("gui.datacenterextended.power_fe", spec.watts(), spec.psuCapacity(), spec.energyPerTick()));
         if (spec.storageGb() > 0) {
             tooltip.add(stat("tooltip.datacenterextended.storage", DataUnits.formatBytes(spec.storageGb() * DataUnits.GB)));
         }

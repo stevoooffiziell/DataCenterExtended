@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/gold",
+    "S": "datacenterextended:silicon",
+    "$": "datacenterextended:credit_bundle",
+    "X": "datacenterextended:xeon_e5_2690"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:core_i7_8700k"
+  }
+}

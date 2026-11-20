@@ -4,7 +4,7 @@
   "key": {
     "M": "#c:gems/diamond",
     "S": "#c:dusts/redstone",
-    "$": "datacenterextended:credit_crate",
+    "$": "datacenterextended:credit_bundle",
     "X": "datacenterextended:psu_1200w"
   },
   "pattern": [

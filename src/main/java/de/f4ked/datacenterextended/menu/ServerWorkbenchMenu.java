@@ -1,6 +1,7 @@
 package de.f4ked.datacenterextended.menu;
 
 import de.f4ked.datacenterextended.hardware.HardwareStats;
+import de.f4ked.datacenterextended.hardware.HardwareType;
 import de.f4ked.datacenterextended.hardware.ServerLayout;
 import de.f4ked.datacenterextended.hardware.ServerSpec;
 import de.f4ked.datacenterextended.registry.ModBlocks;
@@ -17,6 +18,8 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,12 +30,14 @@ import java.util.List;
 public class ServerWorkbenchMenu extends AbstractContainerMenu {
     // layout (shared with the screen)
     public static final int IMAGE_WIDTH = 176;
-    public static final int IMAGE_HEIGHT = 222;
+    public static final int IMAGE_HEIGHT = 254;
     public static final int SERVER_X = 8, SERVER_Y = 40;
     public static final int BOARD_X = 34;
     public static final int PARTS_X = 60;
-    public static final int ROW1_Y = 18, ROW2_Y = 40, ROW3_Y = 62;
-    public static final int INVENTORY_Y = 140;
+    public static final int ROW1_Y = 18, ROW2_Y = 40, ROW3_Y = 62, ROW4_Y = 84;
+    public static final int MEMORY_X = 8;
+    public static final int INFO_Y = 106, INFO_H = 52;
+    public static final int INVENTORY_Y = 172;
 
     private static final int SERVER_SLOT = 0;
     private static final int PARTS_START = 1;
@@ -89,6 +94,9 @@ public class ServerWorkbenchMenu extends AbstractContainerMenu {
         for (int i = 0; i < HardwareStats.MAX_STORAGE_SLOTS; i++) {
             addSlot(new PartSlot(ServerLayout.SLOT_STORAGE_START + i, PARTS_X + i * 18, ROW3_Y));
         }
+        for (int i = 0; i < HardwareStats.MAX_MEMORY_SLOTS; i++) {
+            addSlot(new PartSlot(ServerLayout.SLOT_MEMORY_START + i, MEMORY_X + i * 18, ROW4_Y));
+        }
         addStandardInventorySlots(inventory, 8, INVENTORY_Y);
     }
 
@@ -140,13 +148,32 @@ public class ServerWorkbenchMenu extends AbstractContainerMenu {
 
     /** Live stats of the parts currently in the slots (client side uses the synced slot contents). */
     public ServerSpec spec() {
+        return ServerSpec.of(parts());
+    }
+
+    private List<ItemStack> parts() {
         List<ItemStack> parts = new ArrayList<>(ServerLayout.SIZE);
         for (int i = 0; i < ServerLayout.SIZE; i++) parts.add(partsContainer.getItem(i));
-        return ServerSpec.of(parts);
+        return parts;
+    }
+
+    public ItemStack motherboard() {
+        return partsContainer.getItem(ServerLayout.SLOT_MOTHERBOARD);
+    }
+
+    /** Stats of the inserted motherboard, or null. */
+    public @Nullable HardwareStats boardStats() {
+        return ServerLayout.statsIn(parts(), ServerLayout.SLOT_MOTHERBOARD, HardwareType.MOTHERBOARD);
     }
 
     public boolean isPartSlotEnabled(int partIndex) {
-        return hasServer() && ServerLayout.isSlotEnabled(partIndex, partsContainer.getItem(ServerLayout.SLOT_MOTHERBOARD));
+        return hasServer() && ServerLayout.isSlotEnabled(partIndex, motherboard());
+    }
+
+    /** False if the installed part does not fit the motherboard (wrong socket / memory type). */
+    public boolean isPartCompatible(int partIndex) {
+        ItemStack part = partsContainer.getItem(partIndex);
+        return part.isEmpty() || ServerLayout.isCompatible(partIndex, part, motherboard());
     }
 
     @Override
@@ -197,7 +224,9 @@ public class ServerWorkbenchMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return hasServer() && ServerLayout.isValidForSlot(partIndex, stack) && isPartSlotEnabled(partIndex);
+            return hasServer() && ServerLayout.isValidForSlot(partIndex, stack) && isPartSlotEnabled(partIndex)
+                    && ServerLayout.isCompatible(partIndex, stack, motherboard())
+                    && ServerLayout.fitsMemoryLimit(parts(), partIndex, stack);
         }
 
         @Override

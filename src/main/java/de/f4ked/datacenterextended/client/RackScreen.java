@@ -45,6 +45,10 @@ public class RackScreen extends AbstractContainerScreen<RackMenu> {
             g.fill(x + slot.x, y + slot.y + 18, x + slot.x + 16, y + slot.y + 20, color);
         }
 
+        if (energyRequired()) {
+            long cap = menu.energyCapacity();
+            GuiDraw.verticalBar(g, x + ENERGY_X, y + ENERGY_Y, ENERGY_W, ENERGY_H, cap > 0 ? (double) menu.energy() / cap : 0, GuiDraw.ENERGY);
+        }
         GuiDraw.monitor(g, x + INFO_X, y + INFO_Y, INFO_W, INFO_H);
         long goal = menu.goal();
         double fraction = goal > 0 ? (double) menu.progress() / goal : 0;
@@ -85,11 +89,10 @@ public class RackScreen extends AbstractContainerScreen<RackMenu> {
         g.text(font, net, tx, ty + 18, netColor, false);
 
         // 4: power (+ FE)
-        g.text(font, Component.translatable("gui.datacenterextended.rack.power", menu.watts()), tx, ty + 27, GuiDraw.TEXT_INFO, false);
-        if (Config.safe(Config.REQUIRE_ENERGY, false) && menu.energyCapacity() > 0) {
-            String fe = (100 * menu.energy() / menu.energyCapacity()) + "% FE";
-            g.text(font, fe, INFO_X + INFO_W - 4 - font.width(fe), ty + 27, GuiDraw.TEXT_INFO, false);
-        }
+        Component power = energyRequired()
+                ? Component.translatable("gui.datacenterextended.rack.power_fe", menu.watts(), DataUnits.formatNumber(menu.fePerTick()))
+                : Component.translatable("gui.datacenterextended.rack.power", menu.watts());
+        g.text(font, power, tx, ty + 27, status == RackStatus.NO_ENERGY ? GuiDraw.TEXT_ERR : GuiDraw.TEXT_INFO, false);
 
         // 5: progress / ETA (+ hosting storage bonus)
         long goal = menu.goal();
@@ -128,9 +131,22 @@ public class RackScreen extends AbstractContainerScreen<RackMenu> {
         return Component.translatable(ServerProblem.byId(code - 2).translationKey()).withStyle(ChatFormatting.RED);
     }
 
+    private static boolean energyRequired() {
+        return Config.safe(Config.REQUIRE_ENERGY, true);
+    }
+
     @Override
     protected void extractTooltip(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         super.extractTooltip(g, mouseX, mouseY);
+        int gx = leftPos + ENERGY_X, gy = topPos + ENERGY_Y;
+        if (energyRequired() && mouseX >= gx - 1 && mouseX <= gx + ENERGY_W && mouseY >= gy - 1 && mouseY <= gy + ENERGY_H) {
+            g.setComponentTooltipForNextFrame(font, List.of(
+                    Component.translatable("gui.datacenterextended.energy.stored",
+                            DataUnits.formatNumber(menu.energy()), DataUnits.formatNumber(menu.energyCapacity())),
+                    Component.translatable("gui.datacenterextended.energy.usage", DataUnits.formatNumber(menu.fePerTick()))
+                            .withStyle(ChatFormatting.GRAY)), mouseX, mouseY);
+            return;
+        }
         Slot slot = hoveredSlot;
         if (slot == null || slot.hasItem() || !menu.getCarried().isEmpty() || slot.index >= menu.slots.size() - 36) return;
         String key;

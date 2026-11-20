@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "#c:storage_blocks/redstone",
+    "M": "#c:ingots/gold",
     "S": "#c:ingots/copper",
     "$": "datacenterextended:credit_bundle",
-    "X": "datacenterextended:radeon_hd_7970"
+    "X": "datacenterextended:geforce_gtx_970"
   },
   "pattern": [
     "MSM",

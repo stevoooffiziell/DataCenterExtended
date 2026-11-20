@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/netherite",
+    "S": "datacenterextended:silicon",
+    "$": "datacenterextended:credit_crate",
+    "X": "datacenterextended:ddr5_32gb"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:ddr5_128gb_ecc"
+  }
+}

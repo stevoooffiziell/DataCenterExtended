@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/iron",
+    "S": "datacenterextended:silicon",
+    "$": "#c:dusts/redstone",
+    "X": "datacenterextended:circuit_board"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:ddr2_1gb"
+  }
+}

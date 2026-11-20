@@ -103,21 +103,21 @@ def tex_cpu(brand, tier):
     for i in range(3, 13, 2):
         for (x, y) in ((i, 1), (i, 14), (1, i), (14, i)):
             c.set(x, y, pin)
-    c.bevel(2, 2, 13, 13, 0x2E7D32 if brand != "epyc" else 0x1B3B2F)  # substrate
+    c.bevel(2, 2, 13, 13, 0x1B3B2F if brand in ("epyc", "xeon") else 0x2E7D32)  # substrate
     c.bevel(4, 4, 11, 11, 0xB8BCC2)  # heat spreader
-    logo = {"intel": 0x0071C5, "amd": 0xED1C24, "ryzen": 0xF26522, "epyc": 0x00A39A}[brand]
+    logo = {"intel": 0x0071C5, "amd": 0xED1C24, "ryzen": 0xF26522, "epyc": 0x00A39A, "xeon": 0x5E8EDB}[brand]
     c.rect(5, 5, 10, 6, logo)
     c.rect(5, 7, 7, 7, shade(logo, 0.7))
     # tier dots
     for t in range(tier):
-        c.set(5 + t, 9 if t < 6 else 10, 0xFFD54F)
+        c.set(5 + t % 6, 9 if t < 6 else 10, 0xFFD54F)
     return c
 
 
 def tex_gpu(brand, tier):
     c = Canvas()
-    shroud = {"nvidia": 0x2B2B2B, "amd": 0x3A1010}[brand]
-    accent = {"nvidia": 0x76B900, "amd": 0xED1C24}[brand]
+    shroud = {"nvidia": 0x2B2B2B, "amd": 0x3A1010, "nvidia_dc": 0xB8A04A}[brand]
+    accent = {"nvidia": 0x76B900, "amd": 0xED1C24, "nvidia_dc": 0x76B900}[brand]
     c.rect(0, 3, 1, 12, 0xA8ADB3)  # slot bracket
     c.bevel(2, 3, 15, 11, shroud)
     c.rect(2, 12, 15, 12, 0x1E5631)  # pcb edge
@@ -273,6 +273,30 @@ def tex_storage(kind):
         c.rect(4, 4, 10, 4, 0x00A39A)
         for y in range(8, 13, 2):
             c.rect(3, y, 12, y, 0x607D8B)
+    return c
+
+
+MEMORY_LOOK = {  # pcb, heat spreader (None = bare chips)
+    "ddr2": (0x1B5E20, None), "ddr3": (0x1B5E20, 0x37474F), "ddr4": (0x1B5E20, 0x263238), "ddr5": (0x0D47A1, 0x212121),
+}
+
+
+def tex_memory(kind, tier, ecc):
+    """A DIMM: PCB with gold contacts, chips or a heat spreader, an accent stripe per tier."""
+    c = Canvas()
+    pcb, spreader = MEMORY_LOOK[kind]
+    c.bevel(0, 4, 15, 11, pcb)
+    for x in range(1, 15):
+        if x != 7:
+            c.set(x, 11, 0xC9A227)  # contacts, with the key notch
+    if spreader is None:
+        for x in range(1, 15, 3):
+            c.rect(x, 6, x + 1, 9, 0x151515)
+    else:
+        c.bevel(0, 4, 15, 9, spreader)
+        c.rect(2, 6, 2 + min(11, 2 * tier), 6, {"ddr3": 0x29B6F6, "ddr4": 0xE53935, "ddr5": 0xFFFFFF}[kind])
+    if ecc:
+        c.rect(11, 7, 14, 8, 0x00A39A)  # ECC / registered buffer chip
     return c
 
 
@@ -434,46 +458,86 @@ def tex_terminal_side():
 
 
 # ============================================================ content definition
-CPUS = [  # id, name, brand, tier, compute KB/s, watts
-    ("pentium_4", "Intel Pentium 4", "intel", 1, 4, 85),
-    ("amd_fx_4300", "AMD FX-4300", "amd", 2, 10, 95),
-    ("core_i5_2500k", "Intel Core i5-2500K", "intel", 3, 24, 95),
-    ("ryzen_5_3600", "AMD Ryzen 5 3600", "ryzen", 4, 64, 65),
-    ("core_i9_9900k", "Intel Core i9-9900K", "intel", 5, 128, 95),
-    ("ryzen_9_7950x", "AMD Ryzen 9 7950X", "ryzen", 6, 512, 170),
-    ("epyc_9654", "AMD EPYC 9654", "epyc", 7, 2048, 360),
+# rarity: C common, U uncommon, R rare, E epic (must match ModItems)
+CPUS = [  # id, name, brand, tier, compute KB/s, watts, socket, recommended RAM GB, rarity
+    ("pentium_4", "Intel Pentium 4 HT", "intel", 1, 4, 85, "lga775", 1, "C"),
+    ("core_2_quad_q6600", "Intel Core 2 Quad Q6600", "intel", 1, 8, 105, "lga775", 4, "C"),
+    ("amd_fx_4300", "AMD FX-4300", "amd", 2, 10, 95, "am3plus", 4, "C"),
+    ("amd_fx_8350", "AMD FX-8350", "amd", 2, 18, 125, "am3plus", 8, "C"),
+    ("core_i5_2500k", "Intel Core i5-2500K", "intel", 3, 24, 95, "lga1155", 8, "C"),
+    ("core_i7_3770k", "Intel Core i7-3770K", "intel", 3, 32, 77, "lga1155", 16, "C"),
+    ("xeon_e5_2690", "Intel Xeon E5-2690", "xeon", 3, 40, 135, "lga2011", 32, "U"),
+    ("core_i7_8700k", "Intel Core i7-8700K", "intel", 4, 72, 95, "lga1151", 16, "U"),
+    ("core_i9_9900k", "Intel Core i9-9900K", "intel", 5, 128, 95, "lga1151", 32, "U"),
+    ("ryzen_5_3600", "AMD Ryzen 5 3600", "ryzen", 4, 64, 65, "am4", 16, "U"),
+    ("ryzen_7_5800x3d", "AMD Ryzen 7 5800X3D", "ryzen", 5, 160, 105, "am4", 32, "U"),
+    ("epyc_7742", "AMD EPYC 7742", "epyc", 6, 1024, 225, "sp3", 256, "R"),
+    ("core_i5_13600k", "Intel Core i5-13600K", "intel", 5, 220, 181, "lga1700", 32, "R"),
+    ("core_i9_13900k", "Intel Core i9-13900K", "intel", 6, 400, 253, "lga1700", 64, "R"),
+    ("ryzen_7_9800x3d", "AMD Ryzen 7 9800X3D", "ryzen", 6, 360, 120, "am5", 32, "R"),
+    ("ryzen_9_7950x", "AMD Ryzen 9 7950X", "ryzen", 6, 512, 170, "am5", 64, "R"),
+    ("epyc_9654", "AMD EPYC 9654", "epyc", 7, 2048, 360, "sp5", 384, "E"),
+    ("xeon_platinum_8480", "Intel Xeon Platinum 8480+", "xeon", 7, 1536, 350, "lga4677", 256, "E"),
 ]
-GPUS = [  # id, name, brand, tier, MH/s, watts
-    ("geforce_gtx_460", "NVIDIA GeForce GTX 460", "nvidia", 1, 1.0, 160),
-    ("radeon_hd_7970", "AMD Radeon HD 7970", "amd", 2, 2.5, 250),
-    ("radeon_rx_580", "AMD Radeon RX 580", "amd", 3, 4.0, 185),
-    ("geforce_gtx_1080_ti", "NVIDIA GeForce GTX 1080 Ti", "nvidia", 4, 8.0, 250),
-    ("geforce_rtx_3090", "NVIDIA GeForce RTX 3090", "nvidia", 5, 20.0, 350),
-    ("geforce_rtx_4090", "NVIDIA GeForce RTX 4090", "nvidia", 6, 40.0, 450),
+GPUS = [  # id, name, brand, tier, MH/s, watts, rarity
+    ("geforce_gtx_460", "NVIDIA GeForce GTX 460", "nvidia", 1, 1.0, 160, "C"),
+    ("radeon_hd_7970", "AMD Radeon HD 7970", "amd", 2, 2.5, 250, "C"),
+    ("geforce_gtx_970", "NVIDIA GeForce GTX 970", "nvidia", 2, 3.0, 145, "C"),
+    ("radeon_rx_580", "AMD Radeon RX 580", "amd", 3, 4.0, 185, "U"),
+    ("geforce_gtx_1080_ti", "NVIDIA GeForce GTX 1080 Ti", "nvidia", 4, 8.0, 250, "U"),
+    ("geforce_rtx_2080_ti", "NVIDIA GeForce RTX 2080 Ti", "nvidia", 4, 12.0, 250, "U"),
+    ("radeon_rx_6800_xt", "AMD Radeon RX 6800 XT", "amd", 5, 14.0, 300, "R"),
+    ("geforce_rtx_3090", "NVIDIA GeForce RTX 3090", "nvidia", 5, 20.0, 350, "R"),
+    ("radeon_rx_7900_xtx", "AMD Radeon RX 7900 XTX", "amd", 6, 28.0, 355, "R"),
+    ("geforce_rtx_4090", "NVIDIA GeForce RTX 4090", "nvidia", 6, 40.0, 450, "E"),
+    ("geforce_rtx_5090", "NVIDIA GeForce RTX 5090", "nvidia", 7, 60.0, 575, "E"),
+    ("nvidia_h100", "NVIDIA H100 PCIe", "nvidia_dc", 7, 100.0, 700, "E"),
 ]
-BOARDS = [  # id, name, pcb, accent, cpu, gpu, watts, storage bays
-    ("office_motherboard", "Office Motherboard", 0x2E7D32, 0x1B1B1B, 1, 1, 15, 1),
-    ("gaming_motherboard", "Gaming Motherboard", 0x212121, 0xD32F2F, 1, 2, 25, 2),
-    ("workstation_motherboard", "Workstation Motherboard", 0x0D47A1, 0xE0E0E0, 2, 3, 40, 4),
-    ("mining_motherboard", "Mining Motherboard", 0x4E342E, 0xF7931A, 1, 6, 35, 1),
-    ("server_motherboard", "Server Motherboard", 0x1B3B2F, 0x00A39A, 4, 4, 60, 4),
+BOARDS = [  # id, name, pcb, accent, socket, memory type, cpu, gpu, storage, memory slots, max RAM GB, watts, rarity
+    ("office_motherboard", "Office Motherboard (LGA775)", 0x2E7D32, 0x1B1B1B, "lga775", "ddr2", 1, 1, 1, 2, 8, 15, "C"),
+    ("am3_motherboard", "970 Motherboard (AM3+)", 0x3E2723, 0xED1C24, "am3plus", "ddr3", 1, 2, 2, 4, 32, 20, "C"),
+    ("z77_motherboard", "Z77 Motherboard (LGA1155)", 0x263238, 0x0071C5, "lga1155", "ddr3", 1, 2, 2, 4, 32, 20, "C"),
+    ("workstation_motherboard", "Dual-Xeon Workstation Motherboard (LGA2011)", 0x0D47A1, 0xE0E0E0, "lga2011", "ddr3", 2, 3, 4, 8, 256, 45, "U"),
+    ("gaming_motherboard", "Z390 Gaming Motherboard (LGA1151)", 0x212121, 0xD32F2F, "lga1151", "ddr4", 1, 2, 3, 4, 128, 25, "U"),
+    ("mining_motherboard", "Mining Motherboard (LGA1151)", 0x4E342E, 0xF7931A, "lga1151", "ddr4", 1, 6, 1, 2, 32, 35, "U"),
+    ("x570_motherboard", "X570 Motherboard (AM4)", 0x1A1A1A, 0xF26522, "am4", "ddr4", 1, 3, 4, 4, 128, 30, "U"),
+    ("epyc_sp3_motherboard", "EPYC Server Motherboard (SP3)", 0x1B3B2F, 0x4DB6AC, "sp3", "ddr4", 2, 4, 4, 8, 2048, 60, "R"),
+    ("z790_motherboard", "Z790 Motherboard (LGA1700)", 0x111827, 0x29B6F6, "lga1700", "ddr5", 1, 3, 4, 4, 192, 35, "R"),
+    ("x670e_motherboard", "X670E Motherboard (AM5)", 0x1C1C1C, 0xFF7043, "am5", "ddr5", 1, 3, 4, 4, 192, 35, "R"),
+    ("server_motherboard", "EPYC Server Motherboard (SP5)", 0x1B3B2F, 0x00A39A, "sp5", "ddr5", 2, 4, 4, 8, 3072, 70, "E"),
+    ("xeon_quad_motherboard", "Quad-Xeon Server Motherboard (LGA4677)", 0x0B2545, 0x5E8EDB, "lga4677", "ddr5", 4, 4, 4, 8, 4096, 90, "E"),
 ]
-STORAGE = [  # id, name, texture kind, GB, watts
-    ("hdd_500gb", "500 GB Hard Drive", "hdd", 500, 8),
-    ("ssd_1tb", "1 TB SATA SSD", "ssd", 1024, 5),
-    ("nvme_2tb", "2 TB NVMe SSD", "nvme", 2048, 7),
-    ("enterprise_ssd_8tb", "8 TB Enterprise SSD", "enterprise", 8192, 12),
+MEMORY = [  # id, name, type, GB, MT/s, watts, ecc, rarity
+    ("ddr2_1gb", "1 GB DDR2-667", "ddr2", 1, 667, 2, False, "C"),
+    ("ddr2_2gb", "2 GB DDR2-800", "ddr2", 2, 800, 2, False, "C"),
+    ("ddr3_4gb", "4 GB DDR3-1333", "ddr3", 4, 1333, 3, False, "C"),
+    ("ddr3_8gb", "8 GB DDR3-1600", "ddr3", 8, 1600, 3, False, "C"),
+    ("ddr3_32gb_ecc", "32 GB DDR3-1600 ECC RDIMM", "ddr3", 32, 1600, 5, True, "U"),
+    ("ddr4_8gb", "8 GB DDR4-2400", "ddr4", 8, 2400, 3, False, "U"),
+    ("ddr4_16gb", "16 GB DDR4-3200", "ddr4", 16, 3200, 4, False, "U"),
+    ("ddr4_64gb_ecc", "64 GB DDR4-3200 ECC RDIMM", "ddr4", 64, 3200, 6, True, "R"),
+    ("ddr5_16gb", "16 GB DDR5-4800", "ddr5", 16, 4800, 4, False, "R"),
+    ("ddr5_32gb", "32 GB DDR5-6000", "ddr5", 32, 6000, 5, False, "R"),
+    ("ddr5_128gb_ecc", "128 GB DDR5-4800 ECC RDIMM", "ddr5", 128, 4800, 8, True, "E"),
+]
+SOCKETS = {"lga775": "LGA775", "am3plus": "AM3+", "lga1155": "LGA1155", "lga2011": "LGA2011", "lga1151": "LGA1151",
+           "am4": "AM4", "sp3": "SP3", "lga1700": "LGA1700", "am5": "AM5", "sp5": "SP5", "lga4677": "LGA4677"}
+STORAGE = [  # id, name, texture kind, GB, watts, rarity
+    ("hdd_500gb", "500 GB Hard Drive", "hdd", 500, 8, "C"),
+    ("ssd_1tb", "1 TB SATA SSD", "ssd", 1024, 5, "U"),
+    ("nvme_2tb", "2 TB NVMe SSD", "nvme", 2048, 7, "R"),
+    ("enterprise_ssd_8tb", "8 TB Enterprise SSD", "enterprise", 8192, 12, "E"),
 ]
 RACK_KINDS = [("mining", "Mining Rack"), ("hosting", "Hosting Rack"), ("fabricating", "Fabricating Rack")]
 RACK_PARTS = ["single", "bottom", "middle", "top"]
 CABLES = [("coax", "Coax Cable"), ("cat5e", "Cat5e Cable"), ("cat6a", "Cat6a Cable"), ("fiber", "Fiber Cable")]
-PSUS = [  # id, name, label colour, watts, efficiency
-    ("psu_300w", "300W Power Supply", 0xE0E0E0, 300, 0.75),
-    ("psu_550w", "550W Power Supply (80+ Bronze)", 0xCD7F32, 550, 0.82),
-    ("psu_850w", "850W Power Supply (80+ Gold)", 0xFFC107, 850, 0.87),
-    ("psu_1200w", "1200W Power Supply (80+ Platinum)", 0xB0BEC5, 1200, 0.90),
-    ("psu_2000w", "2000W Power Supply (80+ Titanium)", 0x78909C, 2000, 0.92),
-    ("psu_3200w", "3200W Industrial Power Supply", 0x7E57C2, 3200, 0.94),
+PSUS = [  # id, name, label colour, watts, efficiency, rarity
+    ("psu_300w", "300W Power Supply", 0xE0E0E0, 300, 0.75, "C"),
+    ("psu_550w", "550W Power Supply (80+ Bronze)", 0xCD7F32, 550, 0.82, "C"),
+    ("psu_850w", "850W Power Supply (80+ Gold)", 0xFFC107, 850, 0.87, "U"),
+    ("psu_1200w", "1200W Power Supply (80+ Platinum)", 0xB0BEC5, 1200, 0.90, "U"),
+    ("psu_2000w", "2000W Power Supply (80+ Titanium)", 0x78909C, 2000, 0.92, "R"),
+    ("psu_3200w", "3200W Industrial Power Supply", 0x7E57C2, 3200, 0.94, "E"),
 ]
 
 ITEM_TEXTURES = {
@@ -491,6 +555,8 @@ for (i, n, lab, *_r) in PSUS:
     ITEM_TEXTURES[i] = tex_psu(lab)
 for (i, n, kind, *_r) in STORAGE:
     ITEM_TEXTURES[i] = tex_storage(kind)
+for (i, n, kind, gb, mts, w, ecc, rar) in MEMORY:
+    ITEM_TEXTURES[i] = tex_memory(kind, 1 + "CURE".index(rar) * 2 + (gb >= 16), ecc)
 
 # ============================================================ assets
 for name, canvas in ITEM_TEXTURES.items():
@@ -549,14 +615,18 @@ tex_server_plate(False).save(BLOCK_TEX("rack_server"))
 tex_server_plate(True).save(BLOCK_TEX("rack_server_on"))
 
 for i in range(4):
-    # bay i spans texture rows 4i+1..4i+3 -> model y 12-4i .. 15-4i; auto-UV picks the matching band
+    # bay i spans texture rows 4i+1..4i+3 -> model y 12-4i .. 15-4i
+    # explicit UVs: the auto-UV of an element sticking out of the block reaches outside the 16x16 texture
     y0, y1 = 12 - 4 * i, 15 - 4 * i
+    v0, v1 = 1 + 4 * i, 4 + 4 * i  # texture rows of bay i
+    uvs = {"north": [2, v0, 14, v1], "east": [2, v0, 3, v1], "west": [2, v0, 3, v1],
+           "up": [2, v0, 14, v0 + 1], "down": [2, v1 - 1, 14, v1]}
     for on in (False, True):
         tex = f"{MOD}:block/rack_server" + ("_on" if on else "")
         write_json(BLOCK_MODEL(f"rack_server_{i}" + ("_on" if on else "")), {
             "textures": {"plate": tex, "particle": tex},
             "elements": [{"from": [2, y0, -0.5], "to": [14, y1, 0.5],
-                          "faces": {f: {"texture": "#plate"} for f in ("north", "east", "west", "up", "down")}}]})
+                          "faces": {f: {"texture": "#plate", "uv": uv} for f, uv in uvs.items()}}]})
 
 for kind, _name in RACK_KINDS:
     rid = f"{kind}_rack"
@@ -622,12 +692,17 @@ lang = {
     "problem.datacenterextended.none": "● Running",
     "problem.datacenterextended.no_motherboard": "✖ No motherboard",
     "problem.datacenterextended.no_psu": "✖ No power supply",
+    "problem.datacenterextended.no_cpu": "✖ No CPU",
+    "problem.datacenterextended.incompatible_cpu": "✖ CPU doesn't fit the socket",
+    "problem.datacenterextended.incompatible_memory": "✖ Wrong memory type",
+    "problem.datacenterextended.no_memory": "✖ No memory (RAM)",
     "problem.datacenterextended.psu_overloaded": "✖ PSU overloaded",
     "problem.datacenterextended.no_compute": "✖ No compute (needs CPUs)",
     "problem.datacenterextended.no_hashrate": "✖ No hashrate (needs GPUs)",
     "problem.datacenterextended.no_energy": "✖ Not enough FE",
     "gui.datacenterextended.performance": "CPU %s · GPU %s",
-    "gui.datacenterextended.power": "Power %s W / %s W",
+    "gui.datacenterextended.power_fe": "Power %s W / %s W · %s FE/t",
+    "gui.datacenterextended.memory": "RAM %s / %s · %s · ×%s",
     "gui.datacenterextended.storage": "Storage %s",
     "gui.datacenterextended.workbench.insert": "Insert a server to assemble it",
     "gui.datacenterextended.workbench.boots": "● Boots",
@@ -638,6 +713,9 @@ lang = {
     "gui.datacenterextended.rack.no_network": "No data cable connected",
     "gui.datacenterextended.rack.network": "Net ↓%s ↑%s (%s)",
     "gui.datacenterextended.rack.power": "Power %s W",
+    "gui.datacenterextended.rack.power_fe": "Power %s W · %s FE/t",
+    "gui.datacenterextended.energy.stored": "%s / %s FE",
+    "gui.datacenterextended.energy.usage": "Using %s FE/t",
     "gui.datacenterextended.next_bitcoin": "Next Bitcoin in %s",
     "gui.datacenterextended.next_credit_bonus": "Next credit in %s (+%s%%)",
     "gui.datacenterextended.fabricating": "%s / %s · %s",
@@ -646,17 +724,26 @@ lang = {
     "gui.datacenterextended.slot.target": "Item to fabricate (not consumed)",
     "gui.datacenterextended.slot.output": "Output",
     "gui.datacenterextended.slot.locked": "Not supported by this motherboard",
+    "gui.datacenterextended.slot.incompatible": "Doesn't fit this motherboard",
+    "gui.datacenterextended.slot.cpu": "%s · Socket %s",
+    "gui.datacenterextended.slot.memory": "%s · %s, up to %s",
     "hardware.datacenterextended.type.motherboard": "Motherboard",
     "hardware.datacenterextended.type.cpu": "CPU",
     "hardware.datacenterextended.type.gpu": "Graphics Card",
     "hardware.datacenterextended.type.psu": "Power Supply",
     "hardware.datacenterextended.type.storage": "Storage",
+    "hardware.datacenterextended.type.memory": "Memory",
     "tooltip.datacenterextended.compute": "Compute: %s",
     "tooltip.datacenterextended.hashrate": "Hashrate: %s",
     "tooltip.datacenterextended.power": "Power draw: %s W",
     "tooltip.datacenterextended.capacity": "Capacity: %s W",
     "tooltip.datacenterextended.efficiency": "Efficiency: %s%%",
-    "tooltip.datacenterextended.slots": "CPU %s · GPU %s · Storage %s",
+    "tooltip.datacenterextended.slots": "CPU %s · GPU %s · RAM %s · Storage %s",
+    "tooltip.datacenterextended.board": "Socket %s · %s · max %s",
+    "tooltip.datacenterextended.socket": "Socket: %s",
+    "tooltip.datacenterextended.recommended_memory": "Recommended RAM: %s",
+    "tooltip.datacenterextended.memory_module": "%s %s-%s",
+    "tooltip.datacenterextended.psu_fe": "Up to %s FE/t at full load",
     "tooltip.datacenterextended.storage": "Storage: %s",
     "tooltip.datacenterextended.file_size": "File size: %s",
     "tooltip.datacenterextended.server.empty": "Empty – assemble it at a Server Workbench",
@@ -670,9 +757,11 @@ lang = {
     "message.datacenterextended.tester.none": "Not part of a compute network",
     "message.datacenterextended.tester.standalone": "Mining racks work standalone and don't use the network",
 }
-for group in (CPUS, GPUS, BOARDS, PSUS, STORAGE):
+for group in (CPUS, GPUS, BOARDS, PSUS, STORAGE, MEMORY):
     for row in group:
         lang[f"item.{MOD}.{row[0]}"] = row[1]
+for sid, name in SOCKETS.items():
+    lang[f"socket.{MOD}.{sid}"] = name
 for kind, name in RACK_KINDS:
     lang[f"block.{MOD}.{kind}_rack"] = name
     lang[f"container.{MOD}.{kind}_rack"] = name
@@ -682,15 +771,18 @@ write_json(os.path.join(ASSETS, "lang", "en_us.json"), lang)
 
 # ============================================================ data: hardware data map
 hw = {}
-for (i, n, b, t, kbs, w) in CPUS:
-    hw[f"{MOD}:{i}"] = {"type": "cpu", "compute": kbs, "power": w}
-for (i, n, b, t, mhs, w) in GPUS:
+for (i, n, b, t, kbs, w, sock, rec, rar) in CPUS:
+    hw[f"{MOD}:{i}"] = {"type": "cpu", "socket": sock, "compute": kbs, "power": w, "recommended_memory": rec}
+for (i, n, b, t, mhs, w, rar) in GPUS:
     hw[f"{MOD}:{i}"] = {"type": "gpu", "hashrate": mhs, "power": w}
-for (i, n, pcb, acc, cpu, gpu, w, bays) in BOARDS:
-    hw[f"{MOD}:{i}"] = {"type": "motherboard", "cpu_sockets": cpu, "gpu_slots": gpu, "storage_slots": bays, "power": w}
-for (i, n, lab, w, eff) in PSUS:
+for (i, n, pcb, acc, sock, mem, cpu, gpu, bays, mslots, maxmem, w, rar) in BOARDS:
+    hw[f"{MOD}:{i}"] = {"type": "motherboard", "socket": sock, "memory_type": mem, "cpu_sockets": cpu, "gpu_slots": gpu,
+                        "storage_slots": bays, "memory_slots": mslots, "max_memory": maxmem, "power": w}
+for (i, n, kind, gb, mts, w, ecc, rar) in MEMORY:
+    hw[f"{MOD}:{i}"] = {"type": "memory", "memory_type": kind, "memory": gb, "speed": mts, "power": w}
+for (i, n, lab, w, eff, rar) in PSUS:
     hw[f"{MOD}:{i}"] = {"type": "psu", "power": w, "efficiency": eff}
-for (i, n, kind, gb, w) in STORAGE:
+for (i, n, kind, gb, w, rar) in STORAGE:
     hw[f"{MOD}:{i}"] = {"type": "storage", "storage": gb, "power": w}
 write_json(os.path.join(DATA, MOD, "data_maps", "item", "hardware.json"), {"values": hw})
 
@@ -741,7 +833,7 @@ write_json(os.path.join(DATA, MOD, "data_maps", "item", "file_size.json"), {"val
 # ============================================================ data: tags
 RACK_IDS = [f"{MOD}:{k}_rack" for k, _ in RACK_KINDS]
 CABLE_IDS = [f"{MOD}:{t}_cable" for t, _ in CABLES]
-not_fab = [f"{MOD}:{r[0]}" for g in (CPUS, GPUS, BOARDS, PSUS, STORAGE) for r in g]
+not_fab = [f"{MOD}:{r[0]}" for g in (CPUS, GPUS, BOARDS, PSUS, STORAGE, MEMORY) for r in g]
 not_fab += [f"{MOD}:{x}" for x in ("credit", "credit_bundle", "credit_crate", "bitcoin", "server", "network_tester",
                                    "server_workbench", "trading_terminal")]
 not_fab += RACK_IDS + CABLE_IDS
@@ -763,7 +855,8 @@ for full in HEAVY + CABLE_IDS:
         "random_sequence": f"{MOD}:blocks/{b}"})
 
 # ============================================================ data: game tests (./gradlew runGameTestServer)
-for test, ticks in (("network_sharing", 200), ("rack_merging", 100), ("hosting_storage_bonus", 100)):
+for test, ticks in (("network_sharing", 200), ("rack_merging", 100), ("hosting_storage_bonus", 100),
+                    ("rack_energy", 100), ("memory_and_sockets", 20)):
     write_json(os.path.join(DATA, MOD, "test_instance", test + ".json"), {
         "type": "minecraft:function", "environment": "minecraft:default", "function": f"{MOD}:{test}",
         "max_ticks": ticks, "setup_ticks": 1, "required": True, "structure": "minecraft:empty"})
@@ -804,44 +897,25 @@ shaped("cat6a_cable", ["XXX", "XGX", "XXX"], {"X": M("cat5e_cable"), "G": "#c:in
 shaped("fiber_cable", ["XXX", "PDP", "XXX"], {"X": M("cat6a_cable"), "P": "#c:glass_panes", "D": "#c:gems/diamond"}, M("fiber_cable"), 8, "redstone")
 shaped("trading_terminal", ["IPI", "CEC", "III"], {"I": "#c:ingots/iron", "P": "#c:glass_panes", "C": M("circuit_board"), "E": "#c:gems/emerald"}, M("trading_terminal"), category="redstone")
 
-# tier-1 parts need no credits (bootstrap); later tiers need the previous tier + money
-T1_MONEY = "#c:dusts/redstone"
-hardware_recipes = {
-    # id: (material M, side S, money $, core X)
-    "pentium_4": ("#c:ingots/iron", M("silicon"), T1_MONEY, M("circuit_board")),
-    "amd_fx_4300": ("#c:ingots/copper", M("silicon"), M("credit"), M("pentium_4")),
-    "core_i5_2500k": ("#c:ingots/gold", M("silicon"), M("credit_bundle"), M("amd_fx_4300")),
-    "ryzen_5_3600": ("#c:storage_blocks/redstone", M("silicon"), M("credit_bundle"), M("core_i5_2500k")),
-    "core_i9_9900k": ("#c:gems/diamond", M("silicon"), M("credit_bundle"), M("ryzen_5_3600")),
-    "ryzen_9_7950x": ("#c:gems/emerald", M("silicon"), M("credit_crate"), M("core_i9_9900k")),
-    "epyc_9654": ("#c:ingots/netherite", M("silicon"), M("credit_crate"), M("ryzen_9_7950x")),
-
-    "geforce_gtx_460": ("#c:ingots/iron", "#c:ingots/copper", T1_MONEY, M("circuit_board")),
-    "radeon_hd_7970": ("#c:ingots/gold", "#c:ingots/copper", M("credit"), M("geforce_gtx_460")),
-    "radeon_rx_580": ("#c:storage_blocks/redstone", "#c:ingots/copper", M("credit_bundle"), M("radeon_hd_7970")),
-    "geforce_gtx_1080_ti": ("#c:gems/diamond", "#c:ingots/copper", M("credit_bundle"), M("radeon_rx_580")),
-    "geforce_rtx_3090": ("#c:gems/emerald", "#c:ingots/copper", M("credit_crate"), M("geforce_gtx_1080_ti")),
-    "geforce_rtx_4090": ("#c:ingots/netherite", "#c:ingots/copper", M("credit_crate"), M("geforce_rtx_3090")),
-
-    "office_motherboard": ("#c:ingots/iron", M("circuit_board"), T1_MONEY, M("silicon")),
-    "gaming_motherboard": ("#c:ingots/copper", M("circuit_board"), M("credit"), M("office_motherboard")),
-    "workstation_motherboard": ("#c:ingots/gold", M("circuit_board"), M("credit_bundle"), M("gaming_motherboard")),
-    "mining_motherboard": ("#c:ingots/gold", M("circuit_board"), M("credit_bundle"), M("geforce_gtx_460")),
-    "server_motherboard": ("#c:gems/diamond", M("circuit_board"), M("credit_crate"), M("workstation_motherboard")),
-
-    "psu_300w": ("#c:ingots/iron", "#c:dusts/redstone", "#c:ingots/copper", M("circuit_board")),
-    "psu_550w": ("#c:ingots/copper", "#c:dusts/redstone", M("credit"), M("psu_300w")),
-    "psu_850w": ("#c:ingots/gold", "#c:dusts/redstone", M("credit_bundle"), M("psu_550w")),
-    "psu_1200w": ("#c:storage_blocks/iron", "#c:dusts/redstone", M("credit_bundle"), M("psu_850w")),
-    "psu_2000w": ("#c:gems/diamond", "#c:dusts/redstone", M("credit_crate"), M("psu_1200w")),
-    "psu_3200w": ("#c:ingots/netherite", "#c:dusts/redstone", M("credit_crate"), M("psu_2000w")),
-
-    "hdd_500gb": ("#c:ingots/iron", "#c:dusts/redstone", "#c:ingots/copper", M("circuit_board")),
-    "ssd_1tb": ("#c:ingots/gold", M("silicon"), M("credit"), M("hdd_500gb")),
-    "nvme_2tb": ("#c:gems/diamond", M("silicon"), M("credit_bundle"), M("ssd_1tb")),
-    "enterprise_ssd_8tb": ("#c:gems/emerald", M("silicon"), M("credit_crate"), M("nvme_2tb")),
-}
-for rid, (m, s, money, core) in hardware_recipes.items():
-    shaped(rid, ["MSM", "$X$", "MSM"], {"M": m, "S": s, "$": money, "X": core}, M(rid))
+# Each category is an upgrade chain: a part needs the previous part of its category, a material and money by rarity.
+# The first part of every chain needs no credits (bootstrap).
+MATERIAL = {"C": "#c:ingots/iron", "U": "#c:ingots/gold", "R": "#c:gems/diamond", "E": "#c:ingots/netherite"}
+MONEY = {"C": M("credit"), "U": M("credit_bundle"), "R": M("credit_bundle"), "E": M("credit_crate")}
+CHAINS = [  # parts, side ingredient
+    (CPUS, M("silicon")),
+    (GPUS, "#c:ingots/copper"),
+    (BOARDS, M("circuit_board")),
+    (MEMORY, M("silicon")),
+    (PSUS, "#c:dusts/redstone"),
+    (STORAGE, M("silicon")),
+]
+for parts, side in CHAINS:
+    previous = None
+    for row in parts:
+        rid, rarity = row[0], row[-1]
+        core = previous or M("circuit_board")
+        money = MONEY[rarity] if previous else "#c:dusts/redstone"
+        shaped(rid, ["MSM", "$X$", "MSM"], {"M": MATERIAL[rarity], "S": side, "$": money, "X": core}, M(rid))
+        previous = M(rid)
 
 print("generated", len(ITEM_TEXTURES), "item textures,", len(os.listdir(RECIPES)), "recipes")
