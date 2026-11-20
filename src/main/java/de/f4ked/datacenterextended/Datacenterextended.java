@@ -1,5 +1,7 @@
 package de.f4ked.datacenterextended;
 
+import de.f4ked.datacenterextended.network.ModPayloads;
+import de.f4ked.datacenterextended.recipe.PartRecipesCondition;
 import com.mojang.logging.LogUtils;
 import de.f4ked.datacenterextended.gametest.ModGameTests;
 import de.f4ked.datacenterextended.registry.ModBlockEntities;
@@ -21,9 +23,9 @@ import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import org.slf4j.Logger;
 
 /**
- * DataCenterExtended – assemble servers from motherboards, CPUs, GPUs, PSUs and storage, mount them in racks and use
- * their compute to mine Bitcoin, host services for credits or fabricate items by their "file size". Hosting and
- * fabricating racks share compute over data cables.
+ * DataCenterExtended: assemble servers from motherboards, CPUs, memory, GPUs, PSUs and storage, mount them in racks and
+ * use their compute to mine crypto, host services for dollars or fabricate items by their "file size". Hosting and
+ * fabricating racks share compute over data cables; money lives in each player's wallet.
  */
 @Mod(Datacenterextended.MODID)
 public class Datacenterextended {
@@ -38,16 +40,20 @@ public class Datacenterextended {
         ModMenus.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         ModGameTests.TEST_FUNCTIONS.register(modEventBus);
+        PartRecipesCondition.CONDITION_CODECS.register(modEventBus);
 
         modEventBus.addListener(ModDataMaps::register);
         modEventBus.addListener(this::registerCapabilities);
+        modEventBus.addListener(ModPayloads::register);
 
         // SYNCED: config/datacenterextended-synced.toml, sent from the server to connecting clients.
         modContainer.registerConfig(ModConfig.Type.SYNCED, Config.SPEC);
+        // STARTUP: config/datacenterextended-startup.toml, read before datapacks (recipe conditions).
+        modContainer.registerConfig(ModConfig.Type.STARTUP, StartupConfig.SPEC);
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
-        // Pipes / conveyors of other mods can pull Bitcoin, credits and fabricated items out of any rack segment.
+        // Pipes / conveyors of other mods can pull fabricated items out of any rack segment.
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.RACK.get(),
                 (be, side) -> new WorldlyContainerWrapper(be.controllerOrSelf(), side));
         // Accepts Forge Energy from any mod (only consumed when requireEnergy = true).

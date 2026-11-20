@@ -3,10 +3,10 @@ package de.f4ked.datacenterextended.block;
 import java.util.Locale;
 
 public enum RackType {
-    /** GPU hashrate of its own servers -> Bitcoin. Not connected to the compute network. */
-    MINING(false, 1),
-    /** Compute -> credits; storage in the servers gives a bonus. */
-    HOSTING(true, 1),
+    /** GPU hashrate of its own servers -> coins in the owner's wallet. Not connected to the compute network. */
+    MINING(false, 0),
+    /** Compute -> dollars in the owner's wallet; storage in the servers gives a bonus. */
+    HOSTING(true, 0),
     /** Compute -> copies of the target item, by file size. */
     FABRICATING(true, 3);
 

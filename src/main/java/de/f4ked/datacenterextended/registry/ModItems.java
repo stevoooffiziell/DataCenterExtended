@@ -41,22 +41,18 @@ public final class ModItems {
         }
     }
 
-    public static final DeferredItem<BlockItem> TRADING_TERMINAL = add(ITEMS.registerSimpleBlockItem("trading_terminal", ModBlocks.TRADING_TERMINAL));
+    public static final DeferredItem<BlockItem> HARDWARE_SHOP = add(ITEMS.registerSimpleBlockItem("hardware_shop", ModBlocks.HARDWARE_SHOP));
 
     // ------------------------------------------------------------------ server + tools
     /** A 1U server; its parts live in the server_parts data component (assembled at the Server Workbench). */
     public static final DeferredItem<Item> SERVER = add(ITEMS.registerSimpleItem("server", p -> p.stacksTo(1)));
     public static final DeferredItem<NetworkTesterItem> NETWORK_TESTER = add(ITEMS.registerItem("network_tester", NetworkTesterItem::new, p -> p.stacksTo(1)));
 
-    // ------------------------------------------------------------------ currency
-    public static final DeferredItem<Item> CREDIT = simple("credit", Rarity.COMMON, 64);
-    public static final DeferredItem<Item> CREDIT_BUNDLE = simple("credit_bundle", Rarity.UNCOMMON, 64);
-    public static final DeferredItem<Item> CREDIT_CRATE = simple("credit_crate", Rarity.RARE, 64);
-    public static final DeferredItem<Item> BITCOIN = simple("bitcoin", Rarity.UNCOMMON, 64);
-
     // ------------------------------------------------------------------ crafting materials
     public static final DeferredItem<Item> SILICON = simple("silicon", Rarity.COMMON, 64);
     public static final DeferredItem<Item> CIRCUIT_BOARD = simple("circuit_board", Rarity.COMMON, 64);
+    /** Intermediate for hardware recipes (replaces the old credit cost). */
+    public static final DeferredItem<Item> PROCESSOR_DIE = simple("processor_die", Rarity.UNCOMMON, 64);
 
     // ------------------------------------------------------------------ hardware (stats: data_maps/item/hardware.json)
     /** All hardware items by id, in creative tab order. */

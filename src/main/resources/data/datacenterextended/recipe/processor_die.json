@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": "#c:nuggets/gold",
+    "R": "#c:dusts/redstone",
+    "S": "datacenterextended:silicon",
+    "G": "#c:dusts/glowstone"
+  },
+  "pattern": [
+    "NRN",
+    "SGS",
+    "NRN"
+  ],
+  "result": {
+    "id": "datacenterextended:processor_die"
+  }
+}

@@ -1,10 +1,15 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "datacenterextended:part_recipes_enabled"
+    }
+  ],
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
     "M": "#c:ingots/netherite",
     "S": "#c:ingots/copper",
-    "$": "datacenterextended:credit_crate",
+    "$": "minecraft:echo_shard",
     "X": "datacenterextended:geforce_rtx_5090"
   },
   "pattern": [

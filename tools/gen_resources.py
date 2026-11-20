@@ -431,6 +431,36 @@ def tex_cable(tier):
     return c
 
 
+def tex_processor_die():
+    c = Canvas()
+    for i in range(3, 13, 2):
+        for (x, y) in ((i, 2), (i, 13), (2, i), (13, i)):
+            c.set(x, y, 0xC9A227)
+    c.bevel(3, 3, 12, 12, 0x5C6BC0)
+    for y in range(5, 11, 2):
+        for x in range(5, 11, 2):
+            c.set(x, y, 0x9FA8DA)
+    c.set(10, 10, 0xFFD54F)
+    return c
+
+
+def tex_shop_front():
+    """Shop counter: striped awning, a screen with a shopping cart."""
+    c = Canvas(0x37474F)
+    for x in range(16):
+        c.rect(x, 0, x, 2, 0xE53935 if (x // 2) % 2 == 0 else 0xFAFAFA)
+    c.rect(0, 3, 15, 3, 0x263238)
+    c.rect(2, 5, 13, 11, 0x0B1F12)
+    c.rect(4, 7, 10, 7, 0x00E676)  # cart basket
+    c.rect(5, 8, 9, 9, 0x00E676)
+    c.set(3, 6, 0x00E676)
+    c.set(5, 10, 0xFFD54F)
+    c.set(9, 10, 0xFFD54F)
+    c.rect(11, 6, 12, 6, 0xF7931A)  # coin
+    c.rect(1, 13, 14, 14, 0x546E7A)
+    return c
+
+
 def tex_terminal_front():
     c = Canvas(0x37474F)
     c.frame(0, 0, 15, 15, 0x263238)
@@ -541,7 +571,7 @@ PSUS = [  # id, name, label colour, watts, efficiency, rarity
 ]
 
 ITEM_TEXTURES = {
-    "credit": tex_credit(), "credit_bundle": tex_bundle(), "credit_crate": tex_crate(), "bitcoin": tex_bitcoin(),
+    "processor_die": tex_processor_die(),
     "silicon": tex_silicon(), "circuit_board": tex_circuit(), "server": tex_server_item(),
     "network_tester": tex_tester(),
 }
@@ -592,12 +622,12 @@ def facing_blockstate(name, model):
         f"facing={f}": variant(f"{MOD}:block/{model}", f) for f in ROT}})
 
 
-# trading terminal
-tex_terminal_front().save(BLOCK_TEX("trading_terminal_front"))
-tex_terminal_side().save(BLOCK_TEX("trading_terminal_side"))
-orientable("trading_terminal", "trading_terminal_front", "trading_terminal_side", "trading_terminal_side")
-facing_blockstate("trading_terminal", "trading_terminal")
-block_item("trading_terminal", "trading_terminal")
+# hardware shop
+tex_shop_front().save(BLOCK_TEX("hardware_shop_front"))
+tex_terminal_side().save(BLOCK_TEX("hardware_shop_side"))
+orientable("hardware_shop", "hardware_shop_front", "hardware_shop_side", "hardware_shop_side")
+facing_blockstate("hardware_shop", "hardware_shop")
+block_item("hardware_shop", "hardware_shop")
 
 # server workbench
 tex_workbench_top().save(BLOCK_TEX("server_workbench_top"))
@@ -671,14 +701,42 @@ for tier, _name in CABLES:
 lang = {
     "itemGroup.datacenterextended": "DataCenterExtended",
     "block.datacenterextended.server_workbench": "Server Workbench",
-    "block.datacenterextended.trading_terminal": "Trading Terminal",
+    "block.datacenterextended.hardware_shop": "Hardware Shop",
     "container.datacenterextended.server_workbench": "Server Workbench",
     "item.datacenterextended.server": "Server (1U)",
     "item.datacenterextended.network_tester": "Network Tester",
-    "item.datacenterextended.credit": "Credit",
-    "item.datacenterextended.credit_bundle": "Credit Bundle (9)",
-    "item.datacenterextended.credit_crate": "Credit Crate (81)",
-    "item.datacenterextended.bitcoin": "Bitcoin",
+    "item.datacenterextended.processor_die": "Processor Die",
+    "key.datacenterextended.wallet": "Open Wallet / Shop",
+    "key.category.datacenterextended.main": "DataCenterExtended",
+    "coin.datacenterextended.bitcoin": "Bitcoin",
+    "coin.datacenterextended.dogecoin": "Dogecoin",
+    "coin.datacenterextended.ethereum": "Ethereum",
+    "status.datacenterextended.no_owner": "✖ No owner – break and place it again",
+    "gui.datacenterextended.wallet.title": "Wallet",
+    "gui.datacenterextended.wallet.tab": "Wallet",
+    "gui.datacenterextended.wallet.all": "All",
+    "gui.datacenterextended.wallet.amount": "Amount",
+    "gui.datacenterextended.wallet.sell": "Sell",
+    "gui.datacenterextended.wallet.fee": "Fee %s%% · %s",
+    "gui.datacenterextended.wallet.hint": "Click a coin to show its chart",
+    "gui.datacenterextended.wallet.chart": "%s price",
+    "gui.datacenterextended.wallet.no_history": "No price history yet – check back in a minute",
+    "gui.datacenterextended.shop.tab": "Shop",
+    "gui.datacenterextended.shop.infrastructure": "Infrastructure",
+    "gui.datacenterextended.shop.quantity": "Quantity",
+    "gui.datacenterextended.shop.buy": "Buy",
+    "gui.datacenterextended.shop.price": "%s each",
+    "gui.datacenterextended.shop.total": "= %s",
+    "gui.datacenterextended.shop.select": "Select an item to buy",
+    "gui.datacenterextended.shop.remote": "Remote order",
+    "gui.datacenterextended.income.per_hour": "Income per hour",
+    "gui.datacenterextended.income.per_day": "%s / MC day",
+    "gui.datacenterextended.income.wallet": "→ owner's wallet",
+    "gui.datacenterextended.rack.storage_bonus": "Storage bonus +%s%%",
+    "message.datacenterextended.sold_coin": "Sold %s for %s",
+    "message.datacenterextended.shop.bought": "Bought %sx %s for %s",
+    "message.datacenterextended.shop.too_expensive": "Not enough money (%s needed)",
+    "message.datacenterextended.shop.no_access": "Use a Hardware Shop block to buy (remote shop is disabled)",
     "item.datacenterextended.silicon": "Silicon",
     "item.datacenterextended.circuit_board": "Circuit Board",
     "status.datacenterextended.running": "● Online",
@@ -716,8 +774,6 @@ lang = {
     "gui.datacenterextended.rack.power_fe": "Power %s W · %s FE/t",
     "gui.datacenterextended.energy.stored": "%s / %s FE",
     "gui.datacenterextended.energy.usage": "Using %s FE/t",
-    "gui.datacenterextended.next_bitcoin": "Next Bitcoin in %s",
-    "gui.datacenterextended.next_credit_bonus": "Next credit in %s (+%s%%)",
     "gui.datacenterextended.fabricating": "%s / %s · %s",
     "gui.datacenterextended.slot.server": "Server",
     "gui.datacenterextended.slot.server_bay": "Server bay (1U)",
@@ -747,8 +803,6 @@ lang = {
     "tooltip.datacenterextended.storage": "Storage: %s",
     "tooltip.datacenterextended.file_size": "File size: %s",
     "tooltip.datacenterextended.server.empty": "Empty – assemble it at a Server Workbench",
-    "message.datacenterextended.sold_bitcoin": "Sold %s Bitcoin for %s credits.",
-    "message.datacenterextended.bitcoin_rate": "Current rate: 1 Bitcoin = %s credits. Right-click with Bitcoin to sell.",
     "message.datacenterextended.tester.header": "Compute network: %s cables, %s racks",
     "message.datacenterextended.tester.bandwidth": "Bandwidth %s (slowest cable: %s)",
     "message.datacenterextended.tester.flow": "Spare %s · wanted %s · moving %s",
@@ -834,11 +888,10 @@ write_json(os.path.join(DATA, MOD, "data_maps", "item", "file_size.json"), {"val
 RACK_IDS = [f"{MOD}:{k}_rack" for k, _ in RACK_KINDS]
 CABLE_IDS = [f"{MOD}:{t}_cable" for t, _ in CABLES]
 not_fab = [f"{MOD}:{r[0]}" for g in (CPUS, GPUS, BOARDS, PSUS, STORAGE, MEMORY) for r in g]
-not_fab += [f"{MOD}:{x}" for x in ("credit", "credit_bundle", "credit_crate", "bitcoin", "server", "network_tester",
-                                   "server_workbench", "trading_terminal")]
+not_fab += [f"{MOD}:{x}" for x in ("processor_die", "server", "network_tester", "server_workbench", "hardware_shop")]
 not_fab += RACK_IDS + CABLE_IDS
 write_json(os.path.join(DATA, MOD, "tags", "item", "not_fabricable.json"), {"values": not_fab})
-HEAVY = [f"{MOD}:server_workbench", f"{MOD}:trading_terminal"] + RACK_IDS
+HEAVY = [f"{MOD}:server_workbench", f"{MOD}:hardware_shop"] + RACK_IDS
 write_json(os.path.join(DATA, "minecraft", "tags", "block", "mineable", "pickaxe.json"), {"values": HEAVY})
 write_json(os.path.join(DATA, "minecraft", "tags", "block", "needs_stone_tool.json"), {"values": HEAVY})
 
@@ -856,7 +909,8 @@ for full in HEAVY + CABLE_IDS:
 
 # ============================================================ data: game tests (./gradlew runGameTestServer)
 for test, ticks in (("network_sharing", 200), ("rack_merging", 100), ("hosting_storage_bonus", 100),
-                    ("rack_energy", 100), ("memory_and_sockets", 20)):
+                    ("rack_energy", 100), ("memory_and_sockets", 20), ("wallet_payout", 200), ("shop_and_sell", 20),
+                    ("part_recipes", 20)):
     write_json(os.path.join(DATA, MOD, "test_instance", test + ".json"), {
         "type": "minecraft:function", "environment": "minecraft:default", "function": f"{MOD}:{test}",
         "max_ticks": ticks, "setup_ticks": 1, "required": True, "structure": "minecraft:empty"})
@@ -865,9 +919,11 @@ for test, ticks in (("network_sharing", 200), ("rack_merging", 100), ("hosting_s
 RECIPES = os.path.join(DATA, MOD, "recipe")
 
 
-def shaped(name, pattern, key, result, count=1, category="misc"):
+def shaped(name, pattern, key, result, count=1, category="misc", conditions=None):
     r = {"type": "minecraft:crafting_shaped", "category": category, "key": key, "pattern": pattern,
          "result": {"id": result, **({"count": count} if count > 1 else {})}}
+    if conditions:
+        r = {"neoforge:conditions": conditions, **r}
     write_json(os.path.join(RECIPES, name + ".json"), r)
 
 
@@ -880,10 +936,8 @@ def shapeless(name, ingredients, result, count=1):
 M = lambda n: f"{MOD}:{n}"
 shapeless("silicon", ["#c:sands", "#c:gems/quartz"], M("silicon"), 2)
 shaped("circuit_board", ["CRC", "SGS", "CRC"], {"C": "#c:ingots/copper", "R": "#c:dusts/redstone", "S": M("silicon"), "G": "minecraft:green_dye"}, M("circuit_board"), 2)
-shapeless("credit_bundle", [M("credit")] * 9, M("credit_bundle"))
-shapeless("credit_from_bundle", [M("credit_bundle")], M("credit"), 9)
-shapeless("credit_crate", [M("credit_bundle")] * 9, M("credit_crate"))
-shapeless("credit_bundle_from_crate", [M("credit_crate")], M("credit_bundle"), 9)
+shaped("processor_die", ["NRN", "SGS", "NRN"], {"N": "#c:nuggets/gold", "R": "#c:dusts/redstone", "S": M("silicon"),
+                                                  "G": "#c:dusts/glowstone"}, M("processor_die"))
 shaped("server", ["III", "PCP", "III"], {"I": "#c:ingots/iron", "P": "#c:glass_panes", "C": M("circuit_board")}, M("server"), category="redstone")
 shaped("server_workbench", ["III", "CTC", "I I"], {"I": "#c:ingots/iron", "C": M("circuit_board"), "T": "minecraft:crafting_table"}, M("server_workbench"), category="redstone")
 shaped("network_tester", ["G", "C", "I"], {"G": "#c:glass_panes", "C": M("circuit_board"), "I": "#c:ingots/iron"}, M("network_tester"), category="equipment")
@@ -895,12 +949,14 @@ shaped("coax_cable", ["CCC", "RSR", "CCC"], {"C": "#c:ingots/copper", "R": "#c:d
 shaped("cat5e_cable", ["XXX", "XCX", "XXX"], {"X": M("coax_cable"), "C": M("circuit_board")}, M("cat5e_cable"), 8, "redstone")
 shaped("cat6a_cable", ["XXX", "XGX", "XXX"], {"X": M("cat5e_cable"), "G": "#c:ingots/gold"}, M("cat6a_cable"), 8, "redstone")
 shaped("fiber_cable", ["XXX", "PDP", "XXX"], {"X": M("cat6a_cable"), "P": "#c:glass_panes", "D": "#c:gems/diamond"}, M("fiber_cable"), 8, "redstone")
-shaped("trading_terminal", ["IPI", "CEC", "III"], {"I": "#c:ingots/iron", "P": "#c:glass_panes", "C": M("circuit_board"), "E": "#c:gems/emerald"}, M("trading_terminal"), category="redstone")
+shaped("hardware_shop", ["IPI", "CEC", "III"], {"I": "#c:ingots/iron", "P": "#c:glass_panes", "C": M("circuit_board"), "E": "#c:gems/emerald"}, M("hardware_shop"), category="redstone")
 
-# Each category is an upgrade chain: a part needs the previous part of its category, a material and money by rarity.
-# The first part of every chain needs no credits (bootstrap).
+# Each category is an upgrade chain: a part needs the previous part of its category plus expensive materials by
+# rarity, so buying in the shop is the normal way early on. Only the first part of each chain is cheap (bootstrap).
+# All part recipes carry a condition: enablePartRecipes = false in the startup config removes them.
 MATERIAL = {"C": "#c:ingots/iron", "U": "#c:ingots/gold", "R": "#c:gems/diamond", "E": "#c:ingots/netherite"}
-MONEY = {"C": M("credit"), "U": M("credit_bundle"), "R": M("credit_bundle"), "E": M("credit_crate")}
+COST = {"C": M("processor_die"), "U": "#c:storage_blocks/gold", "R": "#c:storage_blocks/diamond", "E": "minecraft:echo_shard"}
+PART_CONDITION = [{"type": f"{MOD}:part_recipes_enabled"}]
 CHAINS = [  # parts, side ingredient
     (CPUS, M("silicon")),
     (GPUS, "#c:ingots/copper"),
@@ -914,8 +970,37 @@ for parts, side in CHAINS:
     for row in parts:
         rid, rarity = row[0], row[-1]
         core = previous or M("circuit_board")
-        money = MONEY[rarity] if previous else "#c:dusts/redstone"
-        shaped(rid, ["MSM", "$X$", "MSM"], {"M": MATERIAL[rarity], "S": side, "$": money, "X": core}, M(rid))
+        cost = COST[rarity] if previous else "#c:dusts/redstone"
+        shaped(rid, ["MSM", "$X$", "MSM"], {"M": MATERIAL[rarity], "S": side, "$": cost, "X": core}, M(rid),
+               conditions=PART_CONDITION)
         previous = M(rid)
+
+# ============================================================ data: shop prices (dollars)
+def nice(x):
+    """Rounds to two significant digits, e.g. 1234 -> 1200, 37.4 -> 37."""
+    if x < 10:
+        return round(x, 2)
+    digits = len(str(int(x))) - 2
+    return int(round(x / 10 ** digits) * 10 ** digits)
+
+
+prices = {}
+for (i, n, b, t, kbs, w, sock, rec, rar) in CPUS:
+    prices[M(i)] = nice(8 * kbs ** 1.15)
+for (i, n, b, t, mhs, w, rar) in GPUS:
+    prices[M(i)] = nice(30 * mhs ** 1.15)
+for (i, n, pcb, acc, sock, mem, cpu, gpu, bays, mslots, maxmem, w, rar) in BOARDS:
+    prices[M(i)] = nice({"C": 40, "U": 300, "R": 2500, "E": 15000}[rar] * (1 + 0.25 * (cpu - 1)) * (1.5 if gpu >= 6 else 1))
+for (i, n, kind, gb, mts, w, ecc, rar) in MEMORY:
+    prices[M(i)] = nice(max(8, 5 * gb * mts / 1000))
+for (row, price) in zip(PSUS, (25, 60, 150, 400, 1500, 6000)):
+    prices[M(row[0])] = price
+for (row, price) in zip(STORAGE, (30, 120, 500, 4000)):
+    prices[M(row[0])] = price
+prices.update({M("server"): 20, M("server_workbench"): 60, M("mining_rack"): 100, M("hosting_rack"): 100,
+               M("fabricating_rack"): 500, M("coax_cable"): 2, M("cat5e_cable"): 8, M("cat6a_cable"): 40,
+               M("fiber_cable"): 200, M("network_tester"): 30, M("circuit_board"): 4, M("silicon"): 1,
+               M("processor_die"): 12})
+write_json(os.path.join(DATA, MOD, "data_maps", "item", "shop_price.json"), {"values": prices})
 
 print("generated", len(ITEM_TEXTURES), "item textures,", len(os.listdir(RECIPES)), "recipes")

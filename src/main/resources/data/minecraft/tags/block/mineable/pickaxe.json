@@ -1,7 +1,7 @@
 {
   "values": [
     "datacenterextended:server_workbench",
-    "datacenterextended:trading_terminal",
+    "datacenterextended:hardware_shop",
     "datacenterextended:mining_rack",
     "datacenterextended:hosting_rack",
     "datacenterextended:fabricating_rack"

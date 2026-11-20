@@ -1,10 +1,15 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "datacenterextended:part_recipes_enabled"
+    }
+  ],
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
     "M": "#c:gems/diamond",
     "S": "datacenterextended:silicon",
-    "$": "datacenterextended:credit_bundle",
+    "$": "#c:storage_blocks/diamond",
     "X": "datacenterextended:core_i9_13900k"
   },
   "pattern": [

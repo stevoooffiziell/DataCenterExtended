@@ -15,11 +15,11 @@
             ],
             "source": "block_entity"
           },
-          "name": "datacenterextended:trading_terminal"
+          "name": "datacenterextended:hardware_shop"
         }
       ],
       "rolls": 1
     }
   ],
-  "random_sequence": "datacenterextended:blocks/trading_terminal"
+  "random_sequence": "datacenterextended:blocks/hardware_shop"
 }

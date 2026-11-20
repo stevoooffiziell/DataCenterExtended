@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "datacenterextended:item/credit_bundle"
+    "layer0": "datacenterextended:item/processor_die"
   }
 }

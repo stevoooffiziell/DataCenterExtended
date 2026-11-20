@@ -11,6 +11,8 @@ public enum RackStatus {
     NO_TARGET(false),
     NOT_FABRICABLE(false),
     OUTPUT_FULL(false),
+    /** Mining / hosting rack placed without a player (e.g. /setblock): nobody to pay. */
+    NO_OWNER(false),
     IDLE(false);
 
     private static final RackStatus[] VALUES = values();

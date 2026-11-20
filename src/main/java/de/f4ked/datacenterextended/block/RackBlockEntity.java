@@ -1,6 +1,8 @@
 package de.f4ked.datacenterextended.block;
 
 import de.f4ked.datacenterextended.Config;
+import de.f4ked.datacenterextended.economy.Coin;
+import de.f4ked.datacenterextended.economy.WalletData;
 import de.f4ked.datacenterextended.hardware.ServerProblem;
 import de.f4ked.datacenterextended.hardware.ServerSpec;
 import de.f4ked.datacenterextended.menu.DataSlots;
@@ -35,6 +37,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * One rack segment (4 servers). The bottom segment of a merged rack is the controller: it runs the logic for the whole
@@ -68,7 +71,15 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     public static final int DATA_NETWORKED = 55;
     public static final int DATA_CABLES = 56;
     public static final int DATA_FE_PER_TICK = 57;
-    public static final int DATA_COUNT = 61;
+    /** Income per hour: cents (hosting) or coins * 1e8 (mining). */
+    public static final int DATA_INCOME = 61;
+    public static final int DATA_COIN = 65;
+    public static final int DATA_HAS_OWNER = 66;
+    public static final int DATA_COUNT = 67;
+
+    public static final double COIN_SCALE = 1.0E8;
+    public static final int BUTTON_NEXT_COIN = 0;
+    private static final int PAYOUT_INTERVAL = 20;
 
     public static final int CODE_EMPTY = 0;
     public static final int CODE_RUNNING = 1;
@@ -85,6 +96,14 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     private double effectiveRate;
     private long watts;
     private long fePerTick;
+
+    // wallet payout (mining / hosting)
+    private @Nullable UUID owner;
+    private String ownerName = "";
+    private Coin coin = Coin.BITCOIN;
+    /** Not yet paid out: cents (hosting) or coins (mining). */
+    private double pending;
+    private double incomePerHour;
     private long goal;
     private double storageBonus;
     private long supply;
@@ -113,7 +132,10 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
             if (index == DATA_BONUS_PERMILLE) return (int) Math.round(storageBonus * 1000);
             if (index == DATA_NETWORKED) return hasNetwork() ? 1 : 0;
             if (index == DATA_CABLES) return hasNetwork() ? Math.min(Short.MAX_VALUE, networkInfo.cables()) : 0;
-            int base = index >= DATA_FE_PER_TICK ? DATA_FE_PER_TICK : DATA_LOCAL + ((index - DATA_LOCAL) / 4) * 4;
+            if (index == DATA_COIN) return coin.ordinal();
+            if (index == DATA_HAS_OWNER) return payee() != null ? 1 : 0;
+            int base = index >= DATA_INCOME ? DATA_INCOME : index >= DATA_FE_PER_TICK ? DATA_FE_PER_TICK
+                    : DATA_LOCAL + ((index - DATA_LOCAL) / 4) * 4;
             long value = switch (base) {
                 case DATA_LOCAL -> (long) localRate;
                 case DATA_EFFECTIVE -> (long) effectiveRate;
@@ -126,6 +148,7 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
                 case DATA_ENERGY -> totalEnergy(false);
                 case DATA_ENERGY_CAP -> totalEnergy(true);
                 case DATA_FE_PER_TICK -> fePerTick;
+                case DATA_INCOME -> (long) (type() == RackType.MINING ? incomePerHour * COIN_SCALE : incomePerHour);
                 default -> 0L;
             };
             return DataSlots.chunk(value, index, base);
@@ -272,21 +295,17 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         double storageTb = running.stream().mapToDouble(ServerSpec::storageGb).sum() / 1024.0;
 
         // ---- 3. what are we producing?
-        ItemStack product;
+        ItemStack product = ItemStack.EMPTY;
         double speedFactor = 1.0;
         long ownDemand = 0;
         storageBonus = 0;
         switch (type) {
-            case MINING -> {
-                product = new ItemStack(ModItems.BITCOIN.get());
-                goal = (long) Math.ceil(Config.HASHES_PER_BITCOIN.get());
-            }
+            case MINING -> goal = 0;
             case HOSTING -> {
-                product = new ItemStack(ModItems.CREDIT.get());
-                goal = Config.BYTES_PER_CREDIT.get();
+                goal = 0;
                 storageBonus = Math.min(Config.MAX_STORAGE_BONUS.get(), storageTb * Config.STORAGE_BONUS_PER_TB.get());
                 speedFactor = 1.0 + storageBonus;
-                ownDemand = canOutput(product) ? Config.HOSTING_CAPACITY_PER_SEGMENT.get() * segmentCount : 0;
+                ownDemand = payee() != null ? Config.HOSTING_CAPACITY_PER_SEGMENT.get() * segmentCount : 0;
             }
             default -> {
                 ItemStack target = items.get(SLOT_TARGET);
@@ -323,9 +342,15 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
 
         // ---- 5. status + production
         status = evaluate(type, running.isEmpty(), product);
+        incomePerHour = 0;
         if (status == RackStatus.RUNNING) {
-            produce(product, effectiveRate * speedFactor / 20.0);
+            switch (type) {
+                case MINING -> earn(effectiveRate / 20.0 / coin.hashesPerCoin());
+                case HOSTING -> earn(effectiveRate * speedFactor / 20.0 / Config.BYTES_PER_DOLLAR.get() * 100.0);
+                default -> produce(product, effectiveRate * speedFactor / 20.0);
+            }
         }
+        if (level.getGameTime() % PAYOUT_INTERVAL == 0) payOut(level);
 
         boolean powered = !running.isEmpty();
         for (RackBlockEntity seg : segs) {
@@ -355,6 +380,7 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     }
 
     private RackStatus evaluate(RackType type, boolean noneRunning, ItemStack product) {
+        if (type != RackType.FABRICATING && payee() == null) return RackStatus.NO_OWNER;
         // a rack without own servers still works on compute it receives over the network
         if (noneRunning && effectiveRate <= 0) {
             for (int code : serverCodes) {
@@ -365,10 +391,72 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         if (type == RackType.FABRICATING) {
             if (product.isEmpty()) return supply > 0 && exported > 0 ? RackStatus.EXPORTING : RackStatus.NO_TARGET;
             if (goal <= 0) return RackStatus.NOT_FABRICABLE;
+            if (!canOutput(product)) return supply > 0 && exported > 0 ? RackStatus.EXPORTING : RackStatus.OUTPUT_FULL;
         }
-        if (!canOutput(product)) return supply > 0 && exported > 0 ? RackStatus.EXPORTING : RackStatus.OUTPUT_FULL;
         if (effectiveRate <= 0) return exported > 0 ? RackStatus.EXPORTING : RackStatus.IDLE;
         return RackStatus.RUNNING;
+    }
+
+    /** Accumulates income for this tick: cents (hosting) or coins (mining). */
+    private void earn(double perTick) {
+        pending += perTick;
+        incomePerHour = perTick * 20 * 3600;
+    }
+
+    /** Pays the accumulated income into the owner's wallet. */
+    private void payOut(ServerLevel level) {
+        UUID payee = payee();
+        if (payee == null || pending <= 0) return;
+        WalletData wallets = WalletData.get(level.getServer());
+        if (type() == RackType.MINING) {
+            wallets.depositCoins(payee, coin, pending);
+            pending = 0;
+        } else if (type() == RackType.HOSTING) {
+            long cents = (long) Math.floor(pending);
+            wallets.deposit(payee, cents);
+            pending -= cents;
+        }
+    }
+
+    /** Who gets paid: the controller's owner, or the owner of any other segment. */
+    private @Nullable UUID payee() {
+        if (owner != null) return owner;
+        for (RackBlockEntity seg : segments()) {
+            if (seg.owner != null) return seg.owner;
+        }
+        return null;
+    }
+
+    public void setOwner(UUID owner, String name) {
+        this.owner = owner;
+        this.ownerName = name;
+        setChanged();
+    }
+
+    public @Nullable UUID owner() {
+        return owner;
+    }
+
+    public String ownerName() {
+        return ownerName;
+    }
+
+    public Coin coin() {
+        return coin;
+    }
+
+    /** Switches the mined coin; income mined so far is paid out first. */
+    public void setCoin(Coin coin) {
+        if (coin == this.coin) return;
+        if (level instanceof ServerLevel serverLevel) payOut(serverLevel);
+        pending = 0;
+        this.coin = coin;
+        setChanged();
+    }
+
+    /** Income per hour of the last tick: cents (hosting) or coins (mining). */
+    public double incomePerHour() {
+        return incomePerHour;
     }
 
     private void produce(ItemStack product, double perTick) {
@@ -583,6 +671,16 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(input, items);
         progress = input.getDoubleOr("progress", 0);
+        pending = input.getDoubleOr("pending", 0);
+        coin = Coin.byId(input.getIntOr("coin", 0));
+        owner = input.getString("owner").map(text -> {
+            try {
+                return UUID.fromString(text);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }).orElse(null);
+        ownerName = input.getStringOr("owner_name", "");
         energy.deserialize(input.childOrEmpty("energy"));
         lastTarget = items.get(SLOT_TARGET).isEmpty() ? null : items.get(SLOT_TARGET).getItem();
     }
@@ -592,6 +690,10 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         super.saveAdditional(output);
         ContainerHelper.saveAllItems(output, items);
         output.putDouble("progress", progress);
+        output.putDouble("pending", pending);
+        output.putInt("coin", coin.ordinal());
+        if (owner != null) output.putString("owner", owner.toString());
+        if (!ownerName.isEmpty()) output.putString("owner_name", ownerName);
         energy.serialize(output.child("energy"));
     }
 }

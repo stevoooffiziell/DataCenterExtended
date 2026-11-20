@@ -1,10 +1,15 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "datacenterextended:part_recipes_enabled"
+    }
+  ],
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
     "M": "#c:ingots/iron",
     "S": "datacenterextended:silicon",
-    "$": "datacenterextended:credit",
+    "$": "datacenterextended:processor_die",
     "X": "datacenterextended:amd_fx_4300"
   },
   "pattern": [

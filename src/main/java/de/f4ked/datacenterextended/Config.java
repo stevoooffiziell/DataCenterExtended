@@ -97,12 +97,8 @@ public final class Config {
 
     // ---------------------------------------------------------------- mining
     static {
-        BUILDER.comment("Bitcoin mining (uses GPU hashrate)").push("mining");
+        BUILDER.comment("Crypto mining (uses GPU hashrate). Coin difficulty and prices are in the [market] section.").push("mining");
     }
-
-    public static final ModConfigSpec.DoubleValue HASHES_PER_BITCOIN = BUILDER
-            .comment("Hashes required to mine one Bitcoin item. Default: a GTX 460 (1 MH/s) needs 10 minutes.")
-            .defineInRange("hashesPerBitcoin", 6.0E8, 1.0, Double.MAX_VALUE);
 
     public static final ModConfigSpec.DoubleValue CPU_MINING_FACTOR = BUILDER
             .comment("Fraction of CPU compute that also counts as hashrate while mining. 1 KB/s => factor * 1 KH/s. 0 disables CPU mining.")
@@ -114,12 +110,12 @@ public final class Config {
 
     // ---------------------------------------------------------------- hosting
     static {
-        BUILDER.comment("Hosting (uses CPU compute, pays credits)").push("hosting");
+        BUILDER.comment("Hosting (uses CPU compute, pays dollars into the owner's wallet)").push("hosting");
     }
 
-    public static final ModConfigSpec.LongValue BYTES_PER_CREDIT = BUILDER
-            .comment("Bytes of compute that must be served to earn one credit. Default 256 KB => an FX-4300 earns ~1 credit / 25 s.")
-            .defineInRange("bytesPerCredit", 262_144L, 1L, Long.MAX_VALUE);
+    public static final ModConfigSpec.LongValue BYTES_PER_DOLLAR = BUILDER
+            .comment("Bytes of compute that must be served to earn one dollar. Default 512 KB => a Pentium 4 server earns ~$28/h.")
+            .defineInRange("bytesPerDollar", 524_288L, 1L, Long.MAX_VALUE);
 
     static {
         BUILDER.pop();
@@ -152,14 +148,55 @@ public final class Config {
         BUILDER.pop();
     }
 
-    // ---------------------------------------------------------------- trading
+    // ---------------------------------------------------------------- economy
     static {
-        BUILDER.comment("Trading terminal").push("trading");
+        BUILDER.comment("Wallets. Every player has a wallet with dollars and crypto coins; racks pay into their owner's wallet.").push("economy");
     }
 
-    public static final ModConfigSpec.IntValue CREDITS_PER_BITCOIN = BUILDER
-            .comment("Credits paid by the trading terminal for one Bitcoin.")
-            .defineInRange("creditsPerBitcoin", 64, 0, 1_000_000);
+    public static final ModConfigSpec.DoubleValue STARTING_BALANCE = BUILDER
+            .comment("Dollars a new player starts with (enough for a first server from the shop).")
+            .defineInRange("startingBalance", 250.0, 0.0, 1.0E12);
+
+    public static final ModConfigSpec.DoubleValue SELL_FEE = BUILDER
+            .comment("Fraction of the value kept as exchange fee when selling coins.")
+            .defineInRange("sellFee", 0.02, 0.0, 1.0);
+
+    static {
+        BUILDER.pop();
+    }
+
+    // ---------------------------------------------------------------- market
+    static {
+        BUILDER.comment("Crypto market. Prices follow a mean-reverting random walk around their base price.").push("market");
+    }
+
+    public static final ModConfigSpec.IntValue MARKET_UPDATE_TICKS = BUILDER
+            .comment("Ticks between price updates (1200 = one minute). The chart keeps the last 288 updates.")
+            .defineInRange("updateTicks", 1200, 20, 1_728_000);
+
+    /** Per-coin settings, indexed like {@link de.f4ked.datacenterextended.economy.Coin}. */
+    public static final CoinSettings[] COINS = {
+            coin("bitcoin", 1500.0, 0.03, 0.02, 2.7E11),
+            coin("dogecoin", 0.25, 0.06, 0.03, 3.6E7),
+            coin("ethereum", 120.0, 0.04, 0.02, 2.0E10),
+    };
+
+    static {
+        BUILDER.pop();
+    }
+
+    // ---------------------------------------------------------------- shop
+    static {
+        BUILDER.comment("Hardware shop. Prices come from the datacenterextended:shop_price data map.").push("shop");
+    }
+
+    public static final ModConfigSpec.BooleanValue REMOTE_SHOP = BUILDER
+            .comment("If true, the shop can also be used from the wallet screen (keybind) anywhere, not only at a Hardware Shop block.")
+            .define("remoteShop", true);
+
+    public static final ModConfigSpec.DoubleValue SHOP_PRICE_MULTIPLIER = BUILDER
+            .comment("Multiplier for all shop prices.")
+            .defineInRange("priceMultiplier", 1.0, 0.0, 1.0E6);
 
     static {
         BUILDER.pop();
@@ -221,6 +258,22 @@ public final class Config {
     }
 
     public static final ModConfigSpec SPEC = BUILDER.build();
+
+    /** Market settings of one coin. */
+    public record CoinSettings(ModConfigSpec.DoubleValue basePrice, ModConfigSpec.DoubleValue volatility,
+                               ModConfigSpec.DoubleValue reversion, ModConfigSpec.DoubleValue hashesPerCoin) {
+    }
+
+    private static CoinSettings coin(String name, double price, double volatility, double reversion, double hashes) {
+        BUILDER.push(name);
+        CoinSettings settings = new CoinSettings(
+                BUILDER.comment("Price in dollars the market moves around.").defineInRange("basePrice", price, 0.0001, 1.0E12),
+                BUILDER.comment("Standard deviation of the log price per update (0.03 = about 3% per update).").defineInRange("volatility", volatility, 0.0, 1.0),
+                BUILDER.comment("How strongly the price is pulled back to the base price per update (0..1).").defineInRange("reversion", reversion, 0.0, 1.0),
+                BUILDER.comment("Hashes needed to mine one coin (difficulty).").defineInRange("hashesPerCoin", hashes, 1.0, Double.MAX_VALUE));
+        BUILDER.pop();
+        return settings;
+    }
 
     private Config() {
     }

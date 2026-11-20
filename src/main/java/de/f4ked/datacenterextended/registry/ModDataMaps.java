@@ -1,10 +1,12 @@
 package de.f4ked.datacenterextended.registry;
 
+import com.mojang.serialization.Codec;
 import com.mojang.datafixers.util.Either;
 import de.f4ked.datacenterextended.Config;
 import de.f4ked.datacenterextended.Datacenterextended;
 import de.f4ked.datacenterextended.hardware.FileSize;
 import de.f4ked.datacenterextended.hardware.HardwareStats;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
@@ -33,6 +35,12 @@ public final class ModDataMaps {
             .merger(ModDataMaps.specificityMerger())
             .build();
 
+    /** Hardware shop price in dollars for any item. Items without an entry are not sold. */
+    public static final DataMapType<Item, Double> SHOP_PRICE = DataMapType
+            .builder(Datacenterextended.id("shop_price"), Registries.ITEM, Codec.doubleRange(0.0, 1.0E12))
+            .synced(Codec.doubleRange(0.0, 1.0E12), false)
+            .build();
+
     /** Items in this tag are never fabricable. */
     public static final TagKey<Item> NOT_FABRICABLE = ItemTags.create(Datacenterextended.id("not_fabricable"));
 
@@ -42,6 +50,13 @@ public final class ModDataMaps {
     public static void register(RegisterDataMapTypesEvent event) {
         event.register(HARDWARE);
         event.register(FILE_SIZE);
+        event.register(SHOP_PRICE);
+    }
+
+    /** Shop price in dollars from the data map (no multiplier), or -1 if the item is not sold. */
+    public static double shopPrice(Item item) {
+        Double price = BuiltInRegistries.ITEM.wrapAsHolder(item).getData(SHOP_PRICE);
+        return price == null ? -1 : price;
     }
 
     public static @Nullable HardwareStats hardware(ItemStack stack) {

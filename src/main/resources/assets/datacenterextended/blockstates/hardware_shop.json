@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "datacenterextended:block/hardware_shop"
+    },
+    "facing=east": {
+      "model": "datacenterextended:block/hardware_shop",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "datacenterextended:block/hardware_shop",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "datacenterextended:block/hardware_shop",
+      "y": 270
+    }
+  }
+}

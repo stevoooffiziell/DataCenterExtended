@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/orientable",
-  "textures": {
-    "front": "datacenterextended:block/trading_terminal_front",
-    "side": "datacenterextended:block/trading_terminal_side",
-    "top": "datacenterextended:block/trading_terminal_side"
-  }
-}

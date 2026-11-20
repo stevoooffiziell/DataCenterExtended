@@ -7,6 +7,10 @@ import de.f4ked.datacenterextended.block.RackType;
 import de.f4ked.datacenterextended.hardware.DataUnits;
 import de.f4ked.datacenterextended.hardware.ServerProblem;
 import de.f4ked.datacenterextended.menu.RackMenu;
+import de.f4ked.datacenterextended.economy.Coin;
+import de.f4ked.datacenterextended.economy.Money;
+import net.minecraft.client.gui.components.Button;
+import org.jspecify.annotations.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -23,9 +27,35 @@ public class RackScreen extends AbstractContainerScreen<RackMenu> {
     private static final int INFO_X = 8, INFO_Y = 86, INFO_W = 160, INFO_H = 46;
     private static final int LED_RUNNING = 0xFF3CE07A, LED_PROBLEM = 0xFFE04040, LED_EMPTY = 0xFF2A2A2A;
 
+    private static final int INCOME_X = 98, INCOME_W = 70;
+    private @Nullable Button coinButton;
+
     public RackScreen(RackMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, IMAGE_WIDTH, IMAGE_HEIGHT);
         this.inventoryLabelY = INVENTORY_Y - 11;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        if (menu.type() == RackType.MINING) {
+            coinButton = addRenderableWidget(Button.builder(coinLabel(), b -> {
+                if (minecraft != null && minecraft.gameMode != null) {
+                    minecraft.gameMode.handleInventoryButtonClick(menu.containerId, RackBlockEntity.BUTTON_NEXT_COIN);
+                }
+            }).bounds(leftPos + INCOME_X, topPos + 17, INCOME_W, 16).build());
+        }
+    }
+
+    private Component coinLabel() {
+        Coin coin = menu.coin();
+        return Component.literal("◀ " + coin.symbol() + " ▶").withColor(coin.color());
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        if (coinButton != null) coinButton.setMessage(coinLabel());
     }
 
     @Override
@@ -50,9 +80,14 @@ public class RackScreen extends AbstractContainerScreen<RackMenu> {
             GuiDraw.verticalBar(g, x + ENERGY_X, y + ENERGY_Y, ENERGY_W, ENERGY_H, cap > 0 ? (double) menu.energy() / cap : 0, GuiDraw.ENERGY);
         }
         GuiDraw.monitor(g, x + INFO_X, y + INFO_Y, INFO_W, INFO_H);
-        long goal = menu.goal();
-        double fraction = goal > 0 ? (double) menu.progress() / goal : 0;
-        GuiDraw.bar(g, x + BAR_X, y + BAR_Y, BAR_W, BAR_H, fraction, menu.status() == RackStatus.RUNNING ? 0xFF3CB371 : 0xFF8B6914);
+        if (menu.type() == RackType.FABRICATING) {
+            long goal = menu.goal();
+            double fraction = goal > 0 ? (double) menu.progress() / goal : 0;
+            GuiDraw.bar(g, x + BAR_X, y + BAR_Y, BAR_W, BAR_H, fraction, menu.status() == RackStatus.RUNNING ? 0xFF3CB371 : 0xFF8B6914);
+        } else {
+            int top = menu.type() == RackType.MINING ? 38 : 18;
+            GuiDraw.monitor(g, x + INCOME_X, y + top, INCOME_W, 70 - top + 4);
+        }
     }
 
     @Override
@@ -94,9 +129,18 @@ public class RackScreen extends AbstractContainerScreen<RackMenu> {
                 : Component.translatable("gui.datacenterextended.rack.power", menu.watts());
         g.text(font, power, tx, ty + 27, status == RackStatus.NO_ENERGY ? GuiDraw.TEXT_ERR : GuiDraw.TEXT_INFO, false);
 
-        // 5: progress / ETA (+ hosting storage bonus)
+        // income panel (mining / hosting)
+        if (type != RackType.FABRICATING) {
+            extractIncome(g, type);
+        }
+
+        // 5: progress / ETA (fabricating) or storage bonus (hosting)
+        if (type == RackType.HOSTING) {
+            g.text(font, Component.translatable("gui.datacenterextended.rack.storage_bonus", Math.round(menu.storageBonus() * 100)),
+                    tx, ty + 36, GuiDraw.TEXT_INFO, false);
+        }
         long goal = menu.goal();
-        if (goal > 0) {
+        if (goal > 0 && type == RackType.FABRICATING) {
             double speed = switch (type) {
                 case HOSTING -> 1.0 + menu.storageBonus();
                 case FABRICATING -> Config.safe(Config.FABRICATION_SPEED, 1.0);
@@ -111,6 +155,25 @@ public class RackScreen extends AbstractContainerScreen<RackMenu> {
                         DataUnits.formatBytes(menu.progress()), DataUnits.formatBytes(goal), eta);
             };
             g.text(font, line, tx, ty + 36, GuiDraw.TEXT_INFO, false);
+        }
+    }
+
+    private void extractIncome(GuiGraphicsExtractor g, RackType type) {
+        int px = INCOME_X + 3;
+        int py = (type == RackType.MINING ? 38 : 18) + 3;
+        double perHour = menu.incomePerHour();
+        if (type == RackType.MINING) {
+            Coin coin = menu.coin();
+            double dollars = perHour * ClientEconomy.price(coin);
+            g.text(font, Component.translatable("gui.datacenterextended.income.per_hour"), px, py, GuiDraw.TEXT_INFO, false);
+            g.text(font, Money.formatCoin(perHour, coin), px, py + 10, coin.color(), false);
+            g.text(font, "≈ " + Money.format(Math.round(dollars * 100)), px, py + 20, GuiDraw.TEXT_OK, false);
+        } else {
+            g.text(font, Component.translatable("gui.datacenterextended.income.per_hour"), px, py, GuiDraw.TEXT_INFO, false);
+            g.text(font, Money.format(Math.round(perHour)), px, py + 12, GuiDraw.TEXT_OK, false);
+            g.text(font, Component.translatable("gui.datacenterextended.income.per_day", Money.format(Math.round(perHour * 0.3333))),
+                    px, py + 24, GuiDraw.TEXT_INFO, false);
+            g.text(font, Component.translatable("gui.datacenterextended.income.wallet"), px, py + 40, 0xFF7F8FA0, false);
         }
     }
 

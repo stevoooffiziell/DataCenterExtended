@@ -3,6 +3,7 @@ package de.f4ked.datacenterextended.menu;
 import de.f4ked.datacenterextended.block.RackBlockEntity;
 import de.f4ked.datacenterextended.block.RackStatus;
 import de.f4ked.datacenterextended.block.RackType;
+import de.f4ked.datacenterextended.economy.Coin;
 import de.f4ked.datacenterextended.registry.ModItems;
 import de.f4ked.datacenterextended.registry.ModMenus;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -196,6 +197,30 @@ public class RackMenu extends AbstractContainerMenu {
 
     public long fePerTick() {
         return DataSlots.readLong(data, DATA_FE_PER_TICK);
+    }
+
+    /** Income per hour: cents (hosting) or coins (mining). */
+    public double incomePerHour() {
+        long raw = DataSlots.readLong(data, DATA_INCOME);
+        return type == RackType.MINING ? raw / COIN_SCALE : raw;
+    }
+
+    public Coin coin() {
+        return Coin.byId(data.get(DATA_COIN));
+    }
+
+    public boolean hasOwner() {
+        return data.get(DATA_HAS_OWNER) != 0;
+    }
+
+    /** Coin selector of mining racks (sent through the vanilla container button packet). */
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id == BUTTON_NEXT_COIN && type == RackType.MINING && controller != null) {
+            controller.setCoin(Coin.byId((controller.coin().ordinal() + 1) % Coin.count()));
+            return true;
+        }
+        return false;
     }
 
     public double storageBonus() {

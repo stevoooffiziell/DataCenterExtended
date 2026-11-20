@@ -17,8 +17,8 @@ NeoForge mod for Minecraft 26.3. Assemble **servers**, mount them in **racks** a
 
 | Rack | Uses | Produces |
 |---|---|---|
-| **Mining Rack** | GPU hashrate (MH/s) of its own servers, standalone | Bitcoin, which you sell at the **Trading Terminal** |
-| **Hosting Rack** | Compute (KB/s), with a bonus for installed storage | Credits |
+| **Mining Rack** | GPU hashrate (MH/s) of its own servers, standalone | Bitcoin, Dogecoin or Ethereum (selectable) into the owner's wallet |
+| **Hosting Rack** | Compute (KB/s), with a bonus for installed storage | Dollars into the owner's wallet |
 | **Fabricating Rack** | Compute (KB/s) | Copies of the target item, by its *file size* (e.g. cobblestone = 1 MB) |
 
 3. **Data cables** (Coax → Cat5e → Cat6a → Fiber) connect Hosting and Fabricating racks into a **shared compute pool**.
@@ -32,7 +32,15 @@ NeoForge mod for Minecraft 26.3. Assemble **servers**, mount them in **racks** a
    When the buffer runs low, servers shut down one by one. The rack GUI shows a gauge and the FE/t; hover the gauge for details.
    Turn `energy.requireEnergy` off to play without an energy mod.
 
-Credits come as Credit (1), Credit Bundle (9) and Credit Crate (81). Better hardware costs credits and the previous part of its category.
+5. **Wallet:** press **K** (rebindable under Controls) to open your wallet. It shows your dollar balance, your coins,
+   live prices with a chart, and lets you sell coins (25% / 50% / all or a typed amount, minus a 2% fee).
+   Racks pay the player who placed them, even while that player is offline. New players start with $250.
+   Coin prices follow a mean-reverting random walk per world (updated every minute), so timing your sales matters.
+
+6. **Hardware Shop:** buy parts, racks, cables and the workbench with dollars, at a **Hardware Shop** block or from the
+   Shop tab of the wallet screen. The $250 start covers a first hosting setup (Pentium 4 server + Hosting Rack).
+   Crafting recipes for parts still exist, but they are expensive chains (each part needs the previous one plus processor
+   dies, gold/diamond blocks or echo shards), so the shop is the normal way early on.
 
 ## Configuration
 
@@ -40,10 +48,16 @@ Credits come as Credit (1), Credit Bundle (9) and Credit Crate (81). Better hard
 The server sends these settings to clients. Sections:
 - `general`: compute and hashrate multipliers, PSU limit
 - `energy`: FE requirement (on by default), FE per watt, buffer size and input rate
+- `economy`: starting balance, sell fee
+- `market`: update interval; per coin base price, volatility, mean reversion and difficulty (`hashesPerCoin`)
+- `shop`: remote shop on/off (`remoteShop = false` means buying only at a Hardware Shop block), price multiplier
 - `memory`: RAM requirement, starved factor, speed and multi-channel bonus
-- `mining`, `hosting`, `fabrication`, `trading`: rates and blacklist
+- `mining`, `hosting`, `fabrication`: CPU mining, `bytesPerDollar`, fabrication speed and blacklist
 - `network`: capacity of each cable tier, `maxCablesPerNetwork`
 - `racks`: fabricating intake and hosting capacity per segment, storage bonus
+
+### Startup settings: `config/datacenterextended-startup.toml`
+- `enablePartRecipes`: set to `false` to remove all part crafting recipes (shop only). Needs a restart.
 
 ### Per-item values: data maps (datapack-overridable, synced to clients)
 Any item, including items from other mods, can be given hardware stats or a file size.
@@ -74,6 +88,11 @@ Sockets and memory types are free-form ids; a part or board without one fits eve
 ```
 When an item matches several entries, the most specific one wins: item id > `#c:ingots/iron` > `#c:ingots`.
 Add `"replace": true` to an entry to force it. The item tag `#datacenterextended:not_fabricable` blocks fabrication.
+
+`data/<any_namespace>/data_maps/item/shop_price.json`: price in dollars; any item with an entry appears in the shop
+```json
+{ "values": { "datacenterextended:pentium_4": 39, "minecraft:diamond": 250 } }
+```
 
 ### Add-ons
 Other mods can join compute networks by exposing the `datacenterextended:compute_node` block capability
