@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "datacenterextended:carbon_fibre",
+    "R": "datacenterextended:steel_rod"
+  },
+  "pattern": [
+    "  F",
+    " F ",
+    "R  "
+  ],
+  "result": {
+    "id": "datacenterextended:carbon_fibre_blade"
+  }
+}

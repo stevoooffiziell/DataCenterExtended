@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "#minecraft:coals",
+    "S": "#c:strings",
+    "R": "#c:slime_balls"
+  },
+  "pattern": [
+    "CSC",
+    "SRS",
+    "CSC"
+  ],
+  "result": {
+    "id": "datacenterextended:carbon_fibre",
+    "count": 2
+  }
+}

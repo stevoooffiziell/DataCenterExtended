@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "datacenterextended:raw_spodumene_block"
+  ],
+  "result": {
+    "id": "datacenterextended:raw_spodumene",
+    "count": 9
+  }
+}

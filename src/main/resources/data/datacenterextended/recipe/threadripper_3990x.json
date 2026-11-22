@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "datacenterextended:part_recipes_enabled"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:gems/diamond",
+    "S": "datacenterextended:silicon",
+    "$": "#c:storage_blocks/diamond",
+    "X": "datacenterextended:ryzen_9_3950x"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:threadripper_3990x"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "datacenterextended:part_recipes_enabled"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/iron",
+    "S": "#c:ingots/copper",
+    "$": "datacenterextended:processor_die",
+    "X": "datacenterextended:nvidia_h100"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:geforce_8800_gtx"
+  }
+}

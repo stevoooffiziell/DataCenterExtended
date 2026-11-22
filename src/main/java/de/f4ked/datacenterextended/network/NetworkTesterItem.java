@@ -1,5 +1,8 @@
 package de.f4ked.datacenterextended.network;
 
+import de.f4ked.datacenterextended.power.PowerBlock;
+import de.f4ked.datacenterextended.power.PowerCableBlock;
+import de.f4ked.datacenterextended.power.PowerReport;
 import de.f4ked.datacenterextended.block.DataCableBlock;
 import de.f4ked.datacenterextended.block.RackBlock;
 import de.f4ked.datacenterextended.hardware.DataUnits;
@@ -13,7 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 
-/** Right-click a data cable or rack to print a report about its compute network. */
+/** Right-click a data cable or rack (compute network) or a power cable / generator / battery (power network) for a report. */
 public class NetworkTesterItem extends Item {
     public NetworkTesterItem(Properties properties) {
         super(properties);
@@ -23,6 +26,13 @@ public class NetworkTesterItem extends Item {
     public InteractionResult useOn(UseOnContext context) {
         BlockPos pos = context.getClickedPos();
         Block block = context.getLevel().getBlockState(pos).getBlock();
+        if (block instanceof PowerCableBlock || block instanceof PowerBlock) {
+            if (context.getLevel() instanceof ServerLevel level && context.getPlayer() != null) {
+                PowerReport.send(level, pos, context.getPlayer());
+                return InteractionResult.SUCCESS_SERVER;
+            }
+            return InteractionResult.SUCCESS;
+        }
         if (!(block instanceof DataCableBlock) && !(block instanceof RackBlock)) {
             return InteractionResult.PASS;
         }

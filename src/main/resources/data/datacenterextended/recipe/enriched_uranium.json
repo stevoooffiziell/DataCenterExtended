@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "Y": "datacenterextended:yellowcake",
+    "R": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "YYY",
+    "YRY",
+    "YYY"
+  ],
+  "result": {
+    "id": "datacenterextended:enriched_uranium"
+  }
+}

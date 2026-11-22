@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "datacenterextended:steel_plate",
+    "E": "datacenterextended:enriched_uranium"
+  },
+  "pattern": [
+    "P",
+    "E",
+    "P"
+  ],
+  "result": {
+    "id": "datacenterextended:fuel_rod"
+  }
+}

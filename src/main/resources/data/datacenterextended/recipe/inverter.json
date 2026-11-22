@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "datacenterextended:aluminium_sheet",
+    "K": "datacenterextended:capacitor",
+    "C": "datacenterextended:copper_coil",
+    "B": "datacenterextended:circuit_board",
+    "W": "datacenterextended:copper_wire"
+  },
+  "pattern": [
+    "AKA",
+    "CBC",
+    "AWA"
+  ],
+  "result": {
+    "id": "datacenterextended:inverter"
+  }
+}

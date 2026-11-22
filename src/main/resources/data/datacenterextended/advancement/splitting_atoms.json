@@ -1,0 +1,25 @@
+{
+  "parent": "datacenterextended:first_generator",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:small_modular_reactor"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.splitting_atoms.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.splitting_atoms.description"
+    },
+    "frame": "challenge"
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

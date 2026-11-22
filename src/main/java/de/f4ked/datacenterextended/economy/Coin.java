@@ -52,6 +52,23 @@ public enum Coin {
         return Config.safe(settings().hashesPerCoin(), 1.0E10);
     }
 
+    public double difficultyExponent() {
+        return Config.safe(settings().difficultyExponent(), 0.85);
+    }
+
+    public double futureDrift() {
+        return Config.safe(settings().futureDrift(), 0.0);
+    }
+
+    public double postMergeReward() {
+        return Config.safe(settings().postMergeReward(), 1.0);
+    }
+
+    /** Only ASIC miners built for this coin's algorithm can mine it (Bitcoin: SHA-256). */
+    public boolean asicMineable() {
+        return this == BITCOIN;
+    }
+
     public static Coin byId(int id) {
         return id >= 0 && id < VALUES.length ? VALUES[id] : BITCOIN;
     }

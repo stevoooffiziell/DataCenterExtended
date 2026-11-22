@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "K": "minecraft:dried_kelp",
+    "W": "datacenterextended:copper_wire"
+  },
+  "pattern": [
+    "KKK",
+    "WWW",
+    "KKK"
+  ],
+  "result": {
+    "id": "datacenterextended:copper_power_cable",
+    "count": 8
+  }
+}

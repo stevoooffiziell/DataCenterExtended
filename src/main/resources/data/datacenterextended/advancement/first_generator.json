@@ -1,0 +1,24 @@
+{
+  "parent": "datacenterextended:root",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:polycrystalline_solar_panel"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.first_generator.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.first_generator.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

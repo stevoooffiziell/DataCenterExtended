@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": "datacenterextended:solar_cell",
+    "P": "datacenterextended:monocrystalline_solar_panel",
+    "A": "datacenterextended:aluminium_sheet",
+    "K": "datacenterextended:charge_controller"
+  },
+  "pattern": [
+    "CCC",
+    "CPC",
+    "AKA"
+  ],
+  "result": {
+    "id": "datacenterextended:perc_solar_panel"
+  }
+}

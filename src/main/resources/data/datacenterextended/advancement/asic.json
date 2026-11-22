@@ -1,0 +1,31 @@
+{
+  "parent": "datacenterextended:first_coin",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#datacenterextended:asic_miners"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:antminer_s9"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.asic.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.asic.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

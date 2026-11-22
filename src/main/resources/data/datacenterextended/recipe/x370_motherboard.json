@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "datacenterextended:part_recipes_enabled"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/gold",
+    "S": "datacenterextended:circuit_board",
+    "$": "#c:storage_blocks/gold",
+    "X": "datacenterextended:z170_motherboard"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:x370_motherboard"
+  }
+}

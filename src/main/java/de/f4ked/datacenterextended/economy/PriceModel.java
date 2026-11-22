@@ -17,4 +17,10 @@ public final class PriceModel {
         next = Math.max(logBase - 6.9, Math.min(logBase + 6.9, next));
         return Math.exp(next);
     }
+
+    /** The noise (log deviation from the reference price) after one step, clamped to +-max. */
+    public static double nextNoise(double noise, double volatility, double reversion, double gaussian, double max) {
+        double next = noise - reversion * noise + volatility * gaussian;
+        return Math.max(-max, Math.min(max, next));
+    }
 }

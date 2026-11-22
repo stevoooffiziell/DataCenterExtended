@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "S": "datacenterextended:steel_plate",
+    "B": "datacenterextended:bearing",
+    "X": "datacenterextended:steel_gear",
+    "G": "datacenterextended:alternator"
+  },
+  "pattern": [
+    "SBS",
+    "XGX",
+    "SSS"
+  ],
+  "result": {
+    "id": "datacenterextended:micro_hydro_turbine"
+  }
+}

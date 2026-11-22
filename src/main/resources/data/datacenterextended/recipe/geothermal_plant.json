@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "P": "datacenterextended:steel_plate",
+    "F": "datacenterextended:fibreglass",
+    "C": "#c:storage_blocks/copper",
+    "G": "datacenterextended:alternator"
+  },
+  "pattern": [
+    "PFP",
+    "CGC",
+    "PFP"
+  ],
+  "result": {
+    "id": "datacenterextended:geothermal_plant"
+  }
+}

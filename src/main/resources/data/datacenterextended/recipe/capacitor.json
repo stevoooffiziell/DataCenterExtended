@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": "datacenterextended:aluminium_sheet",
+    "P": "minecraft:paper",
+    "W": "datacenterextended:copper_wire"
+  },
+  "pattern": [
+    "SPS",
+    "W W"
+  ],
+  "result": {
+    "id": "datacenterextended:capacitor",
+    "count": 2
+  }
+}

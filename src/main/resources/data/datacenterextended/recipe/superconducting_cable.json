@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": "datacenterextended:aluminium_power_cable",
+    "N": "datacenterextended:liquid_nitrogen_cell",
+    "D": "#c:gems/diamond"
+  },
+  "pattern": [
+    "CCC",
+    "NDN",
+    "CCC"
+  ],
+  "result": {
+    "id": "datacenterextended:superconducting_cable",
+    "count": 8
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "#c:ingots/iron",
+    "R": "#c:dusts/redstone",
+    "C": "datacenterextended:circuit_board"
+  },
+  "pattern": [
+    "III",
+    "RCR",
+    "III"
+  ],
+  "result": {
+    "id": "datacenterextended:rack_fan"
+  }
+}

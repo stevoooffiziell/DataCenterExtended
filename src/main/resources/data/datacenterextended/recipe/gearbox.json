@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "datacenterextended:steel_plate",
+    "G": "datacenterextended:steel_gear",
+    "B": "datacenterextended:bearing",
+    "R": "datacenterextended:steel_rod"
+  },
+  "pattern": [
+    "PGP",
+    "BRB",
+    "PGP"
+  ],
+  "result": {
+    "id": "datacenterextended:gearbox"
+  }
+}

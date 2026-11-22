@@ -10,7 +10,7 @@
     "M": "#c:ingots/iron",
     "S": "#c:dusts/redstone",
     "$": "datacenterextended:processor_die",
-    "X": "datacenterextended:psu_300w"
+    "X": "datacenterextended:psu_400w"
   },
   "pattern": [
     "MSM",

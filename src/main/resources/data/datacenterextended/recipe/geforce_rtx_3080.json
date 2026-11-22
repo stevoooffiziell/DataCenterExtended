@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "datacenterextended:part_recipes_enabled"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:gems/diamond",
+    "S": "#c:ingots/copper",
+    "$": "#c:storage_blocks/diamond",
+    "X": "datacenterextended:geforce_rtx_3060_ti"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:geforce_rtx_3080"
+  }
+}

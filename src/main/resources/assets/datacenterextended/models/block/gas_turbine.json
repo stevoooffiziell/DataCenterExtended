@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "datacenterextended:block/gas_turbine_front",
+    "side": "datacenterextended:block/gas_turbine_side",
+    "top": "datacenterextended:block/gas_turbine_top"
+  }
+}

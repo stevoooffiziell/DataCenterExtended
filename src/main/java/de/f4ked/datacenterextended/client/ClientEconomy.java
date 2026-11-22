@@ -11,6 +11,11 @@ public final class ClientEconomy {
     private static final double[] COINS = new double[Coin.count()];
     private static final double[] PRICES = new double[Coin.count()];
     private static final List<List<Double>> HISTORY = new ArrayList<>();
+    private static final int[] HALVINGS = new int[Coin.count()];
+    private static final long[] NEXT_HALVING = new long[Coin.count()];
+    private static long marketSyncedAt;
+    private static double syncedEpochDay = de.f4ked.datacenterextended.time.Calendar.epochDay(java.time.LocalDate.of(2010, 7, 1));
+    private static int ticksPerDay = 2400;
 
     private ClientEconomy() {
     }
@@ -24,6 +29,48 @@ public final class ClientEconomy {
         for (int i = 0; i < PRICES.length; i++) PRICES[i] = i < prices.size() ? prices.get(i) : 0;
         HISTORY.clear();
         for (List<Double> h : history) HISTORY.add(List.copyOf(h));
+    }
+
+    static void setHalvings(List<Integer> halvings, List<Long> nextHalving, double epochDay, int dayTicks) {
+        for (int i = 0; i < HALVINGS.length; i++) {
+            HALVINGS[i] = i < halvings.size() ? halvings.get(i) : 0;
+            NEXT_HALVING[i] = i < nextHalving.size() ? nextHalving.get(i) : -1;
+        }
+        marketSyncedAt = System.currentTimeMillis();
+        syncedEpochDay = epochDay;
+        ticksPerDay = Math.max(1, dayTicks);
+    }
+
+    /** Calendar time, advanced locally since the last sync (20 ticks per real second). */
+    public static double epochDay() {
+        double ticks = (System.currentTimeMillis() - marketSyncedAt) / 50.0;
+        return syncedEpochDay + Math.min(ticks, 1200) / ticksPerDay;
+    }
+
+    public static java.time.LocalDate today() {
+        return de.f4ked.datacenterextended.time.Calendar.date(epochDay());
+    }
+
+    /** Real seconds per calendar day. */
+    public static double secondsPerDay() {
+        return ticksPerDay / 20.0;
+    }
+
+    public static int halvings(Coin coin) {
+        return HALVINGS[coin.ordinal()];
+    }
+
+    /** Date of the coin's next halving, or null if there is none. */
+    public static java.time.LocalDate nextHalving(Coin coin) {
+        long day = NEXT_HALVING[coin.ordinal()];
+        return day < 0 ? null : java.time.LocalDate.ofEpochDay(day);
+    }
+
+    /** Real seconds until the next halving, or -1. */
+    public static double secondsToNextHalving(Coin coin) {
+        long day = NEXT_HALVING[coin.ordinal()];
+        if (day < 0) return -1;
+        return Math.max(0, (day - epochDay()) * secondsPerDay());
     }
 
     public static long cents() {

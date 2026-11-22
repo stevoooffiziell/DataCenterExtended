@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "datacenterextended:block/lithium_ion_battery"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "datacenterextended:fibreglass",
+    "R": "datacenterextended:steel_rod"
+  },
+  "pattern": [
+    "  F",
+    " F ",
+    "R  "
+  ],
+  "result": {
+    "id": "datacenterextended:fibreglass_blade"
+  }
+}

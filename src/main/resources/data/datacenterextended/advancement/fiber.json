@@ -1,0 +1,31 @@
+{
+  "parent": "datacenterextended:first_boot",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "datacenterextended:fiber_cable"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:fiber_cable"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.fiber.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.fiber.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

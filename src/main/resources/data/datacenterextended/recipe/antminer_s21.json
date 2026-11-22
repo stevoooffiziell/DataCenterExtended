@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "datacenterextended:part_recipes_enabled"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/netherite",
+    "S": "#c:ingots/copper",
+    "$": "minecraft:echo_shard",
+    "X": "datacenterextended:antminer_s19_pro"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:antminer_s21"
+  }
+}

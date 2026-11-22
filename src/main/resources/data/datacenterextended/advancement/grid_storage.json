@@ -1,0 +1,25 @@
+{
+  "parent": "datacenterextended:first_generator",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:lfp_battery_bank"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.grid_storage.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.grid_storage.description"
+    },
+    "frame": "goal"
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -18,7 +18,13 @@ public enum ServerProblem {
     NO_COMPUTE,
     /** Runs, but has no hashrate: useless in mining racks. */
     NO_HASHRATE,
-    NO_ENERGY;
+    NO_ENERGY,
+    /** A part has 0% condition (repair it in the Service tab). */
+    BROKEN_PART,
+    /** ASIC miners only mine Bitcoin. */
+    ASIC_WRONG_COIN,
+    /** The owner could not pay the electricity bill. */
+    UNPAID_BILL;
 
     private static final ServerProblem[] VALUES = values();
 

@@ -1,0 +1,16 @@
+{
+  "values": {
+    "datacenterextended:rack_fan": {
+      "capacity": 800,
+      "power": 20
+    },
+    "datacenterextended:high_flow_fan": {
+      "capacity": 2000,
+      "power": 60
+    },
+    "datacenterextended:water_cooling_kit": {
+      "capacity": 12000,
+      "power": 250
+    }
+  }
+}

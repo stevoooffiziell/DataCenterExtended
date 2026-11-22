@@ -2,6 +2,10 @@ package de.f4ked.datacenterextended.economy;
 
 import de.f4ked.datacenterextended.Config;
 import de.f4ked.datacenterextended.Datacenterextended;
+import de.f4ked.datacenterextended.advancement.ModAdvancements;
+import de.f4ked.datacenterextended.item.PrebuiltServerItem;
+import de.f4ked.datacenterextended.registry.ModItems;
+import de.f4ked.datacenterextended.time.CalendarData;
 import de.f4ked.datacenterextended.block.HardwareShopBlock;
 import de.f4ked.datacenterextended.network.ModPayloads;
 import de.f4ked.datacenterextended.registry.ModDataMaps;
@@ -42,7 +46,7 @@ public final class EconomyService {
     private record ShopVisit(ResourceKey<Level> dimension, BlockPos pos) {
     }
 
-    public enum BuyResult { OK, NOT_FOR_SALE, NO_SHOP_ACCESS, TOO_EXPENSIVE, INVALID }
+    public enum BuyResult { OK, NOT_FOR_SALE, NOT_RELEASED, NO_SHOP_ACCESS, TOO_EXPENSIVE, INVALID }
 
     private EconomyService() {
     }
@@ -53,16 +57,37 @@ public final class EconomyService {
     public static void onServerTick(ServerTickEvent.Post event) {
         MinecraftServer server = event.getServer();
         int interval = Config.safe(Config.MARKET_UPDATE_TICKS, 1200);
+        CalendarData calendar = CalendarData.get(server);
+        calendar.tick();
+        double today = calendar.epochDay();
+        boolean marketChanged = false;
+        MarketData market = MarketData.get(server);
         if (server.getTickCount() % interval == 0) {
-            MarketData market = MarketData.get(server);
-            market.update();
-            ModPayloads.MarketSync payload = marketPayload(market);
+            market.update(today);
+            marketChanged = true;
+        } else if (server.getTickCount() % 20 == 0) {
+            market.refresh(today);
+        }
+        if (server.getTickCount() % 20 == 0) {
+            for (Coin coin : market.newHalvings(today)) {
+                announceHalving(server, coin, MarketData.halvings(coin, today));
+                marketChanged = true;
+            }
+        }
+        // keep the clients' date display in step every few seconds
+        if (server.getTickCount() % 200 == 0) marketChanged = true;
+        if (marketChanged) {
+            ModPayloads.MarketSync payload = marketPayload(server);
             for (ServerPlayer player : server.getPlayerList().getPlayers()) send(player, payload);
         }
         WalletData wallets = WalletData.get(server);
         for (UUID id : wallets.drainPendingSync()) {
             ServerPlayer player = server.getPlayerList().getPlayer(id);
-            if (player != null) send(player, walletPayload(wallets.wallet(id)));
+            if (player == null) continue;
+            Wallet wallet = wallets.wallet(id);
+            send(player, walletPayload(wallet));
+            if (wallet.cents() >= 1_000_000L) ModAdvancements.award(player, ModAdvancements.TEN_THOUSAND);
+            if (wallet.cents() >= 100_000_000L) ModAdvancements.award(player, ModAdvancements.MILLIONAIRE);
         }
     }
 
@@ -70,9 +95,15 @@ public final class EconomyService {
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             MinecraftServer server = player.level().getServer();
-            Wallet wallet = WalletData.get(server).wallet(player.getUUID());
+            WalletData wallets = WalletData.get(server);
+            boolean firstJoin = !wallets.has(player.getUUID());
+            Wallet wallet = wallets.wallet(player.getUUID());
             send(player, walletPayload(wallet));
-            send(player, marketPayload(MarketData.get(server)));
+            send(player, marketPayload(server));
+            if (firstJoin && Config.safe(Config.GIVE_HANDBOOK, true)) {
+                ItemStack book = new ItemStack(ModItems.HANDBOOK.get());
+                if (!player.getInventory().add(book)) player.drop(book, false, Prediction.SERVER_ONLY);
+            }
         }
     }
 
@@ -94,12 +125,41 @@ public final class EconomyService {
         return new ModPayloads.WalletSync(wallet.cents(), coins);
     }
 
-    public static ModPayloads.MarketSync marketPayload(MarketData market) {
+    public static ModPayloads.MarketSync marketPayload(MinecraftServer server) {
+        MarketData market = MarketData.get(server);
+        double today = CalendarData.now(server);
         List<Double> prices = new ArrayList<>();
         for (double p : market.pricesCopy()) prices.add(p);
         List<List<Double>> history = new ArrayList<>();
         for (List<Double> h : market.history()) history.add(List.copyOf(h));
-        return new ModPayloads.MarketSync(prices, history);
+        List<Integer> halvings = new ArrayList<>();
+        List<Long> next = new ArrayList<>();
+        for (Coin coin : Coin.values()) {
+            halvings.add(MarketData.halvings(coin, today));
+            java.time.LocalDate nextHalving = PriceHistory.nextHalving(coin, today);
+            next.add(nextHalving == null ? -1L : nextHalving.toEpochDay());
+        }
+        return new ModPayloads.MarketSync(prices, history, halvings, next, today, Config.safe(Config.TICKS_PER_DAY, 2400));
+    }
+
+    /** Sends the player's statistics for one scale (Stats tab). */
+    public static void sendStats(ServerPlayer player, int scaleId) {
+        MinecraftServer server = player.level().getServer();
+        StatsLedger.Series series = StatsData.get(server).series(player.getUUID(), StatsLedger.Scale.byId(scaleId), CalendarData.now(server));
+        List<Long> flat = new ArrayList<>();
+        for (long[] bucket : series.values()) for (long v : bucket) flat.add(v);
+        send(player, new ModPayloads.StatsSync(series.scale().ordinal(), series.firstKey(), flat));
+    }
+
+    private static void announceHalving(MinecraftServer server, Coin coin, int halvings) {
+        Component message = Component.translatable("message.datacenterextended.halving", Component.translatable(coin.translationKey()),
+                "1/" + (1L << Math.min(62, halvings))).withStyle(ChatFormatting.GOLD);
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (player.connection != null) {
+                player.sendSystemMessage(message);
+                ModAdvancements.award(player, ModAdvancements.HALVING);
+            }
+        }
     }
 
     // ================================================================== selling
@@ -111,9 +171,11 @@ public final class EconomyService {
         WalletData wallets = WalletData.get(server);
         double held = wallets.wallet(player.getUUID()).coins(coin);
         amount = Math.min(amount, held); // "sell all" may be a hair above due to float rounding on the client
+        if (MarketData.get(server).price(coin) <= 0) return -1; // not launched yet
         long cents = saleValue(coin, amount, MarketData.get(server).price(coin));
         if (amount <= 0 || !wallets.withdrawCoins(player.getUUID(), coin, amount)) return -1;
         wallets.deposit(player.getUUID(), cents);
+        StatsData.record(server, player.getUUID(), StatsLedger.Category.SALES, cents);
         player.sendOverlayMessage(Component.translatable("message.datacenterextended.sold_coin",
                 Money.formatCoin(amount, coin), Money.format(cents)).withStyle(ChatFormatting.GREEN));
         player.level().playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.4F, 1.4F);
@@ -127,11 +189,9 @@ public final class EconomyService {
 
     // ================================================================== shop
 
-    /** Price in cents including the multiplier, or -1 if the item is not sold. */
-    public static long priceCents(Item item) {
-        double dollars = ModDataMaps.shopPrice(item);
-        if (dollars < 0) return -1;
-        return Money.toCents(dollars * Config.safe(Config.SHOP_PRICE_MULTIPLIER, 1.0));
+    /** Price in cents at the calendar date, or -1 if the item is not sold. */
+    public static long priceCents(Item item, double epochDay) {
+        return ShopPricing.priceCents(item, epochDay);
     }
 
     public static void rememberShop(Player player, Level level, BlockPos pos) {
@@ -148,8 +208,14 @@ public final class EconomyService {
 
     public static BuyResult buy(ServerPlayer player, Item item, int count) {
         if (count < 1 || count > 64) return BuyResult.INVALID;
-        long price = priceCents(item);
+        double today = CalendarData.now(player.level().getServer());
+        long price = priceCents(item, today);
         if (price < 0) return BuyResult.NOT_FOR_SALE;
+        if (!ShopPricing.released(item, today)) {
+            player.sendOverlayMessage(Component.translatable("message.datacenterextended.shop.not_released",
+                    String.valueOf(ShopPricing.releaseDate(item))).withStyle(ChatFormatting.RED));
+            return BuyResult.NOT_RELEASED;
+        }
         if (!canUseShop(player)) {
             player.sendOverlayMessage(Component.translatable("message.datacenterextended.shop.no_access").withStyle(ChatFormatting.RED));
             return BuyResult.NO_SHOP_ACCESS;
@@ -161,9 +227,12 @@ public final class EconomyService {
                     .withStyle(ChatFormatting.RED));
             return BuyResult.TOO_EXPENSIVE;
         }
+        StatsData.record(player.level().getServer(), player.getUUID(), StatsLedger.Category.SHOP, total);
         int remaining = count;
         while (remaining > 0) {
-            ItemStack stack = new ItemStack(item, Math.min(remaining, item.getDefaultMaxStackSize()));
+            // prebuilt servers arrive assembled
+            ItemStack stack = item instanceof PrebuiltServerItem prebuilt ? prebuilt.prebuilt().assemble()
+                    : new ItemStack(item, Math.min(remaining, item.getDefaultMaxStackSize()));
             remaining -= stack.getCount();
             if (!player.getInventory().add(stack) && !stack.isEmpty()) {
                 player.drop(stack, false, Prediction.SERVER_ONLY);
@@ -173,5 +242,51 @@ public final class EconomyService {
                 item.getName(new ItemStack(item)), Money.format(total)).withStyle(ChatFormatting.GREEN));
         player.level().playSound(null, player.blockPosition(), SoundEvents.VILLAGER_YES, SoundSource.PLAYERS, 0.5F, 1.2F);
         return BuyResult.OK;
+    }
+
+    // ================================================================== service (repair / sell second-hand)
+
+    public enum ServiceResult { OK, NO_SHOP_ACCESS, NOTHING_TO_DO, TOO_EXPENSIVE, INVALID }
+
+    /** Repairs or sells the stack in a slot (0..35) of the player's inventory. */
+    public static ServiceResult service(ServerPlayer player, int slot, Item item, boolean repair) {
+        if (slot < 0 || slot >= 36) return ServiceResult.INVALID;
+        ItemStack stack = player.getInventory().getItem(slot);
+        if (stack.isEmpty() || !stack.is(item)) return ServiceResult.INVALID;
+        if (!canUseShop(player)) {
+            player.sendOverlayMessage(Component.translatable("message.datacenterextended.shop.no_access").withStyle(ChatFormatting.RED));
+            return ServiceResult.NO_SHOP_ACCESS;
+        }
+        WalletData wallets = WalletData.get(player.level().getServer());
+        Component name = stack.getHoverName();
+        int count = stack.getCount();
+        if (repair) {
+            long each = ItemValue.repairCents(stack, CalendarData.now(player.level().getServer()));
+            if (each <= 0) return ServiceResult.NOTHING_TO_DO;
+            long total = Math.multiplyExact(each, count);
+            if (!wallets.withdraw(player.getUUID(), total)) {
+                player.sendOverlayMessage(Component.translatable("message.datacenterextended.shop.too_expensive", Money.format(total))
+                        .withStyle(ChatFormatting.RED));
+                return ServiceResult.TOO_EXPENSIVE;
+            }
+            ItemValue.repair(stack);
+            StatsData.record(player.level().getServer(), player.getUUID(), StatsLedger.Category.SHOP, total);
+            player.getInventory().setChanged();
+            player.sendOverlayMessage(Component.translatable("message.datacenterextended.service.repaired", name, Money.format(total))
+                    .withStyle(ChatFormatting.GREEN));
+            player.level().playSound(null, player.blockPosition(), SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 0.4F, 1.4F);
+            ModAdvancements.award(player, ModAdvancements.REPAIRED);
+        } else {
+            long each = ItemValue.resaleCents(stack, CalendarData.now(player.level().getServer()));
+            if (each < 0) return ServiceResult.INVALID;
+            long total = Math.multiplyExact(each, count);
+            player.getInventory().setItem(slot, ItemStack.EMPTY);
+            wallets.deposit(player.getUUID(), total);
+            StatsData.record(player.level().getServer(), player.getUUID(), StatsLedger.Category.SALES, total);
+            player.sendOverlayMessage(Component.translatable("message.datacenterextended.service.sold", count, name, Money.format(total))
+                    .withStyle(ChatFormatting.GREEN));
+            player.level().playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.4F, 1.2F);
+        }
+        return ServiceResult.OK;
     }
 }

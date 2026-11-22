@@ -1,0 +1,33 @@
+{
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "datacenterextended:server"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:server"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.root.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.root.description"
+    },
+    "background": "minecraft:gui/advancements/backgrounds/stone",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

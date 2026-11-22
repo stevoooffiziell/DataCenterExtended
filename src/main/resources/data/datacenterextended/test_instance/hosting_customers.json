@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "datacenterextended:hosting_customers",
+  "max_ticks": 450,
+  "setup_ticks": 1,
+  "required": true,
+  "structure": "minecraft:empty"
+}

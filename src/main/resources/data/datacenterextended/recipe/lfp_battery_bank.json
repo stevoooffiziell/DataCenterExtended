@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "F": "datacenterextended:lfp_cell",
+    "K": "datacenterextended:charge_controller",
+    "B": "datacenterextended:lithium_ion_battery",
+    "P": "datacenterextended:steel_plate",
+    "I": "datacenterextended:inverter"
+  },
+  "pattern": [
+    "FKF",
+    "FBF",
+    "PIP"
+  ],
+  "result": {
+    "id": "datacenterextended:lfp_battery_bank"
+  }
+}

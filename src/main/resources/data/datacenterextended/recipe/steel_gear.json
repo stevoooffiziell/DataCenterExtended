@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "datacenterextended:steel_plate",
+    "R": "datacenterextended:steel_rod"
+  },
+  "pattern": [
+    " P ",
+    "PRP",
+    " P "
+  ],
+  "result": {
+    "id": "datacenterextended:steel_gear"
+  }
+}

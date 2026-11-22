@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "datacenterextended:ore_bauxite",
+    "datacenterextended:ore_spodumene",
+    "datacenterextended:ore_uraninite"
+  ],
+  "step": "underground_ores"
+}

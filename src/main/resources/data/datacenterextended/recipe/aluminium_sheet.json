@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "#c:ingots/aluminum"
+  },
+  "pattern": [
+    "AAA"
+  ],
+  "result": {
+    "id": "datacenterextended:aluminium_sheet",
+    "count": 4
+  }
+}

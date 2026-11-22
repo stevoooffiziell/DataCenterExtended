@@ -64,6 +64,13 @@ public final class WalletData extends SavedData {
         return ok;
     }
 
+    /** Takes as much of {@code cents} as the balance covers; returns the amount taken. */
+    public long withdrawUpTo(UUID player, long cents) {
+        long take = Math.max(0, Math.min(cents, wallet(player).cents()));
+        if (take > 0 && withdraw(player, take)) return take;
+        return 0;
+    }
+
     public void depositCoins(UUID player, Coin coin, double amount) {
         if (amount <= 0) return;
         wallet(player).addCoins(coin, amount);

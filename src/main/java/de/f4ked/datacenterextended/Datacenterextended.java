@@ -60,6 +60,12 @@ public class Datacenterextended {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.RACK.get(), (be, side) -> be.getEnergyHandler());
         // Hosting / fabricating racks join compute networks; other mods can expose this capability too.
         event.registerBlockEntity(ComputeNode.CAPABILITY, ModBlockEntities.RACK.get(), (be, side) -> be.computeNode());
+        // Generators provide FE (extract only), batteries store it, grid connections accept it.
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.GENERATOR.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.BATTERY.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.GRID_CONNECTION.get(), (be, side) -> be.energy());
+        // Hoppers feed fuel and fuel rods and take out spent rods / empty buckets.
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.GENERATOR.get(), WorldlyContainerWrapper::new);
     }
 
     public static Identifier id(String path) {

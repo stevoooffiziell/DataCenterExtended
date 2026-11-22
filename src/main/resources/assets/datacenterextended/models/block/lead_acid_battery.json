@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "datacenterextended:block/lead_acid_battery_front",
+    "side": "datacenterextended:block/lead_acid_battery_side",
+    "top": "datacenterextended:block/lead_acid_battery_top"
+  }
+}

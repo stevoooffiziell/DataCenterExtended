@@ -4,7 +4,8 @@ import de.f4ked.datacenterextended.block.RackBlockEntity;
 import de.f4ked.datacenterextended.block.RackStatus;
 import de.f4ked.datacenterextended.block.RackType;
 import de.f4ked.datacenterextended.economy.Coin;
-import de.f4ked.datacenterextended.registry.ModItems;
+import de.f4ked.datacenterextended.hosting.HostingPlan;
+
 import de.f4ked.datacenterextended.registry.ModMenus;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
@@ -26,21 +27,27 @@ import static de.f4ked.datacenterextended.block.RackBlockEntity.*;
 /** GUI of a merged rack: 4 server slots per segment (up to 3 segments) plus the type specific production slots. */
 public class RackMenu extends AbstractContainerMenu {
     // layout (shared with the screen)
-    public static final int IMAGE_WIDTH = 176;
-    public static final int IMAGE_HEIGHT = 228;
-    public static final int SERVER_X = 8, SERVER_Y = 18, ROW_SPACING = 22;
-    public static final int TARGET_X = 98, TARGET_Y = 18;
-    public static final int OUTPUT_Y = 40;
-    public static final int BAR_X = 98, BAR_Y = 64, BAR_W = 70, BAR_H = 6;
-    /** Vertical FE gauge between the server bays and the production slots. */
-    public static final int ENERGY_X = 85, ENERGY_Y = 18, ENERGY_W = 6, ENERGY_H = 62;
-    public static final int INVENTORY_Y = 146;
+    public static final int IMAGE_WIDTH = 204;
+    public static final int IMAGE_HEIGHT = 244;
+    public static final int SERVER_X = 8, SERVER_Y = 22, ROW_SPACING = 22;
+    /** One cooling slot per segment, right of its 4 bays. */
+    public static final int COOLING_X = 84;
+    /** Left edge of the production area (target, outputs, income panel). */
+    public static final int RIGHT_X = 126, RIGHT_W = 70;
+    public static final int TARGET_X = RIGHT_X, TARGET_Y = 22;
+    public static final int OUTPUT_Y = 44;
+    public static final int BAR_X = RIGHT_X, BAR_Y = 68, BAR_W = RIGHT_W, BAR_H = 6;
+    /** Vertical FE gauge and temperature gauge between the cooling slots and the production area. */
+    public static final int ENERGY_X = 106, ENERGY_Y = 22, ENERGY_W = 6, ENERGY_H = 62;
+    public static final int TEMP_X = 116;
+    public static final int INVENTORY_X = 22, INVENTORY_Y = 162;
 
     private final RackType type;
     private final int segments;
     private final ContainerData data;
     private final @Nullable RackBlockEntity controller;
     private final int serverSlotCount;
+    private final int coolingSlotEnd;
     private final int machineSlotEnd;
 
     /** Client constructor. */
@@ -70,6 +77,10 @@ public class RackMenu extends AbstractContainerMenu {
             }
         }
         serverSlotCount = slots.size();
+        for (int s = 0; s < segments; s++) {
+            addSlot(new CoolingSlot(segmentContainers.get(s), SLOT_COOLING, COOLING_X, SERVER_Y + s * ROW_SPACING));
+        }
+        coolingSlotEnd = slots.size();
         Container main = segmentContainers.getFirst();
         if (type == RackType.FABRICATING) {
             addSlot(new Slot(main, SLOT_TARGET, TARGET_X, TARGET_Y) {
@@ -80,7 +91,7 @@ public class RackMenu extends AbstractContainerMenu {
             });
         }
         for (int i = 0; i < type.outputSlots(); i++) {
-            int x = 170 - 18 * (type.outputSlots() - i);
+            int x = RIGHT_X + RIGHT_W + 2 - 18 * (type.outputSlots() - i);
             addSlot(new Slot(main, SLOT_OUTPUT_START + i, x, OUTPUT_Y) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
@@ -89,7 +100,7 @@ public class RackMenu extends AbstractContainerMenu {
             });
         }
         machineSlotEnd = slots.size();
-        addStandardInventorySlots(inventory, 8, INVENTORY_Y);
+        addStandardInventorySlots(inventory, INVENTORY_X, INVENTORY_Y);
         addDataSlots(data);
     }
 
@@ -144,6 +155,11 @@ public class RackMenu extends AbstractContainerMenu {
 
     public int serverSlotCount() {
         return serverSlotCount;
+    }
+
+    /** Exclusive end of the cooling slots (they follow the server slots). */
+    public int coolingSlotEnd() {
+        return coolingSlotEnd;
     }
 
     public RackStatus status() {
@@ -220,6 +236,10 @@ public class RackMenu extends AbstractContainerMenu {
             controller.setCoin(Coin.byId((controller.coin().ordinal() + 1) % Coin.count()));
             return true;
         }
+        if (id == BUTTON_COMPARATOR && controller != null) {
+            controller.cycleComparatorMode();
+            return true;
+        }
         return false;
     }
 
@@ -235,7 +255,56 @@ public class RackMenu extends AbstractContainerMenu {
         return DataSlots.readSmall(data, DATA_CABLES);
     }
 
-    /** Accepts only server items, one per bay. */
+    /** °C of the rack. */
+    public double temperature() {
+        return DataSlots.readSmall(data, DATA_TEMPERATURE) / 10.0 - TEMP_OFFSET;
+    }
+
+    /** Heat throttling: 1.0 = full speed. */
+    public double speedFactor() {
+        return DataSlots.readSmall(data, DATA_SPEED_PERMILLE) / 1000.0;
+    }
+
+    public long coolingCapacity() {
+        return DataSlots.readLong(data, DATA_COOLING);
+    }
+
+    public long heatLoad() {
+        return DataSlots.readLong(data, DATA_HEAT);
+    }
+
+    /** Electricity bill in cents per hour. */
+    public long billPerHour() {
+        return DataSlots.readLong(data, DATA_BILL);
+    }
+
+    public int customers(HostingPlan plan) {
+        return DataSlots.readSmall(data, DATA_PLANS + plan.ordinal());
+    }
+
+    public double satisfaction() {
+        return DataSlots.readSmall(data, DATA_SATISFACTION) / 1000.0;
+    }
+
+    public de.f4ked.datacenterextended.block.RackComparatorMode comparatorMode() {
+        return de.f4ked.datacenterextended.block.RackComparatorMode.byId(data.get(DATA_COMPARATOR) & 0xF);
+    }
+
+    /** Bill mode: share of the power covered by the rack's own FE (0..1). */
+    public double selfPowered() {
+        return DataSlots.readSmall(data, DATA_SELF_POWERED) / 1000.0;
+    }
+
+    public int comparatorSignal() {
+        return (data.get(DATA_COMPARATOR) >> 4) & 0xF;
+    }
+
+    /** Compute sold to hosting customers, B/s. */
+    public long contracted() {
+        return DataSlots.readLong(data, DATA_CONTRACTED);
+    }
+
+    /** Accepts servers and ASIC miners, one per bay. */
     public static class ServerSlot extends Slot {
         public ServerSlot(Container container, int slot, int x, int y) {
             super(container, slot, x, y);
@@ -243,7 +312,24 @@ public class RackMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return stack.is(ModItems.SERVER.get());
+            return RackBlockEntity.isBayItem(stack);
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
+        }
+    }
+
+    /** Accepts one cooling item (rack fan, water cooling kit). */
+    public static class CoolingSlot extends Slot {
+        public CoolingSlot(Container container, int slot, int x, int y) {
+            super(container, slot, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return RackBlockEntity.isCoolingItem(stack);
         }
 
         @Override

@@ -1,0 +1,24 @@
+{
+  "parent": "datacenterextended:first_boot",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:hosting_rack"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.first_customer.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.first_customer.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

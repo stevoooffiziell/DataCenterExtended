@@ -1,0 +1,24 @@
+{
+  "parent": "datacenterextended:first_generator",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:residential_grid_connection"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.feeding_the_grid.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.feeding_the_grid.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

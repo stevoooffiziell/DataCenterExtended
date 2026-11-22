@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": "datacenterextended:aluminium_sheet",
+    "L": "datacenterextended:lithium_carbonate",
+    "C": "#c:ingots/copper",
+    "G": "#minecraft:coals"
+  },
+  "pattern": [
+    "SLS",
+    "CGC",
+    "SLS"
+  ],
+  "result": {
+    "id": "datacenterextended:li_ion_cell",
+    "count": 2
+  }
+}

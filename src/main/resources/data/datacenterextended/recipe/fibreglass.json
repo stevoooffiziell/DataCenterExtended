@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:glass",
+    "#c:strings",
+    "#c:slime_balls"
+  ],
+  "result": {
+    "id": "datacenterextended:fibreglass",
+    "count": 2
+  }
+}

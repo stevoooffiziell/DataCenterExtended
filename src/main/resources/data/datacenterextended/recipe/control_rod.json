@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "R": "datacenterextended:steel_rod",
+    "G": "#c:ingots/gold"
+  },
+  "pattern": [
+    "R",
+    "G",
+    "R"
+  ],
+  "result": {
+    "id": "datacenterextended:control_rod"
+  }
+}

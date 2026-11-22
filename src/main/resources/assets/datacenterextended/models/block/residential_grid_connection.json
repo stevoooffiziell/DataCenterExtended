@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "datacenterextended:block/residential_grid_connection_front",
+    "side": "datacenterextended:block/residential_grid_connection_side",
+    "top": "datacenterextended:block/residential_grid_connection_top"
+  }
+}

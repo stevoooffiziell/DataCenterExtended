@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "#c:ingots/copper",
+    "B": "minecraft:water_bucket",
+    "F": "datacenterextended:high_flow_fan",
+    "W": "#c:storage_blocks/copper",
+    "D": "#c:gems/diamond"
+  },
+  "pattern": [
+    "CBC",
+    "FWF",
+    "CDC"
+  ],
+  "result": {
+    "id": "datacenterextended:water_cooling_kit"
+  }
+}

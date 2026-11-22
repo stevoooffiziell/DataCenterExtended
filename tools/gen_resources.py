@@ -1,6 +1,7 @@
 """Generates textures, models, blockstates, lang (en_us), recipes, loot tables, tags and data maps for DataCenterExtended.
 
-Usage:  python tools/gen_resources.py <project root>
+Usage:  python tools/gen_resources.py <project root> [--force-textures]
+Existing PNG textures are kept (they may be hand-tweaked); pass --force-textures to redraw them.
 de_de.json is maintained by hand and is NOT touched by this script."""
 import json
 import os
@@ -9,6 +10,7 @@ import sys
 import zlib
 
 ROOT = sys.argv[1]
+FORCE_TEXTURES = "--force-textures" in sys.argv[2:]
 MOD = "datacenterextended"
 ASSETS = os.path.join(ROOT, "src", "main", "resources", "assets", MOD)
 DATA = os.path.join(ROOT, "src", "main", "resources", "data")
@@ -23,6 +25,8 @@ def write_json(path, obj):
 
 # ============================================================ PNG / pixel helpers
 def write_png(path, px, w=16, h=16):
+    if os.path.exists(path) and not FORCE_TEXTURES:
+        return
     os.makedirs(os.path.dirname(path), exist_ok=True)
     raw = b""
     for y in range(h):
@@ -508,6 +512,22 @@ CPUS = [  # id, name, brand, tier, compute KB/s, watts, socket, recommended RAM 
     ("ryzen_9_7950x", "AMD Ryzen 9 7950X", "ryzen", 6, 512, 170, "am5", 64, "R"),
     ("epyc_9654", "AMD EPYC 9654", "epyc", 7, 2048, 360, "sp5", 384, "E"),
     ("xeon_platinum_8480", "Intel Xeon Platinum 8480+", "xeon", 7, 1536, 350, "lga4677", 256, "E"),
+    ("athlon_64_x2_4800", "AMD Athlon 64 X2 4800+", "amd", 1, 6, 89, "am2", 2, "C"),
+    ("core_2_duo_e8400", "Intel Core 2 Duo E8400", "intel", 1, 7, 65, "lga775", 2, "C"),
+    ("core_i7_920", "Intel Core i7-920", "intel", 2, 16, 130, "lga1366", 6, "C"),
+    ("phenom_ii_x6_1100t", "AMD Phenom II X6 1100T", "amd", 2, 16, 125, "am3plus", 8, "C"),
+    ("core_i7_4770k", "Intel Core i7-4770K", "intel", 3, 40, 84, "lga1150", 16, "U"),
+    ("core_i7_6700k", "Intel Core i7-6700K", "intel", 4, 52, 91, "lga1151", 16, "U"),
+    ("ryzen_7_1800x", "AMD Ryzen 7 1800X", "ryzen", 4, 80, 95, "am4", 16, "U"),
+    ("ryzen_9_3950x", "AMD Ryzen 9 3950X", "ryzen", 5, 240, 105, "am4", 64, "R"),
+    ("threadripper_3990x", "AMD Ryzen Threadripper 3990X", "epyc", 6, 900, 280, "strx4", 256, "R"),
+    ("ryzen_9_5950x", "AMD Ryzen 9 5950X", "ryzen", 5, 300, 105, "am4", 64, "R"),
+    ("core_i9_12900k", "Intel Core i9-12900K", "intel", 6, 320, 241, "lga1700", 64, "R"),
+    ("core_i9_14900k", "Intel Core i9-14900K", "intel", 6, 440, 253, "lga1700", 64, "R"),
+    ("ryzen_9_9950x", "AMD Ryzen 9 9950X", "ryzen", 7, 600, 170, "am5", 64, "E"),
+    ("core_ultra_9_285k", "Intel Core Ultra 9 285K", "intel", 7, 560, 250, "lga1851", 64, "E"),
+    ("threadripper_pro_7995wx", "AMD Ryzen Threadripper PRO 7995WX", "epyc", 7, 2400, 350, "str5", 512, "E"),
+    ("epyc_9965", "AMD EPYC 9965", "epyc", 7, 3600, 500, "sp5", 768, "E"),
 ]
 GPUS = [  # id, name, brand, tier, MH/s, watts, rarity
     ("geforce_gtx_460", "NVIDIA GeForce GTX 460", "nvidia", 1, 1.0, 160, "C"),
@@ -522,6 +542,21 @@ GPUS = [  # id, name, brand, tier, MH/s, watts, rarity
     ("geforce_rtx_4090", "NVIDIA GeForce RTX 4090", "nvidia", 6, 40.0, 450, "E"),
     ("geforce_rtx_5090", "NVIDIA GeForce RTX 5090", "nvidia", 7, 60.0, 575, "E"),
     ("nvidia_h100", "NVIDIA H100 PCIe", "nvidia_dc", 7, 100.0, 700, "E"),
+    ("geforce_8800_gtx", "NVIDIA GeForce 8800 GTX", "nvidia", 1, 0.5, 155, "C"),
+    ("radeon_hd_5870", "AMD Radeon HD 5870", "amd", 1, 0.9, 188, "C"),
+    ("geforce_gtx_580", "NVIDIA GeForce GTX 580", "nvidia", 2, 1.6, 244, "C"),
+    ("geforce_gtx_680", "NVIDIA GeForce GTX 680", "nvidia", 2, 2.2, 195, "C"),
+    ("radeon_r9_290x", "AMD Radeon R9 290X", "amd", 3, 3.6, 290, "U"),
+    ("geforce_gtx_980_ti", "NVIDIA GeForce GTX 980 Ti", "nvidia", 3, 5.5, 250, "U"),
+    ("radeon_rx_vega_64", "AMD Radeon RX Vega 64", "amd", 4, 9.0, 295, "U"),
+    ("geforce_rtx_3060_ti", "NVIDIA GeForce RTX 3060 Ti", "nvidia", 4, 12.0, 200, "U"),
+    ("geforce_rtx_3080", "NVIDIA GeForce RTX 3080", "nvidia", 5, 18.0, 320, "R"),
+    ("radeon_rx_6900_xt", "AMD Radeon RX 6900 XT", "amd", 5, 16.0, 300, "R"),
+    ("geforce_rtx_4070", "NVIDIA GeForce RTX 4070", "nvidia", 5, 22.0, 200, "R"),
+    ("radeon_rx_9070_xt", "AMD Radeon RX 9070 XT", "amd", 6, 34.0, 304, "R"),
+    ("nvidia_a100", "NVIDIA A100 PCIe", "nvidia_dc", 6, 70.0, 300, "E"),
+    ("nvidia_h200", "NVIDIA H200 NVL", "nvidia_dc", 7, 140.0, 700, "E"),
+    ("nvidia_b200", "NVIDIA B200", "nvidia_dc", 7, 220.0, 1000, "E"),
 ]
 BOARDS = [  # id, name, pcb, accent, socket, memory type, cpu, gpu, storage, memory slots, max RAM GB, watts, rarity
     ("office_motherboard", "Office Motherboard (LGA775)", 0x2E7D32, 0x1B1B1B, "lga775", "ddr2", 1, 1, 1, 2, 8, 15, "C"),
@@ -536,6 +571,16 @@ BOARDS = [  # id, name, pcb, accent, socket, memory type, cpu, gpu, storage, mem
     ("x670e_motherboard", "X670E Motherboard (AM5)", 0x1C1C1C, 0xFF7043, "am5", "ddr5", 1, 3, 4, 4, 192, 35, "R"),
     ("server_motherboard", "EPYC Server Motherboard (SP5)", 0x1B3B2F, 0x00A39A, "sp5", "ddr5", 2, 4, 4, 8, 3072, 70, "E"),
     ("xeon_quad_motherboard", "Quad-Xeon Server Motherboard (LGA4677)", 0x0B2545, 0x5E8EDB, "lga4677", "ddr5", 4, 4, 4, 8, 4096, 90, "E"),
+    ("am2_motherboard", "AM2 Motherboard (AM2)", 0x1B5E20, 0x9E9E9E, "am2", "ddr2", 1, 1, 2, 4, 8, 18, "C"),
+    ("x58_motherboard", "X58 Motherboard (LGA1366)", 0x212121, 0x1E88E5, "lga1366", "ddr3", 1, 2, 3, 6, 24, 30, "C"),
+    ("z87_motherboard", "Z87 Motherboard (LGA1150)", 0x1A1A1A, 0x43A047, "lga1150", "ddr3", 1, 2, 3, 4, 32, 22, "U"),
+    ("z170_motherboard", "Z170 Motherboard (LGA1151)", 0x202020, 0xE53935, "lga1151", "ddr4", 1, 2, 3, 4, 64, 25, "U"),
+    ("x370_motherboard", "X370 Motherboard (AM4)", 0x161616, 0xFF8F00, "am4", "ddr4", 1, 2, 3, 4, 64, 28, "U"),
+    ("trx40_motherboard", "TRX40 Motherboard (sTRX4)", 0x101418, 0xD84315, "strx4", "ddr4", 1, 4, 4, 8, 256, 55, "R"),
+    ("z690_motherboard", "Z690 Motherboard (LGA1700)", 0x0F172A, 0x38BDF8, "lga1700", "ddr5", 1, 3, 4, 4, 128, 32, "R"),
+    ("wrx90_motherboard", "WRX90 Workstation Motherboard (sTR5)", 0x0B1220, 0xF4511E, "str5", "ddr5", 1, 4, 4, 8, 2048, 75, "E"),
+    ("z890_motherboard", "Z890 Motherboard (LGA1851)", 0x0C111B, 0x60A5FA, "lga1851", "ddr5", 1, 3, 4, 4, 256, 35, "E"),
+    ("x870e_motherboard", "X870E Motherboard (AM5)", 0x141414, 0xFB923C, "am5", "ddr5", 1, 3, 4, 4, 256, 38, "E"),
 ]
 MEMORY = [  # id, name, type, GB, MT/s, watts, ecc, rarity
     ("ddr2_1gb", "1 GB DDR2-667", "ddr2", 1, 667, 2, False, "C"),
@@ -549,8 +594,16 @@ MEMORY = [  # id, name, type, GB, MT/s, watts, ecc, rarity
     ("ddr5_16gb", "16 GB DDR5-4800", "ddr5", 16, 4800, 4, False, "R"),
     ("ddr5_32gb", "32 GB DDR5-6000", "ddr5", 32, 6000, 5, False, "R"),
     ("ddr5_128gb_ecc", "128 GB DDR5-4800 ECC RDIMM", "ddr5", 128, 4800, 8, True, "E"),
+    ("ddr2_4gb", "4 GB DDR2-800", "ddr2", 4, 800, 3, False, "C"),
+    ("ddr3_16gb", "16 GB DDR3-1866", "ddr3", 16, 1866, 4, False, "U"),
+    ("ddr4_32gb", "32 GB DDR4-3600", "ddr4", 32, 3600, 5, False, "R"),
+    ("ddr4_128gb_ecc", "128 GB DDR4-3200 ECC LRDIMM", "ddr4", 128, 3200, 9, True, "E"),
+    ("ddr5_48gb", "48 GB DDR5-6400", "ddr5", 48, 6400, 6, False, "R"),
+    ("ddr5_32gb_8000", "32 GB DDR5-8000", "ddr5", 32, 8000, 6, False, "E"),
+    ("ddr5_256gb_ecc", "256 GB DDR5-6400 ECC RDIMM", "ddr5", 256, 6400, 12, True, "E"),
 ]
-SOCKETS = {"lga775": "LGA775", "am3plus": "AM3+", "lga1155": "LGA1155", "lga2011": "LGA2011", "lga1151": "LGA1151",
+SOCKETS = {"am2": "AM2", "lga1366": "LGA1366", "lga1150": "LGA1150", "strx4": "sTRX4", "str5": "sTR5",
+           "lga1851": "LGA1851", "lga775": "LGA775", "am3plus": "AM3+", "lga1155": "LGA1155", "lga2011": "LGA2011", "lga1151": "LGA1151",
            "am4": "AM4", "sp3": "SP3", "lga1700": "LGA1700", "am5": "AM5", "sp5": "SP5", "lga4677": "LGA4677"}
 STORAGE = [  # id, name, texture kind, GB, watts, rarity
     ("hdd_500gb", "500 GB Hard Drive", "hdd", 500, 8, "C"),
@@ -558,23 +611,132 @@ STORAGE = [  # id, name, texture kind, GB, watts, rarity
     ("nvme_2tb", "2 TB NVMe SSD", "nvme", 2048, 7, "R"),
     ("enterprise_ssd_8tb", "8 TB Enterprise SSD", "enterprise", 8192, 12, "E"),
 ]
+ASICS = [  # id, name, MH/s, watts, efficiency, shop price, rarity (Bitcoin only, go straight into a rack bay)
+    ("antminer_s9", "Antminer S9", 150.0, 1300, 0.93, 4000, "U"),
+    ("antminer_s19_pro", "Antminer S19 Pro", 600.0, 3250, 0.94, 18000, "R"),
+    ("antminer_s21", "Antminer S21", 1500.0, 3500, 0.95, 50000, "E"),
+]
+COOLERS = [  # id, name, capacity W, own power W, shop price
+    ("rack_fan", "Rack Fan", 800, 20, 40),
+    ("high_flow_fan", "High-Flow Fan", 2000, 60, 300),
+    ("water_cooling_kit", "Water Cooling Kit", 12000, 250, 3500),
+]
+# Hand-drawn textures (textures/item/<id>.png, kept in the repo): the generator only writes their models.
+STATIC_ITEMS = [r[0] for r in ASICS] + [r[0] for r in COOLERS] + ["handbook"]
 RACK_KINDS = [("mining", "Mining Rack"), ("hosting", "Hosting Rack"), ("fabricating", "Fabricating Rack")]
 RACK_PARTS = ["single", "bottom", "middle", "top"]
 CABLES = [("coax", "Coax Cable"), ("cat5e", "Cat5e Cable"), ("cat6a", "Cat6a Cable"), ("fiber", "Fiber Cable")]
 PSUS = [  # id, name, label colour, watts, efficiency, rarity
     ("psu_300w", "300W Power Supply", 0xE0E0E0, 300, 0.75, "C"),
+    ("psu_400w", "400W Power Supply (80+)", 0xC0C0C0, 400, 0.80, "C"),
     ("psu_550w", "550W Power Supply (80+ Bronze)", 0xCD7F32, 550, 0.82, "C"),
+    ("psu_650w", "650W Power Supply (80+ Gold)", 0xFFC107, 650, 0.87, "C"),
     ("psu_850w", "850W Power Supply (80+ Gold)", 0xFFC107, 850, 0.87, "U"),
+    ("psu_1000w", "1000W Power Supply (80+ Gold)", 0xFFB300, 1000, 0.88, "U"),
     ("psu_1200w", "1200W Power Supply (80+ Platinum)", 0xB0BEC5, 1200, 0.90, "U"),
+    ("psu_1600w", "1600W Power Supply (80+ Titanium)", 0x78909C, 1600, 0.93, "R"),
     ("psu_2000w", "2000W Power Supply (80+ Titanium)", 0x78909C, 2000, 0.92, "R"),
     ("psu_3200w", "3200W Industrial Power Supply", 0x7E57C2, 3200, 0.94, "E"),
 ]
+
+PREBUILTS = [  # id (prebuilt_<id>), name, accent colour (must match hardware/Prebuilt.java)
+    ("office_2004", "Prebuilt Office Server (2004)", 0x90A4AE),
+    ("home_2012", "Prebuilt Home Server (2012)", 0x42A5F5),
+    ("mining_2017", "Prebuilt Mining Rig (2017)", 0xF7931A),
+    ("epyc_2019", "Prebuilt EPYC Rack Server (2019)", 0x26A69A),
+    ("gaming_2019", "Prebuilt Gaming Server (2019)", 0xE53935),
+    ("workstation_2020", "Prebuilt Workstation (2020)", 0xAB47BC),
+    ("ai_2023", "Prebuilt AI Server (2023)", 0x76FF03),
+]
+
+# Real release dates (YYYY-MM-DD). The shop only sells hardware after its release; prices drop with age.
+RELEASE = {
+    # CPUs
+    "pentium_4": "2000-11-20", "core_2_quad_q6600": "2007-01-08", "amd_fx_4300": "2012-10-23", "amd_fx_8350": "2012-10-23",
+    "core_i5_2500k": "2011-01-09", "core_i7_3770k": "2012-04-29", "xeon_e5_2690": "2012-03-06", "core_i7_8700k": "2017-10-05",
+    "core_i9_9900k": "2018-10-19", "ryzen_5_3600": "2019-07-07", "ryzen_7_5800x3d": "2022-04-20", "epyc_7742": "2019-08-07",
+    "core_i5_13600k": "2022-10-20", "core_i9_13900k": "2022-10-20", "ryzen_7_9800x3d": "2024-11-07", "ryzen_9_7950x": "2022-09-27",
+    "epyc_9654": "2022-11-10", "xeon_platinum_8480": "2023-01-10", "athlon_64_x2_4800": "2005-05-31", "core_2_duo_e8400": "2008-01-20",
+    "core_i7_920": "2008-11-17", "phenom_ii_x6_1100t": "2010-12-07", "core_i7_4770k": "2013-06-04", "core_i7_6700k": "2015-08-05",
+    "ryzen_7_1800x": "2017-03-02", "ryzen_9_3950x": "2019-11-25", "threadripper_3990x": "2020-02-07", "ryzen_9_5950x": "2020-11-05",
+    "core_i9_12900k": "2021-11-04", "core_i9_14900k": "2023-10-17", "ryzen_9_9950x": "2024-08-15", "core_ultra_9_285k": "2024-10-24",
+    "threadripper_pro_7995wx": "2023-10-19", "epyc_9965": "2024-10-10",
+    # GPUs
+    "geforce_gtx_460": "2010-07-12", "radeon_hd_7970": "2012-01-09", "geforce_gtx_970": "2014-09-19", "radeon_rx_580": "2017-04-18",
+    "geforce_gtx_1080_ti": "2017-03-10", "geforce_rtx_2080_ti": "2018-09-27", "radeon_rx_6800_xt": "2020-11-18",
+    "geforce_rtx_3090": "2020-09-24", "radeon_rx_7900_xtx": "2022-12-13", "geforce_rtx_4090": "2022-10-12",
+    "geforce_rtx_5090": "2025-01-30", "nvidia_h100": "2023-03-21", "geforce_8800_gtx": "2006-11-08", "radeon_hd_5870": "2009-09-23",
+    "geforce_gtx_580": "2010-11-09", "geforce_gtx_680": "2012-03-22", "radeon_r9_290x": "2013-10-24", "geforce_gtx_980_ti": "2015-06-02",
+    "radeon_rx_vega_64": "2017-08-14", "geforce_rtx_3060_ti": "2020-12-02", "geforce_rtx_3080": "2020-09-17",
+    "radeon_rx_6900_xt": "2020-12-08", "geforce_rtx_4070": "2023-04-13", "radeon_rx_9070_xt": "2025-03-06",
+    "nvidia_a100": "2020-06-22", "nvidia_h200": "2024-11-18", "nvidia_b200": "2025-03-01",
+    # motherboards
+    "office_motherboard": "2004-06-21", "am3_motherboard": "2011-10-12", "z77_motherboard": "2012-04-08",
+    "workstation_motherboard": "2012-03-06", "gaming_motherboard": "2018-10-08", "mining_motherboard": "2017-08-01",
+    "x570_motherboard": "2019-07-07", "epyc_sp3_motherboard": "2017-06-20", "z790_motherboard": "2022-10-20",
+    "x670e_motherboard": "2022-09-27", "server_motherboard": "2022-11-10", "xeon_quad_motherboard": "2023-01-10",
+    "am2_motherboard": "2006-05-23", "x58_motherboard": "2008-11-17", "z87_motherboard": "2013-06-04",
+    "z170_motherboard": "2015-08-05", "x370_motherboard": "2017-03-02", "trx40_motherboard": "2019-11-25",
+    "z690_motherboard": "2021-11-04", "wrx90_motherboard": "2023-10-19", "z890_motherboard": "2024-10-24",
+    "x870e_motherboard": "2024-09-30",
+    # memory
+    "ddr2_1gb": "2004-06-01", "ddr2_2gb": "2005-06-01", "ddr3_4gb": "2008-06-01", "ddr3_8gb": "2011-01-01",
+    "ddr3_32gb_ecc": "2012-03-06", "ddr4_8gb": "2014-09-01", "ddr4_16gb": "2016-01-01", "ddr4_64gb_ecc": "2017-06-20",
+    "ddr5_16gb": "2021-11-04", "ddr5_32gb": "2022-09-27", "ddr5_128gb_ecc": "2022-11-10", "ddr2_4gb": "2007-06-01",
+    "ddr3_16gb": "2013-06-01", "ddr4_32gb": "2019-07-07", "ddr4_128gb_ecc": "2019-08-07", "ddr5_48gb": "2023-04-01",
+    "ddr5_32gb_8000": "2024-10-24", "ddr5_256gb_ecc": "2024-10-10",
+    # PSUs
+    "psu_300w": "2000-01-01", "psu_400w": "2004-01-01", "psu_550w": "2007-01-01", "psu_650w": "2010-01-01",
+    "psu_850w": "2008-01-01", "psu_1000w": "2009-06-01", "psu_1200w": "2011-01-01", "psu_1600w": "2013-01-01",
+    "psu_2000w": "2016-01-01", "psu_3200w": "2019-01-01",
+    # storage
+    "hdd_500gb": "2005-06-01", "ssd_1tb": "2013-12-01", "nvme_2tb": "2018-06-01", "enterprise_ssd_8tb": "2019-06-01",
+    # ASICs and cooling
+    "antminer_s9": "2016-06-01", "antminer_s19_pro": "2020-05-01", "antminer_s21": "2023-09-01",
+    "rack_fan": "2000-01-01", "high_flow_fan": "2008-01-01", "water_cooling_kit": "2012-01-01",
+}
+
+
+def tex_prebuilt(accent):
+    """A cardboard box with a coloured stripe and a small server on the label."""
+    c = Canvas()
+    c.bevel(1, 3, 14, 14, 0xB08A5A)
+    c.frame(1, 3, 14, 14, 0x6D5233)
+    c.rect(1, 3, 14, 4, 0xC9A26C)
+    c.rect(7, 3, 8, 14, 0xD9C08F)  # tape
+    c.rect(2, 10, 13, 11, accent)
+    c.rect(3, 6, 6, 8, 0x3A3D42)
+    c.set(5, 7, 0x00E676)
+    return c
+
+
+def tex_monitor_front():
+    c = Canvas(0x1B222B)
+    c.frame(0, 0, 15, 15, 0x2E3A47)
+    c.rect(1, 1, 14, 12, 0x0B1016)
+    c.rect(2, 3, 9, 3, 0x39C5E0)
+    c.rect(2, 5, 12, 5, 0x4ADE80)
+    c.rect(2, 7, 7, 7, 0xE5EDF5)
+    c.rect(2, 9, 10, 9, 0x8A99A8)
+    c.rect(6, 13, 9, 14, 0x2E3A47)
+    c.set(13, 14, 0x4ADE80)
+    return c
+
+
+def tex_monitor_side():
+    c = Canvas(0x1B222B)
+    c.frame(0, 0, 15, 15, 0x2E3A47)
+    for y in range(3, 13, 3):
+        c.rect(3, y, 12, y, 0x141A21)
+    return c
 
 ITEM_TEXTURES = {
     "processor_die": tex_processor_die(),
     "silicon": tex_silicon(), "circuit_board": tex_circuit(), "server": tex_server_item(),
     "network_tester": tex_tester(),
 }
+for (pid, n, acc) in PREBUILTS:
+    ITEM_TEXTURES["prebuilt_" + pid] = tex_prebuilt(acc)
 for (i, n, b, t, *_r) in CPUS:
     ITEM_TEXTURES[i] = tex_cpu(b, t)
 for (i, n, b, t, *_r) in GPUS:
@@ -591,6 +753,11 @@ for (i, n, kind, gb, mts, w, ecc, rar) in MEMORY:
 # ============================================================ assets
 for name, canvas in ITEM_TEXTURES.items():
     canvas.save(os.path.join(ASSETS, "textures", "item", name + ".png"))
+    write_json(os.path.join(ASSETS, "models", "item", name + ".json"),
+               {"parent": "minecraft:item/generated", "textures": {"layer0": f"{MOD}:item/{name}"}})
+    write_json(os.path.join(ASSETS, "items", name + ".json"),
+               {"model": {"type": "minecraft:model", "model": f"{MOD}:item/{name}"}})
+for name in STATIC_ITEMS:
     write_json(os.path.join(ASSETS, "models", "item", name + ".json"),
                {"parent": "minecraft:item/generated", "textures": {"layer0": f"{MOD}:item/{name}"}})
     write_json(os.path.join(ASSETS, "items", name + ".json"),
@@ -628,6 +795,11 @@ tex_terminal_side().save(BLOCK_TEX("hardware_shop_side"))
 orientable("hardware_shop", "hardware_shop_front", "hardware_shop_side", "hardware_shop_side")
 facing_blockstate("hardware_shop", "hardware_shop")
 block_item("hardware_shop", "hardware_shop")
+tex_monitor_front().save(BLOCK_TEX("server_monitor_front"))
+tex_monitor_side().save(BLOCK_TEX("server_monitor_side"))
+orientable("server_monitor", "server_monitor_front", "server_monitor_side", "server_monitor_side")
+facing_blockstate("server_monitor", "server_monitor")
+block_item("server_monitor", "server_monitor")
 
 # server workbench
 tex_workbench_top().save(BLOCK_TEX("server_workbench_top"))
@@ -702,6 +874,7 @@ lang = {
     "itemGroup.datacenterextended": "DataCenterExtended",
     "block.datacenterextended.server_workbench": "Server Workbench",
     "block.datacenterextended.hardware_shop": "Hardware Shop",
+    "block.datacenterextended.server_monitor": "Server Monitor",
     "container.datacenterextended.server_workbench": "Server Workbench",
     "item.datacenterextended.server": "Server (1U)",
     "item.datacenterextended.network_tester": "Network Tester",
@@ -756,7 +929,7 @@ lang = {
     "problem.datacenterextended.no_memory": "✖ No memory (RAM)",
     "problem.datacenterextended.psu_overloaded": "✖ PSU overloaded",
     "problem.datacenterextended.no_compute": "✖ No compute (needs CPUs)",
-    "problem.datacenterextended.no_hashrate": "✖ No hashrate (needs GPUs)",
+    "problem.datacenterextended.no_hashrate": "✖ No hashrate (needs GPUs or an ASIC)",
     "problem.datacenterextended.no_energy": "✖ Not enough FE",
     "gui.datacenterextended.performance": "CPU %s · GPU %s",
     "gui.datacenterextended.power_fe": "Power %s W / %s W · %s FE/t",
@@ -814,6 +987,8 @@ lang = {
 for group in (CPUS, GPUS, BOARDS, PSUS, STORAGE, MEMORY):
     for row in group:
         lang[f"item.{MOD}.{row[0]}"] = row[1]
+for pid, name, acc in PREBUILTS:
+    lang[f"item.{MOD}.prebuilt_{pid}"] = name
 for sid, name in SOCKETS.items():
     lang[f"socket.{MOD}.{sid}"] = name
 for kind, name in RACK_KINDS:
@@ -821,6 +996,170 @@ for kind, name in RACK_KINDS:
     lang[f"container.{MOD}.{kind}_rack"] = name
 for tier, name in CABLES:
     lang[f"block.{MOD}.{tier}_cable"] = name
+# heat, hosting customers, ASICs, halvings, electricity bills, wear, Jade, advancements, handbook
+lang.update({
+    "status.datacenterextended.coin_not_launched": "✖ This coin doesn't exist yet",
+    "message.datacenterextended.shop.not_released": "Not released yet – available from %s",
+    "message.datacenterextended.wear.low": "⚠ %s at %s: %s is down to %s%% condition",
+    "message.datacenterextended.wear.broke": "✖ %s at %s: %s broke – repair it in the Service tab",
+    "toast.datacenterextended.wear.low": "Hardware worn out",
+    "toast.datacenterextended.wear.broke": "Hardware broken",
+    "toast.datacenterextended.wear.low_message": "%s: %s%% (rack at %s)",
+    "toast.datacenterextended.wear.broke_message": "%s (rack at %s)",
+    "comparator.datacenterextended.status": "Status",
+    "comparator.datacenterextended.temperature": "Heat",
+    "comparator.datacenterextended.energy": "Energy",
+    "gui.datacenterextended.comparator.button": "⚡ %s: %s",
+    "gui.datacenterextended.comparator.tooltip": "Comparator output of this rack. Click to switch: Status (15 running, 8 warning, 0 stopped), Heat (0 cool – 15 critical), Energy (FE fill).",
+    "gui.datacenterextended.chip.online": "ONLINE",
+    "gui.datacenterextended.chip.warning": "WARNING",
+    "gui.datacenterextended.chip.offline": "OFFLINE",
+    "gui.datacenterextended.rack.next_halving": "next %s",
+    "gui.datacenterextended.tab.wallet": "Wallet",
+    "gui.datacenterextended.tab.shop": "Shop",
+    "gui.datacenterextended.tab.service": "Service",
+    "gui.datacenterextended.tab.stats": "Stats",
+    "gui.datacenterextended.shop.prebuilt": "Prebuilt",
+    "gui.datacenterextended.shop.locked": "Available from %s",
+    "gui.datacenterextended.shop.released": "Released %s",
+    "gui.datacenterextended.wallet.launches": "Launches %s",
+    "gui.datacenterextended.wallet.sell_label": "Sell",
+    "gui.datacenterextended.wallet.merged": "Proof of stake: mining pays %s%%",
+    "gui.datacenterextended.wallet.merge_on": "The Merge: %s",
+    "gui.datacenterextended.wallet.reward": "Reward %s · halving %s (in %s)",
+    "gui.datacenterextended.service.help": "Click an item to repair it or sell it second-hand. Prices follow today's shop price and the condition.",
+    "gui.datacenterextended.service.resale_label": "Second-hand value",
+    "gui.datacenterextended.service.repair_label": "Repair cost",
+    "gui.datacenterextended.stats.scale.day": "1 Day",
+    "gui.datacenterextended.stats.scale.week": "1 Week",
+    "gui.datacenterextended.stats.scale.month": "1 Month",
+    "gui.datacenterextended.stats.scale.year": "1 Year",
+    "gui.datacenterextended.stats.income": "Income",
+    "gui.datacenterextended.stats.expenses": "Expenses",
+    "gui.datacenterextended.stats.profit": "Profit",
+    "gui.datacenterextended.stats.loading": "Loading…",
+    "gui.datacenterextended.stats.hosting": "Hosting",
+    "gui.datacenterextended.stats.mining": "Mining",
+    "gui.datacenterextended.stats.bills": "Electricity",
+    "gui.datacenterextended.stats.shop": "Shop & repairs",
+    "gui.datacenterextended.stats.sales": "Coin and hardware sales in this period: %s (not counted as profit)",
+    "monitor.datacenterextended.title": "SERVER MONITOR",
+    "monitor.datacenterextended.no_rack": "No rack connected",
+    "monitor.datacenterextended.fabricating": "Fabricating",
+    "command.datacenterextended.date.show": "Date: %s (one day = %s real minutes)",
+    "command.datacenterextended.date.invalid": "Not a date: %s (use YYYY-MM-DD)",
+    "command.datacenterextended.date.set": "The calendar is now at %s",
+    "command.datacenterextended.date.speed": "One calendar day now takes %s ticks (%s real minutes)",
+    "tooltip.datacenterextended.released": "Released %s",
+    "tooltip.datacenterextended.prebuilt": "Prebuilt – arrives assembled",
+    "tooltip.datacenterextended.prebuilt.hosting": "Made for hosting",
+    "tooltip.datacenterextended.prebuilt.mining": "Made for mining",
+    "book.datacenterextended.page.17": "§lCalendar§r\n\nThe world has a date. It starts in July 2010 and one day passes every 2 real minutes. Crypto prices follow real history, Bitcoin halves on its real dates and hardware appears in the shop when it was really released.",
+    "book.datacenterextended.page.18": "§lMonitoring§r\n\n• A Server Monitor next to a rack shows its status.\n• Comparators read a rack: status, heat or energy – switch with the ⚡ button.\n• The Stats tab of the wallet charts your income and bills.",
+    "item.datacenterextended.rack_fan": "Rack Fan",
+    "item.datacenterextended.high_flow_fan": "High-Flow Fan",
+    "item.datacenterextended.water_cooling_kit": "Water Cooling Kit",
+    "item.datacenterextended.antminer_s9": "Antminer S9",
+    "item.datacenterextended.antminer_s19_pro": "Antminer S19 Pro",
+    "item.datacenterextended.antminer_s21": "Antminer S21",
+    "item.datacenterextended.handbook": "Data Center Handbook",
+    "hardware.datacenterextended.type.asic": "ASIC Miner",
+    "status.datacenterextended.no_customers": "◌ Online – waiting for customers",
+    "status.datacenterextended.overheating": "▲ Overheating – servers throttled",
+    "status.datacenterextended.overloaded": "✖ Overloaded – customers are cancelling",
+    "status.datacenterextended.no_funds": "✖ Electricity bill unpaid",
+    "problem.datacenterextended.broken_part": "✖ A part is broken (repair it)",
+    "problem.datacenterextended.asic_wrong_coin": "✖ ASICs only mine Bitcoin",
+    "problem.datacenterextended.unpaid_bill": "✖ Electricity bill unpaid",
+    "plan.datacenterextended.shared": "Shared",
+    "plan.datacenterextended.vps": "VPS",
+    "plan.datacenterextended.dedicated": "Dedicated",
+    "gui.datacenterextended.shop.cooling": "Cooling",
+    "gui.datacenterextended.service.tab": "Service",
+    "gui.datacenterextended.service.repair": "Repair",
+    "gui.datacenterextended.service.select": "Select an item from your inventory",
+    "gui.datacenterextended.service.not_sellable": "The shop doesn't buy this item",
+    "gui.datacenterextended.service.condition": "Condition %s%%",
+    "gui.datacenterextended.service.resale": "Second-hand value: %s",
+    "gui.datacenterextended.service.repair_cost": "Repair cost: %s",
+    "gui.datacenterextended.service.no_repair": "Like new – nothing to repair",
+    "gui.datacenterextended.wallet.reward_final": "Reward %s (no more halvings)",
+    "gui.datacenterextended.rack.power_bill": "Power %s W · %s/h",
+    "gui.datacenterextended.rack.hosting_line": "Sold %s · storage +%s%%",
+    "gui.datacenterextended.rack.reward": "Block reward %s",
+    "gui.datacenterextended.rack.heat": "%s°C · heat %s / cooling %s",
+    "gui.datacenterextended.rack.throttled": " · ▼%s%%",
+    "gui.datacenterextended.hosting.satisfaction": "Happy %s%%",
+    "gui.datacenterextended.heat.temperature": "Temperature %s°C",
+    "gui.datacenterextended.heat.load": "Heat %s / cooling %s",
+    "gui.datacenterextended.heat.throttle": "Servers throttle above %s°C",
+    "gui.datacenterextended.heat.speed": "Speed %s%%",
+    "gui.datacenterextended.slot.cooling": "Cooling slot (rack fan or water cooling)",
+    "tooltip.datacenterextended.cooling": "Rack cooling",
+    "tooltip.datacenterextended.cooling_capacity": "Removes %s of heat",
+    "tooltip.datacenterextended.asic": "Bitcoin only · goes straight into a rack bay",
+    "tooltip.datacenterextended.condition": "Condition %s%%",
+    "tooltip.datacenterextended.broken": "Broken (%s%%) – repair it in the Service tab",
+    "tooltip.datacenterextended.worst_condition": "Worst part: %s%% condition",
+    "message.datacenterextended.service.repaired": "Repaired %s for %s",
+    "message.datacenterextended.service.sold": "Sold %sx %s for %s",
+    "message.datacenterextended.halving": "⛏ %s halving! Mining rewards dropped to %s.",
+    "jade.datacenterextended.income": "Income %s/h",
+    "jade.datacenterextended.customers": "Customers %s · happy %s%%",
+    "jade.datacenterextended.compute": "Compute %s",
+    "jade.datacenterextended.bill": "Electricity %s/h",
+    "jade.datacenterextended.energy": "%s / %s FE · %s FE/t",
+    "jade.datacenterextended.temperature": "%s°C",
+    "jade.datacenterextended.owner": "Owner: %s",
+    "config.jade.plugin_datacenterextended.rack": "Server rack",
+    "advancements.datacenterextended.root.title": "Data Center",
+    "advancements.datacenterextended.root.description": "Get your first server case",
+    "advancements.datacenterextended.first_boot.title": "It's Alive!",
+    "advancements.datacenterextended.first_boot.description": "Boot a server in a rack",
+    "advancements.datacenterextended.full_rack.title": "Rack 'em Up",
+    "advancements.datacenterextended.full_rack.description": "Run 12 servers in one merged rack",
+    "advancements.datacenterextended.overheated.title": "Thermal Throttling",
+    "advancements.datacenterextended.overheated.description": "Let a rack get so hot that its servers slow down",
+    "advancements.datacenterextended.water_cooling.title": "Liquid Assets",
+    "advancements.datacenterextended.water_cooling.description": "Get a Water Cooling Kit",
+    "advancements.datacenterextended.first_coin.title": "To the Moon",
+    "advancements.datacenterextended.first_coin.description": "Mine your first coins",
+    "advancements.datacenterextended.asic.title": "Purpose-Built",
+    "advancements.datacenterextended.asic.description": "Get an ASIC miner",
+    "advancements.datacenterextended.halving.title": "Halving Day",
+    "advancements.datacenterextended.halving.description": "Witness a mining reward halving",
+    "advancements.datacenterextended.first_customer.title": "Open for Business",
+    "advancements.datacenterextended.first_customer.description": "Sign up your first hosting customer",
+    "advancements.datacenterextended.dedicated_customer.title": "Big Fish",
+    "advancements.datacenterextended.dedicated_customer.description": "Sign up a customer for a Dedicated server",
+    "advancements.datacenterextended.fiber.title": "Speed of Light",
+    "advancements.datacenterextended.fiber.description": "Get a fiber cable",
+    "advancements.datacenterextended.repaired.title": "Good as New",
+    "advancements.datacenterextended.repaired.description": "Repair worn hardware in the Service tab",
+    "advancements.datacenterextended.ten_thousand.title": "Startup",
+    "advancements.datacenterextended.ten_thousand.description": "Have $10,000 in your wallet",
+    "advancements.datacenterextended.millionaire.title": "Unicorn",
+    "advancements.datacenterextended.millionaire.description": "Have $1,000,000 in your wallet",
+    "book.datacenterextended.page.1": "§lData Center Handbook§r\n\nFrom a single Pentium 4 to a hall full of ASIC miners.\n\nThis book walks you through the whole progression. Press §lK§r to open your wallet – you start with $250.",
+    "book.datacenterextended.page.2": "§lFirst steps§r\n\n1. Press K, open the Shop tab.\n2. Buy a Server Workbench, a Server (1U), an office motherboard, a Pentium 4, DDR2 memory and a 300 W PSU.\n3. Buy a Hosting Rack and place it yourself.",
+    "book.datacenterextended.page.3": "§lBuilding a server§r\n\nPut the Server into the workbench and add parts. A server needs a motherboard, a PSU, a CPU and memory. CPUs and memory must match the board's socket and memory type.\n\nThe tooltip shows its stats.",
+    "book.datacenterextended.page.4": "§lRacks§r\n\nA rack holds 4 servers. Stack up to 3 racks of the same type to merge them.\n\n§lMining:§r GPUs → coins\n§lHosting:§r CPUs → dollars\n§lFabricating:§r CPUs → items\n\nRacks pay whoever placed them.",
+    "book.datacenterextended.page.5": "§lPower§r\n\nRacks need FE from another mod's generators and cables – watch the red gauge.\n\nIn §lelectricity bill§r mode your wallet pays for the power instead. If it runs dry, the rack shuts down until you can pay.",
+    "book.datacenterextended.page.6": "§lHeat & cooling§r\n\nEvery watt becomes heat. A rack block removes 300 W by itself. Put a Rack Fan, High-Flow Fan or Water Cooling Kit into the cooling slot next to each row of bays.",
+    "book.datacenterextended.page.7": "§lStaying cool§r\n\nThe thermometer gauge shows the rack's temperature; the white mark is 70 °C. Above it, servers throttle.\n\nDeserts and the Nether are hot, snowy biomes help. Heat also wears parts faster.",
+    "book.datacenterextended.page.8": "§lHosting customers§r\n\nCustomers sign up while your rack has spare compute:\n\n§lShared§r – small\n§lVPS§r – medium\n§lDedicated§r – large\n\nThe first one comes quickly, more follow while they are happy.",
+    "book.datacenterextended.page.9": "§lDon't overload§r\n\nIf the rack can't deliver the compute it sold (no power, too hot, servers removed), it is overloaded: customers cancel and new ones stay away for a while.\n\nStorage drives raise your fees.",
+    "book.datacenterextended.page.10": "§lMining§r\n\nMining racks turn hashrate into Bitcoin, Dogecoin or Ethereum – click the coin button to switch.\n\nSell coins in the wallet. Prices move every minute, so timing matters.",
+    "book.datacenterextended.page.11": "§lHalvings§r\n\nEvery 7 Minecraft days the Bitcoin reward halves (Ethereum every 14 days, Dogecoin never). Prices tend to rise after a halving.\n\nThe wallet shows when the next one comes.",
+    "book.datacenterextended.page.12": "§lASIC miners§r\n\nAntminers only mine Bitcoin, but far better than GPUs. They go straight into a rack bay – no server needed.\n\nThey draw a lot of power and get very hot: plan your cooling!",
+    "book.datacenterextended.page.13": "§lFabrication & networks§r\n\nFabricating racks copy the target item by its file size. Data cables share spare compute between hosting and fabricating racks.\n\nThe slowest cable limits the whole network.",
+    "book.datacenterextended.page.14": "§lWear§r\n\nParts of running servers slowly lose condition. Worn CPUs, GPUs and ASICs are slower. At 0% a part breaks and the server stops.\n\nTooltips show the condition of every part.",
+    "book.datacenterextended.page.15": "§lService tab§r\n\nIn the wallet (K), the Service tab repairs worn parts – or whole servers – and buys hardware second-hand.\n\nPrices depend on the shop price and the condition.",
+    "book.datacenterextended.page.16": "§lTips§r\n\n• Hover the gauges in the rack GUI for details.\n• With Jade installed, look at a rack to see its status.\n• Advancements (L) show your next goals.\n\nGood luck, admin!"
+})
+# power generation: textures, models and English names (tools/gen_power.py)
+PHASE = "assets"
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "gen_power.py"), encoding="utf-8").read())
 write_json(os.path.join(ASSETS, "lang", "en_us.json"), lang)
 
 # ============================================================ data: hardware data map
@@ -838,7 +1177,11 @@ for (i, n, lab, w, eff, rar) in PSUS:
     hw[f"{MOD}:{i}"] = {"type": "psu", "power": w, "efficiency": eff}
 for (i, n, kind, gb, w, rar) in STORAGE:
     hw[f"{MOD}:{i}"] = {"type": "storage", "storage": gb, "power": w}
+for (i, n, mhs, w, eff, price, rar) in ASICS:
+    hw[f"{MOD}:{i}"] = {"type": "asic", "hashrate": mhs, "power": w, "efficiency": eff}
 write_json(os.path.join(DATA, MOD, "data_maps", "item", "hardware.json"), {"values": hw})
+write_json(os.path.join(DATA, MOD, "data_maps", "item", "cooling.json"),
+           {"values": {f"{MOD}:{i}": {"capacity": cap, "power": w} for (i, n, cap, w, price) in COOLERS}})
 
 # ============================================================ data: file size data map
 # Generic tags first, specific ones later. Conflicts are resolved by specificity
@@ -888,10 +1231,13 @@ write_json(os.path.join(DATA, MOD, "data_maps", "item", "file_size.json"), {"val
 RACK_IDS = [f"{MOD}:{k}_rack" for k, _ in RACK_KINDS]
 CABLE_IDS = [f"{MOD}:{t}_cable" for t, _ in CABLES]
 not_fab = [f"{MOD}:{r[0]}" for g in (CPUS, GPUS, BOARDS, PSUS, STORAGE, MEMORY) for r in g]
-not_fab += [f"{MOD}:{x}" for x in ("processor_die", "server", "network_tester", "server_workbench", "hardware_shop")]
+not_fab += [f"{MOD}:{x}" for x in ("processor_die", "server", "network_tester", "server_workbench", "hardware_shop", "server_monitor")]
 not_fab += RACK_IDS + CABLE_IDS
+not_fab += [f"{MOD}:prebuilt_{r[0]}" for r in PREBUILTS]
+not_fab += [f"{MOD}:{r[0]}" for r in ASICS] + [f"{MOD}:{r[0]}" for r in COOLERS]
 write_json(os.path.join(DATA, MOD, "tags", "item", "not_fabricable.json"), {"values": not_fab})
-HEAVY = [f"{MOD}:server_workbench", f"{MOD}:hardware_shop"] + RACK_IDS
+write_json(os.path.join(DATA, MOD, "tags", "item", "asic_miners.json"), {"values": [f"{MOD}:{r[0]}" for r in ASICS]})
+HEAVY = [f"{MOD}:server_workbench", f"{MOD}:hardware_shop", f"{MOD}:server_monitor"] + RACK_IDS
 write_json(os.path.join(DATA, "minecraft", "tags", "block", "mineable", "pickaxe.json"), {"values": HEAVY})
 write_json(os.path.join(DATA, "minecraft", "tags", "block", "needs_stone_tool.json"), {"values": HEAVY})
 
@@ -910,7 +1256,12 @@ for full in HEAVY + CABLE_IDS:
 # ============================================================ data: game tests (./gradlew runGameTestServer)
 for test, ticks in (("network_sharing", 200), ("rack_merging", 100), ("hosting_storage_bonus", 100),
                     ("rack_energy", 100), ("memory_and_sockets", 20), ("wallet_payout", 200), ("shop_and_sell", 20),
-                    ("part_recipes", 20)):
+                    ("part_recipes", 20), ("heat_throttle", 100), ("asic_mining", 100), ("calendar_history", 20), ("prebuilt_servers", 20),
+                    ("comparator_output", 60), ("release_lock", 20), ("wear_warning", 20), ("server_monitor", 100),
+                    ("wear_and_service", 20), ("hosting_customers", 450),
+                    ("solar_daytime", 20), ("cable_feeds_rack", 40), ("battery_stores_and_releases", 40),
+                    ("combustion_burns_coal", 20), ("water_wheel_flowing", 40), ("geothermal_lava", 40),
+                    ("reactor_scram_without_cooling", 20), ("grid_export_pays_owner", 220)):
     write_json(os.path.join(DATA, MOD, "test_instance", test + ".json"), {
         "type": "minecraft:function", "environment": "minecraft:default", "function": f"{MOD}:{test}",
         "max_ticks": ticks, "setup_ticks": 1, "required": True, "structure": "minecraft:empty"})
@@ -950,6 +1301,14 @@ shaped("cat5e_cable", ["XXX", "XCX", "XXX"], {"X": M("coax_cable"), "C": M("circ
 shaped("cat6a_cable", ["XXX", "XGX", "XXX"], {"X": M("cat5e_cable"), "G": "#c:ingots/gold"}, M("cat6a_cable"), 8, "redstone")
 shaped("fiber_cable", ["XXX", "PDP", "XXX"], {"X": M("cat6a_cable"), "P": "#c:glass_panes", "D": "#c:gems/diamond"}, M("fiber_cable"), 8, "redstone")
 shaped("hardware_shop", ["IPI", "CEC", "III"], {"I": "#c:ingots/iron", "P": "#c:glass_panes", "C": M("circuit_board"), "E": "#c:gems/emerald"}, M("hardware_shop"), category="redstone")
+shaped("server_monitor", ["III", "GCG", "IRI"], {"I": "#c:ingots/iron", "G": "#c:glass_panes", "C": M("circuit_board"),
+                                              "R": "minecraft:comparator"}, M("server_monitor"), category="redstone")
+shapeless("handbook", ["minecraft:book", M("circuit_board")], M("handbook"))
+shaped("rack_fan", ["III", "RCR", "III"], {"I": "#c:ingots/iron", "R": "#c:dusts/redstone", "C": M("circuit_board")}, M("rack_fan"))
+shaped("high_flow_fan", ["CGC", "FRF", "CGC"], {"C": "#c:ingots/copper", "G": "#c:ingots/gold", "F": M("rack_fan"),
+                                                 "R": "#c:storage_blocks/redstone"}, M("high_flow_fan"))
+shaped("water_cooling_kit", ["CBC", "FWF", "CDC"], {"C": "#c:ingots/copper", "B": "minecraft:water_bucket", "F": M("high_flow_fan"),
+                                                     "W": "#c:storage_blocks/copper", "D": "#c:gems/diamond"}, M("water_cooling_kit"))
 
 # Each category is an upgrade chain: a part needs the previous part of its category plus expensive materials by
 # rarity, so buying in the shop is the normal way early on. Only the first part of each chain is cheap (bootstrap).
@@ -965,6 +1324,17 @@ CHAINS = [  # parts, side ingredient
     (PSUS, "#c:dusts/redstone"),
     (STORAGE, M("silicon")),
 ]
+
+
+# ASICs: the S9 starts from a 1200 W PSU, each next model needs the previous one
+ASIC_SIDE = {"U": "#c:storage_blocks/redstone", "R": "#c:gems/diamond", "E": "#c:ingots/copper"}
+ASIC_COST = {"U": M("processor_die"), "R": M("processor_die"), "E": "minecraft:echo_shard"}
+ASIC_METAL = {"U": "#c:ingots/iron", "R": "#c:ingots/gold", "E": "#c:ingots/netherite"}
+previous = M("psu_1200w")
+for (i, n, mhs, w, eff, price, rar) in ASICS:
+    shaped(i, ["MSM", "$X$", "MSM"], {"M": ASIC_METAL[rar], "S": ASIC_SIDE[rar], "$": ASIC_COST[rar], "X": previous}, M(i),
+           conditions=PART_CONDITION)
+    previous = M(i)
 for parts, side in CHAINS:
     previous = None
     for row in parts:
@@ -993,7 +1363,7 @@ for (i, n, pcb, acc, sock, mem, cpu, gpu, bays, mslots, maxmem, w, rar) in BOARD
     prices[M(i)] = nice({"C": 40, "U": 300, "R": 2500, "E": 15000}[rar] * (1 + 0.25 * (cpu - 1)) * (1.5 if gpu >= 6 else 1))
 for (i, n, kind, gb, mts, w, ecc, rar) in MEMORY:
     prices[M(i)] = nice(max(8, 5 * gb * mts / 1000))
-for (row, price) in zip(PSUS, (25, 60, 150, 400, 1500, 6000)):
+for (row, price) in zip(PSUS, (25, 40, 60, 100, 150, 250, 400, 900, 1500, 6000)):
     prices[M(row[0])] = price
 for (row, price) in zip(STORAGE, (30, 120, 500, 4000)):
     prices[M(row[0])] = price
@@ -1001,6 +1371,18 @@ prices.update({M("server"): 20, M("server_workbench"): 60, M("mining_rack"): 100
                M("fabricating_rack"): 500, M("coax_cable"): 2, M("cat5e_cable"): 8, M("cat6a_cable"): 40,
                M("fiber_cable"): 200, M("network_tester"): 30, M("circuit_board"): 4, M("silicon"): 1,
                M("processor_die"): 12})
+for (i, n, mhs, w, eff, price, rar) in ASICS:
+    prices[M(i)] = price
+for (i, n, cap, w, price) in COOLERS:
+    prices[M(i)] = price
+prices[M("handbook")] = 1
+prices[M("server_monitor")] = 80
+# power generation: tags, loot, worldgen, recipes, prices, advancements (tools/gen_power.py)
+PHASE = "data"
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "gen_power.py"), encoding="utf-8").read())
 write_json(os.path.join(DATA, MOD, "data_maps", "item", "shop_price.json"), {"values": prices})
+for rid in RELEASE:
+    assert M(rid) in prices, "release date for unknown item " + rid
+write_json(os.path.join(DATA, MOD, "data_maps", "item", "release_date.json"), {"values": {M(k): v for k, v in RELEASE.items()}})
 
 print("generated", len(ITEM_TEXTURES), "item textures,", len(os.listdir(RECIPES)), "recipes")

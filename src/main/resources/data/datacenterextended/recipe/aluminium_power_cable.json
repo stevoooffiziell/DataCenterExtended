@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": "datacenterextended:copper_power_cable",
+    "A": "#c:ingots/aluminum",
+    "S": "datacenterextended:steel_rod"
+  },
+  "pattern": [
+    "CCC",
+    "ASA",
+    "CCC"
+  ],
+  "result": {
+    "id": "datacenterextended:aluminium_power_cable",
+    "count": 8
+  }
+}

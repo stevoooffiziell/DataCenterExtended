@@ -30,14 +30,14 @@ import java.util.List;
 public class ServerWorkbenchMenu extends AbstractContainerMenu {
     // layout (shared with the screen)
     public static final int IMAGE_WIDTH = 176;
-    public static final int IMAGE_HEIGHT = 254;
-    public static final int SERVER_X = 8, SERVER_Y = 40;
+    public static final int IMAGE_HEIGHT = 262;
+    public static final int SERVER_X = 8, SERVER_Y = 44;
     public static final int BOARD_X = 34;
     public static final int PARTS_X = 60;
-    public static final int ROW1_Y = 18, ROW2_Y = 40, ROW3_Y = 62, ROW4_Y = 84;
+    public static final int ROW1_Y = 22, ROW2_Y = 44, ROW3_Y = 66, ROW4_Y = 88;
     public static final int MEMORY_X = 8;
-    public static final int INFO_Y = 106, INFO_H = 52;
-    public static final int INVENTORY_Y = 172;
+    public static final int INFO_Y = 110, INFO_H = 56;
+    public static final int INVENTORY_Y = 180;
 
     private static final int SERVER_SLOT = 0;
     private static final int PARTS_START = 1;

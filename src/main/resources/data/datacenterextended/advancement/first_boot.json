@@ -1,0 +1,24 @@
+{
+  "parent": "datacenterextended:root",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:mining_rack"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.first_boot.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.first_boot.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

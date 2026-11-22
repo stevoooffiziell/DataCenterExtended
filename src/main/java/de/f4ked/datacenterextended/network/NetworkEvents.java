@@ -1,6 +1,7 @@
 package de.f4ked.datacenterextended.network;
 
 import de.f4ked.datacenterextended.Datacenterextended;
+import de.f4ked.datacenterextended.power.PowerNetworkManager;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -17,16 +18,23 @@ public final class NetworkEvents {
     public static void onLevelTick(LevelTickEvent.Post event) {
         if (event.getLevel() instanceof ServerLevel level) {
             ComputeNetworkManager.get(level).tick(level);
+            PowerNetworkManager.get(level).tick(level);
         }
     }
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
-        if (event.getLevel() instanceof ServerLevel level) ComputeNetworkManager.markDirty(level);
+        if (event.getLevel() instanceof ServerLevel level) {
+            ComputeNetworkManager.markDirty(level);
+            PowerNetworkManager.markDirty(level);
+        }
     }
 
     @SubscribeEvent
     public static void onChunkUnload(ChunkEvent.Unload event) {
-        if (event.getLevel() instanceof ServerLevel level) ComputeNetworkManager.markDirty(level);
+        if (event.getLevel() instanceof ServerLevel level) {
+            ComputeNetworkManager.markDirty(level);
+            PowerNetworkManager.markDirty(level);
+        }
     }
 }

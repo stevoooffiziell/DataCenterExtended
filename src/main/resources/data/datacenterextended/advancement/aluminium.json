@@ -1,0 +1,31 @@
+{
+  "parent": "datacenterextended:first_generator",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "datacenterextended:aluminium_ingot"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:aluminium_ingot"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.aluminium.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.aluminium.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

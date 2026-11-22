@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "datacenterextended:block/lead_acid_battery"
+    },
+    "facing=east": {
+      "model": "datacenterextended:block/lead_acid_battery",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "datacenterextended:block/lead_acid_battery",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "datacenterextended:block/lead_acid_battery",
+      "y": 270
+    }
+  }
+}

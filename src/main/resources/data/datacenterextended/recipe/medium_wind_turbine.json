@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "R": "datacenterextended:fibreglass_rotor",
+    "G": "datacenterextended:alternator",
+    "W": "datacenterextended:small_wind_turbine",
+    "P": "datacenterextended:steel_plate",
+    "I": "datacenterextended:inverter"
+  },
+  "pattern": [
+    " R ",
+    "GWG",
+    "PIP"
+  ],
+  "result": {
+    "id": "datacenterextended:medium_wind_turbine"
+  }
+}

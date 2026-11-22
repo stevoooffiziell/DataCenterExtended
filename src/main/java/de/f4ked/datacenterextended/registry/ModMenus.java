@@ -1,6 +1,7 @@
 package de.f4ked.datacenterextended.registry;
 
 import de.f4ked.datacenterextended.Datacenterextended;
+import de.f4ked.datacenterextended.menu.PowerMenu;
 import de.f4ked.datacenterextended.menu.RackMenu;
 import de.f4ked.datacenterextended.menu.ServerWorkbenchMenu;
 import net.minecraft.core.registries.Registries;
@@ -17,6 +18,9 @@ public final class ModMenus {
 
     public static final DeferredHolder<MenuType<?>, MenuType<RackMenu>> RACK =
             MENUS.register("rack", () -> IMenuTypeExtension.create(RackMenu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<PowerMenu>> POWER =
+            MENUS.register("power", () -> IMenuTypeExtension.create(PowerMenu::new));
 
     private ModMenus() {
     }

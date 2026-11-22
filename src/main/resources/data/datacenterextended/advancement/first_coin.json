@@ -1,0 +1,24 @@
+{
+  "parent": "datacenterextended:first_boot",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:geforce_gtx_460"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.first_coin.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.first_coin.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

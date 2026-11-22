@@ -5,6 +5,8 @@ import de.f4ked.datacenterextended.hardware.HardwareStats;
 import de.f4ked.datacenterextended.hardware.HardwareType;
 import de.f4ked.datacenterextended.hardware.ServerLayout;
 import de.f4ked.datacenterextended.hardware.ServerSpec;
+import de.f4ked.datacenterextended.client.ui.Theme;
+import de.f4ked.datacenterextended.client.ui.Ui;
 import de.f4ked.datacenterextended.menu.ServerWorkbenchMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -23,32 +25,34 @@ public class ServerWorkbenchScreen extends AbstractContainerScreen<ServerWorkben
 
     public ServerWorkbenchScreen(ServerWorkbenchMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, IMAGE_WIDTH, IMAGE_HEIGHT);
-        this.inventoryLabelY = INVENTORY_Y - 11;
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(g, mouseX, mouseY, partialTick);
-        GuiDraw.window(g, leftPos, topPos, imageWidth, imageHeight);
+        Ui.window(g, leftPos, topPos, imageWidth, imageHeight);
         for (Slot slot : menu.slots) {
-            GuiDraw.slot(g, leftPos + slot.x, topPos + slot.y);
+            Ui.slot(g, leftPos + slot.x, topPos + slot.y);
             if (slot instanceof ServerWorkbenchMenu.PartSlot part) {
+                int sx = leftPos + slot.x, sy = topPos + slot.y;
                 if (!menu.isPartSlotEnabled(part.partIndex())) {
-                    GuiDraw.lockedOverlay(g, leftPos + slot.x, topPos + slot.y);
+                    g.fill(sx, sy, sx + 16, sy + 16, Theme.LOCKED);
+                    g.fill(sx + 3, sy + 7, sx + 13, sy + 9, Theme.BORDER);
                 } else if (!menu.isPartCompatible(part.partIndex())) {
-                    GuiDraw.incompatibleOverlay(g, leftPos + slot.x, topPos + slot.y);
+                    g.fill(sx, sy, sx + 16, sy + 16, 0x80F87171);
                 }
             }
         }
-        GuiDraw.monitor(g, leftPos + INFO_X, topPos + INFO_Y, INFO_W, INFO_H);
+        Ui.inset(g, leftPos + INFO_X, topPos + INFO_Y, INFO_W, INFO_H);
     }
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor g, int mouseX, int mouseY) {
-        super.extractLabels(g, mouseX, mouseY);
-        int tx = INFO_X + 4, ty = INFO_Y + 3;
+        Ui.fit(g, font, title, 6, 4, imageWidth - 12, Theme.TEXT);
+        Ui.fit(g, font, playerInventoryTitle, 8, INVENTORY_Y - 11, 100, Theme.MUTED);
+        int tx = INFO_X + 4, ty = INFO_Y + 3, w = INFO_W - 8;
         if (!menu.hasServer()) {
-            g.text(font, Component.translatable("gui.datacenterextended.workbench.insert"), tx, ty, GuiDraw.TEXT_WARN, false);
+            Ui.fit(g, font, Component.translatable("gui.datacenterextended.workbench.insert"), tx, ty, w, Theme.WARN);
             return;
         }
         ServerSpec spec = menu.spec();
@@ -56,17 +60,17 @@ public class ServerWorkbenchScreen extends AbstractContainerScreen<ServerWorkben
         Component status = spec.boots()
                 ? Component.translatable("gui.datacenterextended.workbench.boots")
                 : Component.translatable(spec.problem().translationKey());
-        g.text(font, status, tx, ty, spec.boots() ? GuiDraw.TEXT_OK : GuiDraw.TEXT_ERR, false);
-        g.text(font, Component.translatable("gui.datacenterextended.performance",
-                DataUnits.formatBytesPerSecond(spec.computeBps()), DataUnits.formatHashrate(spec.hashesPerSecond())), tx, ty + 10, GuiDraw.TEXT_INFO, false);
-        int memColor = spec.memoryFactor() < 1.0 ? GuiDraw.TEXT_WARN : GuiDraw.TEXT_INFO;
-        g.text(font, HardwareText.memoryLine(spec, board != null ? board.memoryType() : ""), tx, ty + 20, memColor, false);
-        g.text(font, Component.translatable("gui.datacenterextended.power_fe", spec.watts(), spec.psuCapacity(), spec.energyPerTick()), tx, ty + 30,
-                spec.watts() > spec.psuCapacity() ? GuiDraw.TEXT_ERR : GuiDraw.TEXT_INFO, false);
+        Ui.fit(g, font, status, tx, ty, w, spec.boots() ? Theme.OK : Theme.ERR);
+        Ui.fit(g, font, Component.translatable("gui.datacenterextended.performance",
+                DataUnits.formatBytesPerSecond(spec.computeBps()), DataUnits.formatHashrate(spec.hashesPerSecond())), tx, ty + 10, w, Theme.TEXT);
+        int memColor = spec.memoryFactor() < 1.0 ? Theme.WARN : Theme.TEXT;
+        Ui.fit(g, font, HardwareText.memoryLine(spec, board != null ? board.memoryType() : ""), tx, ty + 20, w, memColor);
+        Ui.fit(g, font, Component.translatable("gui.datacenterextended.power_fe", spec.watts(), spec.psuCapacity(), spec.energyPerTick()), tx, ty + 30, w,
+                spec.watts() > spec.psuCapacity() ? Theme.ERR : Theme.TEXT);
         Component last = board != null
                 ? HardwareText.boardRequirements(board)
                 : Component.translatable("gui.datacenterextended.storage", DataUnits.formatBytes(spec.storageGb() * DataUnits.GB));
-        g.text(font, last, tx, ty + 40, GuiDraw.TEXT_INFO, false);
+        Ui.fit(g, font, last, tx, ty + 40, w, Theme.MUTED);
     }
 
     @Override

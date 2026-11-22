@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "R": "datacenterextended:carbon_fibre_rotor",
+    "X": "datacenterextended:gearbox",
+    "W": "datacenterextended:medium_wind_turbine",
+    "P": "datacenterextended:steel_block",
+    "I": "datacenterextended:inverter"
+  },
+  "pattern": [
+    " R ",
+    "XWX",
+    "PIP"
+  ],
+  "result": {
+    "id": "datacenterextended:large_wind_turbine"
+  }
+}

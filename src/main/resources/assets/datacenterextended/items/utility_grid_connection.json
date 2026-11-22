@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "datacenterextended:block/utility_grid_connection"
+  }
+}

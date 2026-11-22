@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "P": "datacenterextended:water_wheel_paddle",
+    "B": "datacenterextended:bearing",
+    "G": "datacenterextended:alternator"
+  },
+  "pattern": [
+    "PBP",
+    "PGP",
+    "PBP"
+  ],
+  "result": {
+    "id": "datacenterextended:water_wheel"
+  }
+}

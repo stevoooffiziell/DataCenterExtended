@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "datacenterextended:silicon_wafer",
+    "#c:dusts/redstone"
+  ],
+  "result": {
+    "id": "datacenterextended:n_type_wafer"
+  }
+}

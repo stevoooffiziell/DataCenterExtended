@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "datacenterextended:comparator_output",
+  "max_ticks": 60,
+  "setup_ticks": 1,
+  "required": true,
+  "structure": "minecraft:empty"
+}

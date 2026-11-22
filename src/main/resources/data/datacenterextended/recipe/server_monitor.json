@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "I": "#c:ingots/iron",
+    "G": "#c:glass_panes",
+    "C": "datacenterextended:circuit_board",
+    "R": "minecraft:comparator"
+  },
+  "pattern": [
+    "III",
+    "GCG",
+    "IRI"
+  ],
+  "result": {
+    "id": "datacenterextended:server_monitor"
+  }
+}

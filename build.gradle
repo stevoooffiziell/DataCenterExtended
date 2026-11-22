@@ -11,6 +11,11 @@ group = mod_group_id
 repositories {
     mavenLocal()
     mavenCentral()
+    // Jade (optional integration)
+    exclusiveContent {
+        forRepository { maven { url = 'https://api.modrinth.com/maven' } }
+        filter { includeGroup 'maven.modrinth' }
+    }
 }
 
 base {
@@ -100,7 +105,17 @@ tasks.named('test', Test) {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
+// Runtime-only mods for the dev runs that are not published as dependencies
+configurations {
+    localRuntime
+    runtimeClasspath.extendsFrom localRuntime
+}
+
 dependencies {
+    // Jade overlay (optional): compiled against, not required at runtime. Remove "localRuntime" to test without Jade.
+    compileOnly "maven.modrinth:jade:${jade_version}"
+    localRuntime "maven.modrinth:jade:${jade_version}"
+
     // Unit tests for the pure logic (compute allocation, unit parsing)
     testImplementation platform("org.junit:junit-bom:5.13.4")
     testImplementation "org.junit.jupiter:junit-jupiter"

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "L": "datacenterextended:lead_acid_cell",
+    "W": "datacenterextended:copper_wire",
+    "P": "datacenterextended:steel_plate"
+  },
+  "pattern": [
+    "LWL",
+    "LLL",
+    "PPP"
+  ],
+  "result": {
+    "id": "datacenterextended:lead_acid_battery"
+  }
+}

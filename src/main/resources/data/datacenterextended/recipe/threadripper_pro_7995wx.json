@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "datacenterextended:part_recipes_enabled"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "#c:ingots/netherite",
+    "S": "datacenterextended:silicon",
+    "$": "minecraft:echo_shard",
+    "X": "datacenterextended:core_ultra_9_285k"
+  },
+  "pattern": [
+    "MSM",
+    "$X$",
+    "MSM"
+  ],
+  "result": {
+    "id": "datacenterextended:threadripper_pro_7995wx"
+  }
+}

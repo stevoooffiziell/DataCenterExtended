@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "P": "datacenterextended:steel_plate",
+    "B": "minecraft:blast_furnace",
+    "X": "datacenterextended:gearbox",
+    "C": "datacenterextended:combustion_generator",
+    "I": "datacenterextended:inverter"
+  },
+  "pattern": [
+    "PBP",
+    "XCX",
+    "PIP"
+  ],
+  "result": {
+    "id": "datacenterextended:gas_turbine"
+  }
+}

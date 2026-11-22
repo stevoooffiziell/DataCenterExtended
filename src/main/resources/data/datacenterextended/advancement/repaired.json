@@ -1,0 +1,24 @@
+{
+  "parent": "datacenterextended:first_boot",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:server_workbench"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.repaired.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.repaired.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

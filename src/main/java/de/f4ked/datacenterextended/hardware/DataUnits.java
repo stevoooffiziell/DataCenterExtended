@@ -60,6 +60,13 @@ public final class DataUnits {
         return String.format(Locale.ROOT, value >= 10 ? "%.1f %s" : "%.2f %s", value, units[unit]);
     }
 
+    /** 850 -> "850 W", 12500 -> "12.5 kW". */
+    public static String formatWatts(double watts) {
+        if (watts < 1000) return Math.round(watts) + " W";
+        if (watts < 1_000_000) return String.format(Locale.ROOT, "%.1f kW", watts / 1000.0);
+        return String.format(Locale.ROOT, "%.2f MW", watts / 1_000_000.0);
+    }
+
     /** Human readable duration from seconds, e.g. "1h 4m", "37s". */
     /** 123456 -> "123,456". */
     public static String formatNumber(long value) {

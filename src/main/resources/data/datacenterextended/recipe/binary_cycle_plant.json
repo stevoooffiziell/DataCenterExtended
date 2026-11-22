@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "P": "datacenterextended:steel_plate",
+    "I": "datacenterextended:inverter",
+    "C": "#c:storage_blocks/copper",
+    "G": "datacenterextended:geothermal_plant",
+    "X": "datacenterextended:gearbox"
+  },
+  "pattern": [
+    "PIP",
+    "CGC",
+    "PXP"
+  ],
+  "result": {
+    "id": "datacenterextended:binary_cycle_plant"
+  }
+}

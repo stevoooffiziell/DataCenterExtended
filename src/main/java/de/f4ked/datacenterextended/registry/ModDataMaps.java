@@ -6,6 +6,7 @@ import de.f4ked.datacenterextended.Config;
 import de.f4ked.datacenterextended.Datacenterextended;
 import de.f4ked.datacenterextended.hardware.FileSize;
 import de.f4ked.datacenterextended.hardware.HardwareStats;
+import de.f4ked.datacenterextended.heat.CoolingStats;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -41,6 +42,26 @@ public final class ModDataMaps {
             .synced(Codec.doubleRange(0.0, 1.0E12), false)
             .build();
 
+    /** Real release date of an item ("YYYY-MM-DD"). The shop sells it only from that calendar date on. */
+    public static final Codec<java.time.LocalDate> DATE_CODEC = Codec.STRING.comapFlatMap(text -> {
+        try {
+            return com.mojang.serialization.DataResult.success(java.time.LocalDate.parse(text));
+        } catch (java.time.format.DateTimeParseException e) {
+            return com.mojang.serialization.DataResult.error(() -> "Not a date (YYYY-MM-DD): " + text);
+        }
+    }, java.time.LocalDate::toString);
+
+    public static final DataMapType<Item, java.time.LocalDate> RELEASE_DATE = DataMapType
+            .builder(Datacenterextended.id("release_date"), Registries.ITEM, DATE_CODEC)
+            .synced(DATE_CODEC, false)
+            .build();
+
+    /** Cooling capacity for items in the rack's cooling slots (rack fans, water cooling). */
+    public static final DataMapType<Item, CoolingStats> COOLING = DataMapType
+            .builder(Datacenterextended.id("cooling"), Registries.ITEM, CoolingStats.CODEC)
+            .synced(CoolingStats.CODEC, false)
+            .build();
+
     /** Items in this tag are never fabricable. */
     public static final TagKey<Item> NOT_FABRICABLE = ItemTags.create(Datacenterextended.id("not_fabricable"));
 
@@ -51,12 +72,22 @@ public final class ModDataMaps {
         event.register(HARDWARE);
         event.register(FILE_SIZE);
         event.register(SHOP_PRICE);
+        event.register(COOLING);
+        event.register(RELEASE_DATE);
     }
 
     /** Shop price in dollars from the data map (no multiplier), or -1 if the item is not sold. */
     public static double shopPrice(Item item) {
         Double price = BuiltInRegistries.ITEM.wrapAsHolder(item).getData(SHOP_PRICE);
         return price == null ? -1 : price;
+    }
+
+    public static java.time.@Nullable LocalDate releaseDate(Item item) {
+        return BuiltInRegistries.ITEM.wrapAsHolder(item).getData(RELEASE_DATE);
+    }
+
+    public static @Nullable CoolingStats cooling(ItemStack stack) {
+        return stack.isEmpty() ? null : stack.typeHolder().getData(COOLING);
     }
 
     public static @Nullable HardwareStats hardware(ItemStack stack) {

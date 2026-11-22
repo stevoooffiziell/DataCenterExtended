@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "datacenterextended:block/residential_grid_connection"
+    },
+    "facing=east": {
+      "model": "datacenterextended:block/residential_grid_connection",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "datacenterextended:block/residential_grid_connection",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "datacenterextended:block/residential_grid_connection",
+      "y": 270
+    }
+  }
+}

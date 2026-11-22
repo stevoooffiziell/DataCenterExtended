@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 0.5,
+  "ingredient": "datacenterextended:spent_fuel_rod",
+  "result": {
+    "id": "datacenterextended:yellowcake"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "datacenterextended:release_lock",
+  "max_ticks": 20,
+  "setup_ticks": 1,
+  "required": true,
+  "structure": "minecraft:empty"
+}

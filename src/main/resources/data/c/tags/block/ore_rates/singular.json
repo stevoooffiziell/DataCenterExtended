@@ -1,0 +1,10 @@
+{
+  "values": [
+    "datacenterextended:bauxite_ore",
+    "datacenterextended:deepslate_bauxite_ore",
+    "datacenterextended:spodumene_ore",
+    "datacenterextended:deepslate_spodumene_ore",
+    "datacenterextended:uraninite_ore",
+    "datacenterextended:deepslate_uraninite_ore"
+  ]
+}

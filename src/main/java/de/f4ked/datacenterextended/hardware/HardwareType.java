@@ -11,7 +11,9 @@ public enum HardwareType implements StringRepresentable {
     GPU,
     PSU,
     STORAGE,
-    MEMORY;
+    MEMORY,
+    /** A dedicated mining unit (e.g. an Antminer). Goes straight into a rack bay instead of a server; mines Bitcoin only. */
+    ASIC;
 
     public static final Codec<HardwareType> CODEC = StringRepresentable.fromEnum(HardwareType::values);
 

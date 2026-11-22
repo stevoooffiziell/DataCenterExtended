@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": "datacenterextended:reactor_casing",
+    "K": "datacenterextended:charge_controller",
+    "R": "datacenterextended:control_rod",
+    "X": "datacenterextended:steel_block",
+    "T": "datacenterextended:gas_turbine"
+  },
+  "pattern": [
+    "CKC",
+    "RXR",
+    "CTC"
+  ],
+  "result": {
+    "id": "datacenterextended:small_modular_reactor"
+  }
+}

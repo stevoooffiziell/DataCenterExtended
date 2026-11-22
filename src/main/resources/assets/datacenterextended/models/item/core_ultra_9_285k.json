@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "datacenterextended:item/core_ultra_9_285k"
+  }
+}

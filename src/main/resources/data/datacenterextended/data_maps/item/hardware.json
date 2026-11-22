@@ -126,6 +126,118 @@
       "power": 350,
       "recommended_memory": 256
     },
+    "datacenterextended:athlon_64_x2_4800": {
+      "type": "cpu",
+      "socket": "am2",
+      "compute": 6,
+      "power": 89,
+      "recommended_memory": 2
+    },
+    "datacenterextended:core_2_duo_e8400": {
+      "type": "cpu",
+      "socket": "lga775",
+      "compute": 7,
+      "power": 65,
+      "recommended_memory": 2
+    },
+    "datacenterextended:core_i7_920": {
+      "type": "cpu",
+      "socket": "lga1366",
+      "compute": 16,
+      "power": 130,
+      "recommended_memory": 6
+    },
+    "datacenterextended:phenom_ii_x6_1100t": {
+      "type": "cpu",
+      "socket": "am3plus",
+      "compute": 16,
+      "power": 125,
+      "recommended_memory": 8
+    },
+    "datacenterextended:core_i7_4770k": {
+      "type": "cpu",
+      "socket": "lga1150",
+      "compute": 40,
+      "power": 84,
+      "recommended_memory": 16
+    },
+    "datacenterextended:core_i7_6700k": {
+      "type": "cpu",
+      "socket": "lga1151",
+      "compute": 52,
+      "power": 91,
+      "recommended_memory": 16
+    },
+    "datacenterextended:ryzen_7_1800x": {
+      "type": "cpu",
+      "socket": "am4",
+      "compute": 80,
+      "power": 95,
+      "recommended_memory": 16
+    },
+    "datacenterextended:ryzen_9_3950x": {
+      "type": "cpu",
+      "socket": "am4",
+      "compute": 240,
+      "power": 105,
+      "recommended_memory": 64
+    },
+    "datacenterextended:threadripper_3990x": {
+      "type": "cpu",
+      "socket": "strx4",
+      "compute": 900,
+      "power": 280,
+      "recommended_memory": 256
+    },
+    "datacenterextended:ryzen_9_5950x": {
+      "type": "cpu",
+      "socket": "am4",
+      "compute": 300,
+      "power": 105,
+      "recommended_memory": 64
+    },
+    "datacenterextended:core_i9_12900k": {
+      "type": "cpu",
+      "socket": "lga1700",
+      "compute": 320,
+      "power": 241,
+      "recommended_memory": 64
+    },
+    "datacenterextended:core_i9_14900k": {
+      "type": "cpu",
+      "socket": "lga1700",
+      "compute": 440,
+      "power": 253,
+      "recommended_memory": 64
+    },
+    "datacenterextended:ryzen_9_9950x": {
+      "type": "cpu",
+      "socket": "am5",
+      "compute": 600,
+      "power": 170,
+      "recommended_memory": 64
+    },
+    "datacenterextended:core_ultra_9_285k": {
+      "type": "cpu",
+      "socket": "lga1851",
+      "compute": 560,
+      "power": 250,
+      "recommended_memory": 64
+    },
+    "datacenterextended:threadripper_pro_7995wx": {
+      "type": "cpu",
+      "socket": "str5",
+      "compute": 2400,
+      "power": 350,
+      "recommended_memory": 512
+    },
+    "datacenterextended:epyc_9965": {
+      "type": "cpu",
+      "socket": "sp5",
+      "compute": 3600,
+      "power": 500,
+      "recommended_memory": 768
+    },
     "datacenterextended:geforce_gtx_460": {
       "type": "gpu",
       "hashrate": 1.0,
@@ -185,6 +297,81 @@
       "type": "gpu",
       "hashrate": 100.0,
       "power": 700
+    },
+    "datacenterextended:geforce_8800_gtx": {
+      "type": "gpu",
+      "hashrate": 0.5,
+      "power": 155
+    },
+    "datacenterextended:radeon_hd_5870": {
+      "type": "gpu",
+      "hashrate": 0.9,
+      "power": 188
+    },
+    "datacenterextended:geforce_gtx_580": {
+      "type": "gpu",
+      "hashrate": 1.6,
+      "power": 244
+    },
+    "datacenterextended:geforce_gtx_680": {
+      "type": "gpu",
+      "hashrate": 2.2,
+      "power": 195
+    },
+    "datacenterextended:radeon_r9_290x": {
+      "type": "gpu",
+      "hashrate": 3.6,
+      "power": 290
+    },
+    "datacenterextended:geforce_gtx_980_ti": {
+      "type": "gpu",
+      "hashrate": 5.5,
+      "power": 250
+    },
+    "datacenterextended:radeon_rx_vega_64": {
+      "type": "gpu",
+      "hashrate": 9.0,
+      "power": 295
+    },
+    "datacenterextended:geforce_rtx_3060_ti": {
+      "type": "gpu",
+      "hashrate": 12.0,
+      "power": 200
+    },
+    "datacenterextended:geforce_rtx_3080": {
+      "type": "gpu",
+      "hashrate": 18.0,
+      "power": 320
+    },
+    "datacenterextended:radeon_rx_6900_xt": {
+      "type": "gpu",
+      "hashrate": 16.0,
+      "power": 300
+    },
+    "datacenterextended:geforce_rtx_4070": {
+      "type": "gpu",
+      "hashrate": 22.0,
+      "power": 200
+    },
+    "datacenterextended:radeon_rx_9070_xt": {
+      "type": "gpu",
+      "hashrate": 34.0,
+      "power": 304
+    },
+    "datacenterextended:nvidia_a100": {
+      "type": "gpu",
+      "hashrate": 70.0,
+      "power": 300
+    },
+    "datacenterextended:nvidia_h200": {
+      "type": "gpu",
+      "hashrate": 140.0,
+      "power": 700
+    },
+    "datacenterextended:nvidia_b200": {
+      "type": "gpu",
+      "hashrate": 220.0,
+      "power": 1000
     },
     "datacenterextended:office_motherboard": {
       "type": "motherboard",
@@ -318,6 +505,116 @@
       "max_memory": 4096,
       "power": 90
     },
+    "datacenterextended:am2_motherboard": {
+      "type": "motherboard",
+      "socket": "am2",
+      "memory_type": "ddr2",
+      "cpu_sockets": 1,
+      "gpu_slots": 1,
+      "storage_slots": 2,
+      "memory_slots": 4,
+      "max_memory": 8,
+      "power": 18
+    },
+    "datacenterextended:x58_motherboard": {
+      "type": "motherboard",
+      "socket": "lga1366",
+      "memory_type": "ddr3",
+      "cpu_sockets": 1,
+      "gpu_slots": 2,
+      "storage_slots": 3,
+      "memory_slots": 6,
+      "max_memory": 24,
+      "power": 30
+    },
+    "datacenterextended:z87_motherboard": {
+      "type": "motherboard",
+      "socket": "lga1150",
+      "memory_type": "ddr3",
+      "cpu_sockets": 1,
+      "gpu_slots": 2,
+      "storage_slots": 3,
+      "memory_slots": 4,
+      "max_memory": 32,
+      "power": 22
+    },
+    "datacenterextended:z170_motherboard": {
+      "type": "motherboard",
+      "socket": "lga1151",
+      "memory_type": "ddr4",
+      "cpu_sockets": 1,
+      "gpu_slots": 2,
+      "storage_slots": 3,
+      "memory_slots": 4,
+      "max_memory": 64,
+      "power": 25
+    },
+    "datacenterextended:x370_motherboard": {
+      "type": "motherboard",
+      "socket": "am4",
+      "memory_type": "ddr4",
+      "cpu_sockets": 1,
+      "gpu_slots": 2,
+      "storage_slots": 3,
+      "memory_slots": 4,
+      "max_memory": 64,
+      "power": 28
+    },
+    "datacenterextended:trx40_motherboard": {
+      "type": "motherboard",
+      "socket": "strx4",
+      "memory_type": "ddr4",
+      "cpu_sockets": 1,
+      "gpu_slots": 4,
+      "storage_slots": 4,
+      "memory_slots": 8,
+      "max_memory": 256,
+      "power": 55
+    },
+    "datacenterextended:z690_motherboard": {
+      "type": "motherboard",
+      "socket": "lga1700",
+      "memory_type": "ddr5",
+      "cpu_sockets": 1,
+      "gpu_slots": 3,
+      "storage_slots": 4,
+      "memory_slots": 4,
+      "max_memory": 128,
+      "power": 32
+    },
+    "datacenterextended:wrx90_motherboard": {
+      "type": "motherboard",
+      "socket": "str5",
+      "memory_type": "ddr5",
+      "cpu_sockets": 1,
+      "gpu_slots": 4,
+      "storage_slots": 4,
+      "memory_slots": 8,
+      "max_memory": 2048,
+      "power": 75
+    },
+    "datacenterextended:z890_motherboard": {
+      "type": "motherboard",
+      "socket": "lga1851",
+      "memory_type": "ddr5",
+      "cpu_sockets": 1,
+      "gpu_slots": 3,
+      "storage_slots": 4,
+      "memory_slots": 4,
+      "max_memory": 256,
+      "power": 35
+    },
+    "datacenterextended:x870e_motherboard": {
+      "type": "motherboard",
+      "socket": "am5",
+      "memory_type": "ddr5",
+      "cpu_sockets": 1,
+      "gpu_slots": 3,
+      "storage_slots": 4,
+      "memory_slots": 4,
+      "max_memory": 256,
+      "power": 38
+    },
     "datacenterextended:ddr2_1gb": {
       "type": "memory",
       "memory_type": "ddr2",
@@ -395,25 +692,94 @@
       "speed": 4800,
       "power": 8
     },
+    "datacenterextended:ddr2_4gb": {
+      "type": "memory",
+      "memory_type": "ddr2",
+      "memory": 4,
+      "speed": 800,
+      "power": 3
+    },
+    "datacenterextended:ddr3_16gb": {
+      "type": "memory",
+      "memory_type": "ddr3",
+      "memory": 16,
+      "speed": 1866,
+      "power": 4
+    },
+    "datacenterextended:ddr4_32gb": {
+      "type": "memory",
+      "memory_type": "ddr4",
+      "memory": 32,
+      "speed": 3600,
+      "power": 5
+    },
+    "datacenterextended:ddr4_128gb_ecc": {
+      "type": "memory",
+      "memory_type": "ddr4",
+      "memory": 128,
+      "speed": 3200,
+      "power": 9
+    },
+    "datacenterextended:ddr5_48gb": {
+      "type": "memory",
+      "memory_type": "ddr5",
+      "memory": 48,
+      "speed": 6400,
+      "power": 6
+    },
+    "datacenterextended:ddr5_32gb_8000": {
+      "type": "memory",
+      "memory_type": "ddr5",
+      "memory": 32,
+      "speed": 8000,
+      "power": 6
+    },
+    "datacenterextended:ddr5_256gb_ecc": {
+      "type": "memory",
+      "memory_type": "ddr5",
+      "memory": 256,
+      "speed": 6400,
+      "power": 12
+    },
     "datacenterextended:psu_300w": {
       "type": "psu",
       "power": 300,
       "efficiency": 0.75
+    },
+    "datacenterextended:psu_400w": {
+      "type": "psu",
+      "power": 400,
+      "efficiency": 0.8
     },
     "datacenterextended:psu_550w": {
       "type": "psu",
       "power": 550,
       "efficiency": 0.82
     },
+    "datacenterextended:psu_650w": {
+      "type": "psu",
+      "power": 650,
+      "efficiency": 0.87
+    },
     "datacenterextended:psu_850w": {
       "type": "psu",
       "power": 850,
       "efficiency": 0.87
     },
+    "datacenterextended:psu_1000w": {
+      "type": "psu",
+      "power": 1000,
+      "efficiency": 0.88
+    },
     "datacenterextended:psu_1200w": {
       "type": "psu",
       "power": 1200,
       "efficiency": 0.9
+    },
+    "datacenterextended:psu_1600w": {
+      "type": "psu",
+      "power": 1600,
+      "efficiency": 0.93
     },
     "datacenterextended:psu_2000w": {
       "type": "psu",
@@ -444,6 +810,24 @@
       "type": "storage",
       "storage": 8192,
       "power": 12
+    },
+    "datacenterextended:antminer_s9": {
+      "type": "asic",
+      "hashrate": 150.0,
+      "power": 1300,
+      "efficiency": 0.93
+    },
+    "datacenterextended:antminer_s19_pro": {
+      "type": "asic",
+      "hashrate": 600.0,
+      "power": 3250,
+      "efficiency": 0.94
+    },
+    "datacenterextended:antminer_s21": {
+      "type": "asic",
+      "hashrate": 1500.0,
+      "power": 3500,
+      "efficiency": 0.95
     }
   }
 }

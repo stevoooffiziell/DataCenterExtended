@@ -1,0 +1,25 @@
+{
+  "parent": "datacenterextended:asic",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:antminer_s21"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.halving.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.halving.description"
+    },
+    "frame": "goal"
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

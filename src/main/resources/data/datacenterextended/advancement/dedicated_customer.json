@@ -1,0 +1,25 @@
+{
+  "parent": "datacenterextended:first_customer",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:server_motherboard"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.dedicated_customer.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.dedicated_customer.description"
+    },
+    "frame": "goal"
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

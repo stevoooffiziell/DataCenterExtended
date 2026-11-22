@@ -10,7 +10,7 @@
     "M": "#c:ingots/gold",
     "S": "#c:dusts/redstone",
     "$": "#c:storage_blocks/gold",
-    "X": "datacenterextended:psu_550w"
+    "X": "datacenterextended:psu_650w"
   },
   "pattern": [
     "MSM",

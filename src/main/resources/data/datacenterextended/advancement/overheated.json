@@ -1,0 +1,24 @@
+{
+  "parent": "datacenterextended:first_boot",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:rack_fan"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.overheated.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.overheated.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -1,6 +1,7 @@
 package de.f4ked.datacenterextended.hardware;
 
 import de.f4ked.datacenterextended.Config;
+import de.f4ked.datacenterextended.registry.ModDataMaps;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -23,15 +24,29 @@ import static de.f4ked.datacenterextended.hardware.ServerLayout.*;
  * @param memoryModules     number of active memory modules
  * @param memoryFactor      compute multiplier from RAM (see {@link MemoryModel})
  * @param problem           {@link ServerProblem#NONE} if the server can boot
+ * @param worstCondition    lowest condition (0..1) of all parts, see {@link Wear}
+ * @param asic              this is an ASIC miner (a rack bay item of its own, not a server)
  */
 public record ServerSpec(double computeBps, double hashesPerSecond, long watts, long psuCapacity,
                          double psuEfficiency, double storageGb, double memoryGb, double recommendedMemory,
-                         int memorySpeed, int memoryModules, double memoryFactor, ServerProblem problem) {
+                         int memorySpeed, int memoryModules, double memoryFactor, ServerProblem problem,
+                         double worstCondition, boolean asic) {
 
-    public static final ServerSpec EMPTY = new ServerSpec(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, ServerProblem.NO_MOTHERBOARD);
+    public static final ServerSpec EMPTY = new ServerSpec(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, ServerProblem.NO_MOTHERBOARD, 1, false);
 
     public static ServerSpec of(ItemStack server) {
-        return server.isEmpty() ? EMPTY : of(readParts(server));
+        if (server.isEmpty()) return EMPTY;
+        HardwareStats unit = ModDataMaps.hardware(server);
+        if (unit != null && unit.type() == HardwareType.ASIC) return asic(server, unit);
+        return of(readParts(server));
+    }
+
+    /** An ASIC miner: hashrate and power come from its own stats, it has a built-in power supply. */
+    public static ServerSpec asic(ItemStack stack, HardwareStats stats) {
+        double hashes = stats.hashesPerSecond() * Wear.performance(stack) * Config.safe(Config.HASHRATE_MULTIPLIER, 1.0);
+        ServerProblem problem = Wear.isBroken(stack) ? ServerProblem.BROKEN_PART : ServerProblem.NONE;
+        return new ServerSpec(0, hashes, stats.power(), stats.power(), stats.efficiency(), 0, 0, 0, 0, 0, 1, problem,
+                Wear.condition(stack), true);
     }
 
     public static ServerSpec of(List<ItemStack> parts) {
@@ -42,6 +57,7 @@ public record ServerSpec(double computeBps, double hashesPerSecond, long watts, 
         double compute = 0, hashes = 0, storage = 0, memory = 0, recommended = 0;
         int speed = Integer.MAX_VALUE, modules = 0, cpus = 0;
         boolean badCpu = false, badMemory = false;
+        boolean broken = Wear.isBroken(boardStack) || Wear.isBroken(parts.get(SLOT_PSU));
         long draw = 0;
         if (board != null) {
             draw += board.power();
@@ -55,14 +71,18 @@ public record ServerSpec(double computeBps, double hashesPerSecond, long watts, 
                     else badMemory = true;
                     continue;
                 }
+                if (Wear.isBroken(parts.get(i))) {
+                    broken = true;
+                    continue;
+                }
                 draw += part.power();
                 switch (type) {
                     case CPU -> {
                         cpus++;
-                        compute += part.computeBytesPerSecond();
+                        compute += part.computeBytesPerSecond() * Wear.performance(parts.get(i));
                         recommended += part.recommendedMemory();
                     }
-                    case GPU -> hashes += part.hashesPerSecond();
+                    case GPU -> hashes += part.hashesPerSecond() * Wear.performance(parts.get(i));
                     case STORAGE -> storage += part.storage();
                     case MEMORY -> {
                         modules++;
@@ -88,6 +108,7 @@ public record ServerSpec(double computeBps, double hashesPerSecond, long watts, 
         ServerProblem problem;
         if (board == null) problem = ServerProblem.NO_MOTHERBOARD;
         else if (psu == null) problem = ServerProblem.NO_PSU;
+        else if (broken) problem = ServerProblem.BROKEN_PART;
         else if (badCpu) problem = ServerProblem.INCOMPATIBLE_CPU;
         else if (badMemory) problem = ServerProblem.INCOMPATIBLE_MEMORY;
         else if (cpus == 0) problem = ServerProblem.NO_CPU;
@@ -96,7 +117,7 @@ public record ServerSpec(double computeBps, double hashesPerSecond, long watts, 
         else problem = ServerProblem.NONE;
 
         return new ServerSpec(effCompute, effHashes, draw, capacity, psu != null ? psu.efficiency() : 1.0, storage,
-                memory, recommended, speed, modules, memFactor, problem);
+                memory, recommended, speed, modules, memFactor, problem, Wear.worstCondition(parts), false);
     }
 
     public boolean boots() {

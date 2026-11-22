@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "#c:ingots/iron",
+    "B": "minecraft:bone_meal",
+    "C": "datacenterextended:li_ion_cell"
+  },
+  "pattern": [
+    "IBI",
+    "BCB",
+    "IBI"
+  ],
+  "result": {
+    "id": "datacenterextended:lfp_cell"
+  }
+}

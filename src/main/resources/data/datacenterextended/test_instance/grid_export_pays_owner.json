@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "datacenterextended:grid_export_pays_owner",
+  "max_ticks": 220,
+  "setup_ticks": 1,
+  "required": true,
+  "structure": "minecraft:empty"
+}

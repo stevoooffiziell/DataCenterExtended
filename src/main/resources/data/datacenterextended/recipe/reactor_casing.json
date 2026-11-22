@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "datacenterextended:steel_plate",
+    "C": "#c:concretes"
+  },
+  "pattern": [
+    "PCP",
+    "C C",
+    "PCP"
+  ],
+  "result": {
+    "id": "datacenterextended:reactor_casing"
+  }
+}

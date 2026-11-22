@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": "datacenterextended:li_ion_cell",
+    "K": "datacenterextended:charge_controller",
+    "A": "datacenterextended:aluminium_block"
+  },
+  "pattern": [
+    "CKC",
+    "CAC",
+    "CCC"
+  ],
+  "result": {
+    "id": "datacenterextended:lithium_ion_battery"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "parent": "datacenterextended:overheated",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "datacenterextended:water_cooling_kit"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:water_cooling_kit"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.water_cooling.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.water_cooling.description"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

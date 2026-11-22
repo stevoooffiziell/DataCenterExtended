@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "datacenterextended:aluminium_ingot"
+  ],
+  "result": {
+    "id": "datacenterextended:aluminium_nugget",
+    "count": 9
+  }
+}

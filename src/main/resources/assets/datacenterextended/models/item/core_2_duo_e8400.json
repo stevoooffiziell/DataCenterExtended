@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "datacenterextended:item/core_2_duo_e8400"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": "datacenterextended:steel_plate",
+    "I": "minecraft:blue_ice",
+    "P": "minecraft:powder_snow_bucket"
+  },
+  "pattern": [
+    "SIS",
+    "IPI",
+    "SIS"
+  ],
+  "result": {
+    "id": "datacenterextended:liquid_nitrogen_cell",
+    "count": 2
+  }
+}

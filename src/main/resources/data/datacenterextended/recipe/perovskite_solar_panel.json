@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "Q": "#c:gems/quartz",
+    "C": "datacenterextended:solar_cell",
+    "P": "datacenterextended:perc_solar_panel",
+    "D": "datacenterextended:processor_die",
+    "K": "datacenterextended:charge_controller"
+  },
+  "pattern": [
+    "QCQ",
+    "CPC",
+    "DKD"
+  ],
+  "result": {
+    "id": "datacenterextended:perovskite_solar_panel"
+  }
+}

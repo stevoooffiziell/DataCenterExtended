@@ -1,10 +1,26 @@
 package de.f4ked.datacenterextended.block;
 
 import de.f4ked.datacenterextended.Config;
+import de.f4ked.datacenterextended.advancement.ModAdvancements;
 import de.f4ked.datacenterextended.economy.Coin;
+import de.f4ked.datacenterextended.economy.ElectricityBill;
+import de.f4ked.datacenterextended.economy.MarketData;
+import de.f4ked.datacenterextended.economy.EconomyService;
+import de.f4ked.datacenterextended.economy.StatsData;
+import de.f4ked.datacenterextended.economy.StatsLedger;
 import de.f4ked.datacenterextended.economy.WalletData;
+import de.f4ked.datacenterextended.network.ModPayloads;
+import net.minecraft.ChatFormatting;
+import net.minecraft.server.level.ServerPlayer;
+import de.f4ked.datacenterextended.hardware.HardwareStats;
+import de.f4ked.datacenterextended.hardware.HardwareType;
 import de.f4ked.datacenterextended.hardware.ServerProblem;
 import de.f4ked.datacenterextended.hardware.ServerSpec;
+import de.f4ked.datacenterextended.hardware.Wear;
+import de.f4ked.datacenterextended.heat.CoolingStats;
+import de.f4ked.datacenterextended.heat.HeatModel;
+import de.f4ked.datacenterextended.hosting.CustomerBase;
+import de.f4ked.datacenterextended.hosting.HostingPlan;
 import de.f4ked.datacenterextended.menu.DataSlots;
 import de.f4ked.datacenterextended.menu.RackMenu;
 import de.f4ked.datacenterextended.network.ComputeNetworkManager;
@@ -13,10 +29,12 @@ import de.f4ked.datacenterextended.network.NetworkInfo;
 import de.f4ked.datacenterextended.registry.ModBlockEntities;
 import de.f4ked.datacenterextended.registry.ModDataMaps;
 import de.f4ked.datacenterextended.registry.ModItems;
+import de.f4ked.datacenterextended.time.CalendarData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
@@ -36,13 +54,17 @@ import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * One rack segment (4 servers). The bottom segment of a merged rack is the controller: it runs the logic for the whole
- * stack, owns the target/output slots and is the stack's compute network node. Every segment has its own FE buffer
- * (so cables can feed any block); the controller draws from all of them.
+ * One rack segment (4 bays + 1 cooling slot). The bottom segment of a merged rack is the controller: it runs the logic
+ * for the whole stack, owns the target/output slots and is the stack's compute network node. Every segment has its own
+ * FE buffer (so cables can feed any block) and cooling slot; the controller draws from all of them.
+ *
+ * <p>Per tick the controller: evaluates the servers / ASICs in all bays, powers them (FE or electricity bill), heats up
+ * and throttles, takes its share of the compute network, produces (coins, hosting fees or items) and wears the parts.
  */
 public class RackBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, ComputeNode {
 
@@ -50,7 +72,10 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     public static final int SERVERS = 4;
     public static final int SLOT_TARGET = 4;
     public static final int SLOT_OUTPUT_START = 5;
-    public static final int SLOT_COUNT = 8;
+    /** Exclusive end of the slots that belong to the controller (target + outputs). */
+    public static final int SLOT_OUTPUT_END = 8;
+    public static final int SLOT_COOLING = 8;
+    public static final int SLOT_COUNT = 9;
     public static final int MAX_SERVERS = SERVERS * RackStack.MAX_HEIGHT;
 
     // ------------------------------------------------------------------ synced data (see DataSlots)
@@ -75,11 +100,33 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     public static final int DATA_INCOME = 61;
     public static final int DATA_COIN = 65;
     public static final int DATA_HAS_OWNER = 66;
-    public static final int DATA_COUNT = 67;
+    /** (°C + {@link #TEMP_OFFSET}) * 10. */
+    public static final int DATA_TEMPERATURE = 67;
+    public static final int DATA_SPEED_PERMILLE = 68;
+    public static final int DATA_COOLING = 69;
+    public static final int DATA_HEAT = 73;
+    /** Electricity bill in cents per hour. */
+    public static final int DATA_BILL = 77;
+    public static final int DATA_PLANS = 81;                       // one slot per hosting plan
+    public static final int DATA_SATISFACTION = 84;
+    public static final int DATA_CONTRACTED = 85;
+    /** Comparator mode (low 4 bits) and signal (next 4 bits). */
+    public static final int DATA_COMPARATOR = 89;
+    public static final int DATA_SELF_POWERED = 90;                 // permille of the wall power covered by own FE (bill mode)
+    public static final int DATA_COUNT = 91;
 
+    private static final int[] LONG_FIELDS = {DATA_LOCAL, DATA_EFFECTIVE, DATA_RECEIVED, DATA_EXPORTED, DATA_BANDWIDTH,
+            DATA_WATTS, DATA_PROGRESS, DATA_GOAL, DATA_ENERGY, DATA_ENERGY_CAP, DATA_FE_PER_TICK, DATA_INCOME,
+            DATA_COOLING, DATA_HEAT, DATA_BILL, DATA_CONTRACTED};
+
+    public static final double TEMP_OFFSET = 100.0;
     public static final double COIN_SCALE = 1.0E8;
     public static final int BUTTON_NEXT_COIN = 0;
+    public static final int BUTTON_COMPARATOR = 1;
     private static final int PAYOUT_INTERVAL = 20;
+    private static final int WEAR_INTERVAL = 1200;
+    private static final int ADVANCEMENT_INTERVAL = 100;
+    private static final double TICKS_PER_HOUR = 72_000.0;
 
     public static final int CODE_EMPTY = 0;
     public static final int CODE_RUNNING = 1;
@@ -97,6 +144,25 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     private long watts;
     private long fePerTick;
 
+    // heat
+    private double temperature = Double.NaN;
+    private double ambient = 20;
+    private long ambientCheckedAt = Long.MIN_VALUE;
+    private long heatLoad;
+    private long coolingCapacity;
+    private double speedFactor = 1.0;
+    private boolean coinLaunched = true;
+
+    // comparator output (controller)
+    private RackComparatorMode comparatorMode = RackComparatorMode.STATUS;
+    private int lastSignal;
+
+    // electricity bill (cents)
+    private final ElectricityBill bill = new ElectricityBill();
+    private double billPerHour;
+    /** Bill mode: share of the power taken from the rack's own FE buffers this tick. */
+    private double selfPowered;
+
     // wallet payout (mining / hosting)
     private @Nullable UUID owner;
     private String ownerName = "";
@@ -108,6 +174,10 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     private double storageBonus;
     private long supply;
     private long demand;
+
+    // hosting customers
+    private final CustomerBase customers = new CustomerBase(HostingPlan.count());
+    private double contracted;
 
     // last network allocation
     private long received;
@@ -134,9 +204,22 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
             if (index == DATA_CABLES) return hasNetwork() ? Math.min(Short.MAX_VALUE, networkInfo.cables()) : 0;
             if (index == DATA_COIN) return coin.ordinal();
             if (index == DATA_HAS_OWNER) return payee() != null ? 1 : 0;
-            int base = index >= DATA_INCOME ? DATA_INCOME : index >= DATA_FE_PER_TICK ? DATA_FE_PER_TICK
-                    : DATA_LOCAL + ((index - DATA_LOCAL) / 4) * 4;
-            long value = switch (base) {
+            if (index == DATA_TEMPERATURE) return (int) Math.round((temperature() + TEMP_OFFSET) * 10) & 0x7FFF;
+            if (index == DATA_SPEED_PERMILLE) return (int) Math.round(speedFactor * 1000);
+            if (index >= DATA_PLANS && index < DATA_PLANS + HostingPlan.count()) {
+                return Math.min(Short.MAX_VALUE, customers.count(index - DATA_PLANS));
+            }
+            if (index == DATA_SATISFACTION) return (int) Math.round(customers.satisfaction() * 1000);
+            if (index == DATA_COMPARATOR) return comparatorMode.ordinal() | (lastSignal << 4);
+            if (index == DATA_SELF_POWERED) return (int) Math.round(selfPowered * 1000);
+            for (int base : LONG_FIELDS) {
+                if (index >= base && index < base + 4) return DataSlots.chunk(longValue(base), index, base);
+            }
+            return 0;
+        }
+
+        private long longValue(int base) {
+            return switch (base) {
                 case DATA_LOCAL -> (long) localRate;
                 case DATA_EFFECTIVE -> (long) effectiveRate;
                 case DATA_RECEIVED -> hasNetwork() ? received : 0;
@@ -149,9 +232,12 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
                 case DATA_ENERGY_CAP -> totalEnergy(true);
                 case DATA_FE_PER_TICK -> fePerTick;
                 case DATA_INCOME -> (long) (type() == RackType.MINING ? incomePerHour * COIN_SCALE : incomePerHour);
+                case DATA_COOLING -> coolingCapacity;
+                case DATA_HEAT -> heatLoad;
+                case DATA_BILL -> Math.round(billPerHour);
+                case DATA_CONTRACTED -> (long) contracted;
                 default -> 0L;
             };
-            return DataSlots.chunk(value, index, base);
         }
 
         @Override
@@ -170,6 +256,17 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
 
     public RackType type() {
         return getBlockState().getBlock() instanceof RackBlock rack ? rack.type() : RackType.MINING;
+    }
+
+    /** Items that go into a rack bay: assembled servers and ASIC miners. */
+    public static boolean isBayItem(ItemStack stack) {
+        if (stack.is(ModItems.SERVER.get())) return true;
+        HardwareStats stats = ModDataMaps.hardware(stack);
+        return stats != null && stats.type() == HardwareType.ASIC;
+    }
+
+    public static boolean isCoolingItem(ItemStack stack) {
+        return ModDataMaps.cooling(stack) != null;
     }
 
     // ================================================================== stack helpers
@@ -221,7 +318,7 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
     private void handOverToController() {
         if (level == null) return;
         boolean any = false;
-        for (int i = SLOT_TARGET; i < SLOT_COUNT; i++) any |= !items.get(i).isEmpty();
+        for (int i = SLOT_TARGET; i < SLOT_OUTPUT_END; i++) any |= !items.get(i).isEmpty();
         if (!any) return;
         RackBlockEntity controller = controllerOf(level, worldPosition);
         if (controller == null || controller == this) return;
@@ -229,7 +326,7 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
             controller.items.set(SLOT_TARGET, items.get(SLOT_TARGET));
             items.set(SLOT_TARGET, ItemStack.EMPTY);
         }
-        for (int i = SLOT_OUTPUT_START; i < SLOT_COUNT; i++) {
+        for (int i = SLOT_OUTPUT_START; i < SLOT_OUTPUT_END; i++) {
             ItemStack stack = items.get(i);
             while (!stack.isEmpty() && controller.insertOutput(stack.copyWithCount(1))) {
                 stack.shrink(1);
@@ -244,22 +341,34 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         List<RackBlockEntity> segs = segments();
         segmentCount = segs.size();
         boolean mining = type == RackType.MINING;
+        boolean bills = Config.safe(Config.ELECTRICITY_BILLS, false);
+        long gameTime = level.getGameTime();
+        MinecraftServer server = level.getServer();
+        double today = CalendarData.now(server);
+        coinLaunched = !mining || MarketData.launched(coin, today);
+        UUID payee = payee();
+        if (!bills) bill.reset();
+        boolean unpaid = bill.unpaid();
 
-        // ---- 1. evaluate servers
-        java.util.Arrays.fill(serverCodes, CODE_EMPTY);
+        // ---- 1. evaluate servers / ASICs
+        Arrays.fill(serverCodes, CODE_EMPTY);
         List<ServerSpec> running = new ArrayList<>();
         List<Integer> runningIdx = new ArrayList<>();
         for (int s = 0; s < segs.size(); s++) {
             for (int slot = 0; slot < SERVERS; slot++) {
-                ItemStack server = segs.get(s).items.get(slot);
+                ItemStack bay = segs.get(s).items.get(slot);
                 int idx = s * SERVERS + slot;
-                if (server.isEmpty()) continue;
-                ServerSpec spec = ServerSpec.of(server);
+                if (bay.isEmpty()) continue;
+                ServerSpec spec = ServerSpec.of(bay);
                 ServerProblem problem = spec.problem();
+                if (problem == ServerProblem.NONE && spec.asic() && (!mining || !coin.asicMineable())) {
+                    problem = mining ? ServerProblem.ASIC_WRONG_COIN : ServerProblem.NO_COMPUTE;
+                }
                 if (problem == ServerProblem.NONE) {
                     double relevant = mining ? spec.hashesPerSecond() : spec.computeBps();
                     if (relevant <= 0) problem = mining ? ServerProblem.NO_HASHRATE : ServerProblem.NO_COMPUTE;
                 }
+                if (problem == ServerProblem.NONE && unpaid) problem = ServerProblem.UNPAID_BILL;
                 if (problem == ServerProblem.NONE) {
                     running.add(spec);
                     runningIdx.add(idx);
@@ -270,42 +379,104 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
             }
         }
 
-        // ---- 2. energy: power servers one by one while the buffers of all segments last
-        if (Config.REQUIRE_ENERGY.get()) {
+        // ---- 2. cooling items of all segments
+        boolean heat = Config.safe(Config.HEAT_ENABLED, true);
+        long coolingWatts = (long) Config.safe(Config.PASSIVE_COOLING, 300) * segs.size();
+        long coolingPower = 0;
+        for (RackBlockEntity seg : segs) {
+            CoolingStats cooling = ModDataMaps.cooling(seg.items.get(SLOT_COOLING));
+            if (cooling != null && heat) {
+                coolingWatts += cooling.capacity();
+                coolingPower += cooling.power();
+            }
+        }
+
+        // ---- 3. energy: power cooling, then servers one by one while the buffers of all segments last
+        long coolingFe = ServerSpec.energyPerTick(coolingPower, 1.0);
+        if (Config.usesFe()) {
             long budget = 0;
             for (RackBlockEntity seg : segs) budget += seg.energy.getAmountAsLong();
-            long needed = 0;
+            long needed = running.isEmpty() ? 0 : coolingFe;
             List<ServerSpec> powered = new ArrayList<>(running.size());
+            List<Integer> poweredIdx = new ArrayList<>(running.size());
             for (int i = 0; i < running.size(); i++) {
                 long cost = running.get(i).energyPerTick();
                 if (needed + cost <= budget) {
                     needed += cost;
                     powered.add(running.get(i));
+                    poweredIdx.add(runningIdx.get(i));
                 } else {
                     serverCodes[runningIdx.get(i)] = 2 + ServerProblem.NO_ENERGY.ordinal();
                 }
             }
+            if (powered.isEmpty()) needed = 0;
             running = powered;
+            runningIdx = poweredIdx;
             drainEnergy(segs, needed);
+            fePerTick = needed;
+            selfPowered = 0;
+        } else if (bills && Config.safe(Config.SELF_CONSUMPTION, true) && !running.isEmpty()) {
+            // electricity bill mode: own generators cover what they can, the rest goes on the bill (step 5)
+            long needed = coolingFe;
+            for (ServerSpec spec : running) needed += spec.energyPerTick();
+            long budget = 0;
+            for (RackBlockEntity seg : segs) budget += seg.energy.getAmountAsLong();
+            long used = Math.min(needed, budget);
+            drainEnergy(segs, used);
+            fePerTick = used;
+            selfPowered = needed > 0 ? used / (double) needed : 0;
+        } else {
+            fePerTick = 0;
+            selfPowered = 0;
         }
-        fePerTick = running.stream().mapToLong(ServerSpec::energyPerTick).sum();
+        if (running.isEmpty()) coolingPower = 0;
 
-        localRate = running.stream().mapToDouble(sp -> mining ? sp.hashesPerSecond() : sp.computeBps()).sum();
+        // ---- 4. heat: the running servers' watts heat the rack, cooling removes it; too hot = throttled
         watts = running.stream().mapToLong(ServerSpec::watts).sum();
+        heatLoad = heat ? watts : 0;
+        coolingCapacity = heat ? coolingWatts : 0;
+        updateAmbient(level, gameTime);
+        double throttleTemp = Config.safe(Config.THROTTLE_TEMPERATURE, 70.0);
+        double criticalTemp = Config.safe(Config.CRITICAL_TEMPERATURE, 95.0);
+        if (Double.isNaN(temperature)) temperature = ambient;
+        if (heat) {
+            temperature = HeatModel.step(temperature, HeatModel.targetTemperature(ambient, throttleTemp, heatLoad, coolingWatts));
+            speedFactor = HeatModel.speedFactor(temperature, throttleTemp, criticalTemp, Config.safe(Config.MIN_SPEED, 0.25));
+        } else {
+            temperature = ambient;
+            speedFactor = 1.0;
+        }
+        localRate = running.stream().mapToDouble(sp -> mining ? sp.hashesPerSecond() : sp.computeBps()).sum() * speedFactor;
         double storageTb = running.stream().mapToDouble(ServerSpec::storageGb).sum() / 1024.0;
 
-        // ---- 3. what are we producing?
+        // ---- 5. electricity bill: wall power of servers and cooling
+        if (bills && !running.isEmpty()) {
+            double wallWatts = coolingPower;
+            for (ServerSpec spec : running) wallWatts += spec.watts() / Math.max(0.01, spec.psuEfficiency());
+            billPerHour = ElectricityBill.centsPerHour(wallWatts * (1.0 - selfPowered), Config.safe(Config.PRICE_PER_KWH, 40.0));
+            bill.accrue(billPerHour / TICKS_PER_HOUR);
+        } else {
+            billPerHour = 0;
+        }
+
+        // ---- 6. what are we producing?
         ItemStack product = ItemStack.EMPTY;
-        double speedFactor = 1.0;
+        double speedBonus = 1.0;
         long ownDemand = 0;
         storageBonus = 0;
+        CustomerBase.Params plans = null;
+        long hostingLimit = 0;
         switch (type) {
             case MINING -> goal = 0;
             case HOSTING -> {
                 goal = 0;
+                plans = HostingPlan.params();
                 storageBonus = Math.min(Config.MAX_STORAGE_BONUS.get(), storageTb * Config.STORAGE_BONUS_PER_TB.get());
-                speedFactor = 1.0 + storageBonus;
-                ownDemand = payee() != null ? Config.HOSTING_CAPACITY_PER_SEGMENT.get() * segmentCount : 0;
+                speedBonus = 1.0 + storageBonus;
+                contracted = customers.contractedBps(plans.computeBps());
+                hostingLimit = Config.HOSTING_CAPACITY_PER_SEGMENT.get() * segmentCount;
+                // contracted compute plus room for the biggest plan, so new customers can also run on network compute
+                ownDemand = payee != null ? (long) Math.min(hostingLimit, contracted + largestPlan(plans)) : 0;
             }
             default -> {
                 ItemStack target = items.get(SLOT_TARGET);
@@ -314,14 +485,15 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
                 lastTarget = targetItem;
                 product = target.isEmpty() ? ItemStack.EMPTY : new ItemStack(target.getItem()); // never copy components
                 goal = Math.max(0, ModDataMaps.fileSize(target));
-                speedFactor = Config.FABRICATION_SPEED.get();
+                speedBonus = Config.FABRICATION_SPEED.get();
                 ownDemand = !product.isEmpty() && goal > 0 && canOutput(product)
                         ? Config.FABRICATING_INTAKE_PER_SEGMENT.get() * segmentCount : 0;
             }
         }
+        if (type != RackType.HOSTING) contracted = 0;
 
-        // ---- 4. local use first, then the network
-        boolean allocationValid = type.networked() && allocationTick >= level.getGameTime() - 2;
+        // ---- 7. local use first, then the network
+        boolean allocationValid = type.networked() && allocationTick >= gameTime - 2;
         if (type.networked()) {
             long local = (long) localRate;
             long used = Math.min(local, ownDemand);
@@ -340,23 +512,119 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
             networkInfo = null;
         }
 
-        // ---- 5. status + production
-        status = evaluate(type, running.isEmpty(), product);
+        // ---- 8. status + production
+        double served = contracted > 0 ? Math.min(1.0, effectiveRate / contracted) : 1.0;
+        status = evaluate(type, running.isEmpty(), product, served);
         incomePerHour = 0;
-        if (status == RackStatus.RUNNING) {
+        boolean producing = status.ok() && status != RackStatus.EXPORTING && status != RackStatus.NO_CUSTOMERS;
+        if (producing) {
             switch (type) {
-                case MINING -> earn(effectiveRate / 20.0 / coin.hashesPerCoin());
-                case HOSTING -> earn(effectiveRate * speedFactor / 20.0 / Config.BYTES_PER_DOLLAR.get() * 100.0);
-                default -> produce(product, effectiveRate * speedFactor / 20.0);
+                case MINING -> earn(effectiveRate / 20.0 / MarketData.hashesPerCoin(coin, today) * MarketData.rewardMultiplier(coin, today));
+                case HOSTING -> earn(customers.revenuePerHour(plans.pricePerHour()) * served * speedBonus * 100.0 / TICKS_PER_HOUR);
+                default -> produce(product, effectiveRate * speedBonus / 20.0);
             }
+        } else if (type == RackType.HOSTING && status == RackStatus.OVERLOADED && plans != null) {
+            earn(customers.revenuePerHour(plans.pricePerHour()) * served * speedBonus * 100.0 / TICKS_PER_HOUR);
         }
-        if (level.getGameTime() % PAYOUT_INTERVAL == 0) payOut(level);
+
+        // ---- 9. hosting customers sign up / cancel
+        if (type == RackType.HOSTING && plans != null && payee != null && gameTime % Config.safe(Config.CUSTOMER_INTERVAL, 200) == 0) {
+            double spare = Math.min(effectiveRate, hostingLimit) - contracted;
+            if (running.isEmpty() && effectiveRate <= 0) {
+                served = contracted > 0 ? 0 : 1;
+                spare = 0;
+            }
+            CustomerBase.Result result = customers.check(served, spare, plans, level.getRandom()::nextDouble);
+            if (result.signedUp() >= 0) {
+                ModAdvancements.award(server, payee, ModAdvancements.FIRST_CUSTOMER);
+                if (result.signedUp() == HostingPlan.DEDICATED.ordinal()) {
+                    ModAdvancements.award(server, payee, ModAdvancements.DEDICATED_CUSTOMER);
+                }
+            }
+            contracted = customers.contractedBps(plans.computeBps());
+        }
+
+        // ---- 10. wear, payouts, bills, advancements
+        if (Config.safe(Config.WEAR_ENABLED, true) && gameTime % WEAR_INTERVAL == 0 && !running.isEmpty()) {
+            wearParts(segs, runningIdx, HeatModel.overheat(temperature, throttleTemp, criticalTemp));
+        }
+        if (gameTime % PAYOUT_INTERVAL == 0) {
+            payOut(level);
+            if (bills) payBill(server);
+        }
+        if (gameTime % ADVANCEMENT_INTERVAL == 0 && payee != null && !running.isEmpty()) {
+            ModAdvancements.award(server, payee, ModAdvancements.FIRST_BOOT);
+            if (running.size() == MAX_SERVERS) ModAdvancements.award(server, payee, ModAdvancements.FULL_RACK);
+            if (speedFactor < 1.0) ModAdvancements.award(server, payee, ModAdvancements.OVERHEATED);
+        }
 
         boolean powered = !running.isEmpty();
         for (RackBlockEntity seg : segs) {
             seg.setRunningState(powered);
         }
+        int signal = computeSignal(segs);
+        if (signal != lastSignal) {
+            lastSignal = signal;
+            for (RackBlockEntity seg : segs) level.updateNeighbourForOutputSignal(seg.worldPosition, seg.getBlockState().getBlock());
+        }
         setChanged();
+    }
+
+    private static double largestPlan(CustomerBase.Params plans) {
+        double largest = 0;
+        for (int i = 0; i < plans.computeBps().length; i++) {
+            if (plans.weight()[i] > 0) largest = Math.max(largest, plans.computeBps()[i]);
+        }
+        return largest;
+    }
+
+    private void updateAmbient(ServerLevel level, long gameTime) {
+        if (gameTime - ambientCheckedAt < 200 && ambientCheckedAt != Long.MIN_VALUE) return;
+        ambientCheckedAt = gameTime;
+        ambient = Config.safe(Config.BIOME_TEMPERATURE, true)
+                ? HeatModel.ambientFromBiome(level.getBiome(worldPosition).value().getBaseTemperature())
+                : 20.0;
+    }
+
+    /** Wears the parts of every running server (more when the rack is hot). */
+    private void wearParts(List<RackBlockEntity> segs, List<Integer> runningIdx, double overheat) {
+        double amount = Config.safe(Config.WEAR_PER_HOUR, 0.03) * WEAR_INTERVAL / TICKS_PER_HOUR
+                * (1.0 + (Config.safe(Config.HEAT_WEAR_MULTIPLIER, 3.0) - 1.0) * overheat);
+        double threshold = Config.safe(Config.WARNING_THRESHOLD, 0.10);
+        List<Wear.WearEvent> events = new ArrayList<>();
+        for (int idx : runningIdx) {
+            RackBlockEntity seg = segs.get(idx / SERVERS);
+            ItemStack bay = seg.items.get(idx % SERVERS);
+            if (bay.is(ModItems.SERVER.get())) {
+                events.addAll(Wear.wearServer(bay, amount, threshold));
+            } else {
+                Wear.WearEvent event = Wear.wear(bay, amount, threshold);
+                if (event != null) events.add(event);
+            }
+            seg.setChanged();
+        }
+        if (!events.isEmpty() && level instanceof ServerLevel serverLevel) warnOwner(serverLevel, events);
+    }
+
+    /** Tells the (online) owner about parts that dropped below the warning threshold or broke: chat + toast. */
+    private void warnOwner(ServerLevel level, List<Wear.WearEvent> events) {
+        UUID payee = payee();
+        if (payee == null) return;
+        ServerPlayer player = level.getServer().getPlayerList().getPlayer(payee);
+        if (player == null) return;
+        Component rack = Component.translatable("block.datacenterextended." + type().id());
+        String where = worldPosition.getX() + " " + worldPosition.getY() + " " + worldPosition.getZ();
+        for (Wear.WearEvent event : events) {
+            Component message = event.broke()
+                    ? Component.translatable("message.datacenterextended.wear.broke", rack, where, event.part().getHoverName())
+                    .withStyle(ChatFormatting.RED)
+                    : Component.translatable("message.datacenterextended.wear.low", rack, where, event.part().getHoverName(),
+                    Math.round(event.condition() * 100)).withStyle(ChatFormatting.GOLD);
+            player.sendSystemMessage(message);
+            if (Config.safe(Config.WEAR_TOASTS, true)) {
+                EconomyService.send(player, new ModPayloads.WearWarning(event.part(), (float) event.condition(), event.broke(), where));
+            }
+        }
     }
 
     private static void drainEnergy(List<RackBlockEntity> segs, long amount) {
@@ -379,28 +647,36 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         return total;
     }
 
-    private RackStatus evaluate(RackType type, boolean noneRunning, ItemStack product) {
-        if (type != RackType.FABRICATING && payee() == null) return RackStatus.NO_OWNER;
+    private RackStatus evaluate(RackType type, boolean noneRunning, ItemStack product, double served) {
+        boolean bills = Config.safe(Config.ELECTRICITY_BILLS, false);
+        if ((type != RackType.FABRICATING || bills) && payee() == null) return RackStatus.NO_OWNER;
+        if (bill.unpaid()) return RackStatus.NO_FUNDS;
+        if (!coinLaunched) return RackStatus.COIN_NOT_LAUNCHED;
         // a rack without own servers still works on compute it receives over the network
         if (noneRunning && effectiveRate <= 0) {
             for (int code : serverCodes) {
                 if (code == 2 + ServerProblem.NO_ENERGY.ordinal()) return RackStatus.NO_ENERGY;
             }
-            return RackStatus.NO_SERVERS;
+            return contracted > 0 ? RackStatus.OVERLOADED : RackStatus.NO_SERVERS;
         }
         if (type == RackType.FABRICATING) {
             if (product.isEmpty()) return supply > 0 && exported > 0 ? RackStatus.EXPORTING : RackStatus.NO_TARGET;
             if (goal <= 0) return RackStatus.NOT_FABRICABLE;
             if (!canOutput(product)) return supply > 0 && exported > 0 ? RackStatus.EXPORTING : RackStatus.OUTPUT_FULL;
         }
+        if (type == RackType.HOSTING) {
+            if (contracted > 0 && served < 0.999) return RackStatus.OVERLOADED;
+            if (customers.total() == 0) return RackStatus.NO_CUSTOMERS;
+        }
         if (effectiveRate <= 0) return exported > 0 ? RackStatus.EXPORTING : RackStatus.IDLE;
+        if (speedFactor < 1.0) return RackStatus.OVERHEATING;
         return RackStatus.RUNNING;
     }
 
     /** Accumulates income for this tick: cents (hosting) or coins (mining). */
     private void earn(double perTick) {
         pending += perTick;
-        incomePerHour = perTick * 20 * 3600;
+        incomePerHour = perTick * TICKS_PER_HOUR;
     }
 
     /** Pays the accumulated income into the owner's wallet. */
@@ -410,12 +686,25 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         WalletData wallets = WalletData.get(level.getServer());
         if (type() == RackType.MINING) {
             wallets.depositCoins(payee, coin, pending);
+            StatsData.record(level.getServer(), payee, StatsLedger.Category.MINING,
+                    Math.round(pending * MarketData.get(level.getServer()).price(coin) * 100.0));
             pending = 0;
+            ModAdvancements.award(level.getServer(), payee, ModAdvancements.FIRST_COIN);
         } else if (type() == RackType.HOSTING) {
             long cents = (long) Math.floor(pending);
             wallets.deposit(payee, cents);
+            StatsData.record(level.getServer(), payee, StatsLedger.Category.HOSTING, cents);
             pending -= cents;
         }
+    }
+
+    /** Takes the electricity bill from the owner's wallet; a wallet that can't pay shuts the rack down until it can. */
+    private void payBill(MinecraftServer server) {
+        UUID payee = payee();
+        if (payee == null) return;
+        WalletData wallets = WalletData.get(server);
+        long take = bill.settle(wallets.wallet(payee).cents());
+        if (take > 0 && wallets.withdraw(payee, take)) StatsData.record(server, payee, StatsLedger.Category.BILLS, take);
     }
 
     /** Who gets paid: the controller's owner, or the owner of any other segment. */
@@ -439,6 +728,15 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
 
     public String ownerName() {
         return ownerName;
+    }
+
+    /** The owner name of the merged rack (any segment). */
+    public String payeeName() {
+        if (owner != null) return ownerName;
+        for (RackBlockEntity seg : segments()) {
+            if (seg.owner != null) return seg.ownerName;
+        }
+        return "";
     }
 
     public Coin coin() {
@@ -551,7 +849,7 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         return status;
     }
 
-    /** Own compute (B/s) or hashrate (H/s) of all running servers in the merged rack. */
+    /** Own compute (B/s) or hashrate (H/s) of all running servers in the merged rack (after throttling). */
     public double localRate() {
         return localRate;
     }
@@ -577,6 +875,85 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         return networkInfo;
     }
 
+    /** Rack temperature in °C. */
+    public double temperature() {
+        return Double.isNaN(temperature) ? ambient : temperature;
+    }
+
+    /** Comparator signal 0..15 of the merged rack, by the selected {@link RackComparatorMode}. */
+    private int computeSignal(List<RackBlockEntity> segs) {
+        return switch (comparatorMode) {
+            case STATUS -> !status.ok() ? 0 : status.warning() ? 8 : 15;
+            case TEMPERATURE -> {
+                double critical = Config.safe(Config.CRITICAL_TEMPERATURE, 95.0);
+                double t = (temperature() - ambient) / Math.max(1.0, critical - ambient);
+                yield (int) Math.round(Math.max(0, Math.min(1, t)) * 15);
+            }
+            case ENERGY -> {
+                if (!Config.usesFe()) yield bill.unpaid() ? 0 : 15;
+                long stored = 0, capacity = 0;
+                for (RackBlockEntity seg : segs) {
+                    stored += seg.energy.getAmountAsLong();
+                    capacity += seg.energy.getCapacityAsLong();
+                }
+                yield capacity <= 0 ? 0 : (int) Math.round(15.0 * stored / capacity);
+            }
+        };
+    }
+
+    /** The comparator signal of the rack this block belongs to. */
+    public int comparatorSignal() {
+        return controllerOrSelf().lastSignal;
+    }
+
+    public RackComparatorMode comparatorMode() {
+        return comparatorMode;
+    }
+
+    public void cycleComparatorMode() {
+        comparatorMode = RackComparatorMode.byId((comparatorMode.ordinal() + 1) % RackComparatorMode.values().length);
+        setChanged();
+    }
+
+    /** Sets the temperature directly (game tests, commands). */
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
+    }
+
+    /** Speed multiplier from heat (1.0 = not throttled). */
+    public double speedFactor() {
+        return speedFactor;
+    }
+
+    /** Watts of heat the running servers produce. */
+    public long heatLoad() {
+        return heatLoad;
+    }
+
+    /** Watts of heat the rack can remove (passive + cooling items). */
+    public long coolingCapacity() {
+        return coolingCapacity;
+    }
+
+    /** Electricity bill in cents per hour (0 unless electricity bills are on). */
+    public double billPerHour() {
+        return billPerHour;
+    }
+
+    public ElectricityBill bill() {
+        return bill;
+    }
+
+    public CustomerBase customers() {
+        return customers;
+    }
+
+    /** Sets the number of customers of a plan (game tests, commands). */
+    public void setCustomers(HostingPlan plan, int count) {
+        customers.setCount(plan.ordinal(), count);
+        setChanged();
+    }
+
     /** Capability target for any segment: the controller, if this rack type is networked. */
     public @Nullable ComputeNode computeNode() {
         if (level == null || !type().networked()) return null;
@@ -600,7 +977,7 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         return energy;
     }
 
-    /** FE per tick the running servers of this merged rack use. */
+    /** FE per tick the running servers (and cooling) of this merged rack use. */
     public long energyPerTick() {
         return fePerTick;
     }
@@ -634,7 +1011,8 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
 
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
-        if (slot < SERVERS) return stack.is(ModItems.SERVER.get());
+        if (slot < SERVERS) return isBayItem(stack);
+        if (slot == SLOT_COOLING) return isCoolingItem(stack);
         return slot == SLOT_TARGET && type() == RackType.FABRICATING;
     }
 
@@ -683,6 +1061,13 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         ownerName = input.getStringOr("owner_name", "");
         energy.deserialize(input.childOrEmpty("energy"));
         lastTarget = items.get(SLOT_TARGET).isEmpty() ? null : items.get(SLOT_TARGET).getItem();
+        temperature = input.getDoubleOr("temperature", Double.NaN);
+        bill.load(input.getDoubleOr("bill", 0), input.getBooleanOr("unpaid", false));
+        for (HostingPlan plan : HostingPlan.values()) {
+            customers.setCount(plan.ordinal(), input.getIntOr("customers_" + plan.name().toLowerCase(java.util.Locale.ROOT), 0));
+        }
+        customers.setSatisfaction(input.getDoubleOr("satisfaction", 1.0));
+        comparatorMode = RackComparatorMode.byId(input.getIntOr("comparator", 0));
     }
 
     @Override
@@ -695,5 +1080,14 @@ public class RackBlockEntity extends BaseContainerBlockEntity implements Worldly
         if (owner != null) output.putString("owner", owner.toString());
         if (!ownerName.isEmpty()) output.putString("owner_name", ownerName);
         energy.serialize(output.child("energy"));
+        if (!Double.isNaN(temperature)) output.putDouble("temperature", temperature);
+        if (bill.pending() > 0) output.putDouble("bill", bill.pending());
+        if (bill.unpaid()) output.putBoolean("unpaid", true);
+        for (HostingPlan plan : HostingPlan.values()) {
+            int count = customers.count(plan.ordinal());
+            if (count > 0) output.putInt("customers_" + plan.name().toLowerCase(java.util.Locale.ROOT), count);
+        }
+        output.putDouble("satisfaction", customers.satisfaction());
+        output.putInt("comparator", comparatorMode.ordinal());
     }
 }

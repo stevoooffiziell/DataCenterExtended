@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "datacenterextended:block/server_monitor"
+    },
+    "facing=east": {
+      "model": "datacenterextended:block/server_monitor",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "datacenterextended:block/server_monitor",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "datacenterextended:block/server_monitor",
+      "y": 270
+    }
+  }
+}

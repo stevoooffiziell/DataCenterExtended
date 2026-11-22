@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "datacenterextended:n_type_wafer",
+    "datacenterextended:p_type_wafer",
+    "datacenterextended:copper_wire"
+  ],
+  "result": {
+    "id": "datacenterextended:solar_cell"
+  }
+}

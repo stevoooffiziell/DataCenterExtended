@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "datacenterextended:block/lfp_battery_bank"
+    },
+    "facing=east": {
+      "model": "datacenterextended:block/lfp_battery_bank",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "datacenterextended:block/lfp_battery_bank",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "datacenterextended:block/lfp_battery_bank",
+      "y": 270
+    }
+  }
+}

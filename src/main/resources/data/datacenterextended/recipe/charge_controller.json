@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "W": "datacenterextended:copper_wire",
+    "K": "datacenterextended:capacitor",
+    "P": "datacenterextended:processor_die",
+    "B": "datacenterextended:circuit_board"
+  },
+  "pattern": [
+    "WKW",
+    "PBP"
+  ],
+  "result": {
+    "id": "datacenterextended:charge_controller"
+  }
+}

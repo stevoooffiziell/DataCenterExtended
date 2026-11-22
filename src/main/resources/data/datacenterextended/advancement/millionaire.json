@@ -1,0 +1,25 @@
+{
+  "parent": "datacenterextended:ten_thousand",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "datacenterextended:nvidia_h100"
+    },
+    "title": {
+      "translate": "advancements.datacenterextended.millionaire.title"
+    },
+    "description": {
+      "translate": "advancements.datacenterextended.millionaire.description"
+    },
+    "frame": "challenge"
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

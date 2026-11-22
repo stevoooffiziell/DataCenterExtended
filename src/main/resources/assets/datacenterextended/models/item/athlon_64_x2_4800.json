@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "datacenterextended:item/athlon_64_x2_4800"
+  }
+}

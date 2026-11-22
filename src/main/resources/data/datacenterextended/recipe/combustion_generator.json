@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "P": "datacenterextended:steel_plate",
+    "F": "minecraft:furnace",
+    "W": "datacenterextended:copper_wire",
+    "G": "datacenterextended:alternator"
+  },
+  "pattern": [
+    "PPP",
+    "PFP",
+    "WGW"
+  ],
+  "result": {
+    "id": "datacenterextended:combustion_generator"
+  }
+}

@@ -10,7 +10,7 @@
     "M": "#c:gems/diamond",
     "S": "#c:dusts/redstone",
     "$": "#c:storage_blocks/diamond",
-    "X": "datacenterextended:psu_1200w"
+    "X": "datacenterextended:psu_1600w"
   },
   "pattern": [
     "MSM",

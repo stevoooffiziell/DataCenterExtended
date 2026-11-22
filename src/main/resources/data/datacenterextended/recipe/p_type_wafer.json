@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "datacenterextended:silicon_wafer",
+    "#c:dusts/glowstone"
+  ],
+  "result": {
+    "id": "datacenterextended:p_type_wafer"
+  }
+}

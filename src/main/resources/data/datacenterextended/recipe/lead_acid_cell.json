@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "#c:ingots/iron",
+    "G": "#c:gunpowders",
+    "C": "#c:ingots/copper",
+    "W": "minecraft:water_bucket"
+  },
+  "pattern": [
+    "IGI",
+    "CWC",
+    "III"
+  ],
+  "result": {
+    "id": "datacenterextended:lead_acid_cell",
+    "count": 2
+  }
+}

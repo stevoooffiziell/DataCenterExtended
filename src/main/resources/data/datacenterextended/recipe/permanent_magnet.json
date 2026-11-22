@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "R": "#c:dusts/redstone",
+    "S": "#c:ingots/steel",
+    "D": "#c:ingots/iron"
+  },
+  "pattern": [
+    " R ",
+    "SDS",
+    " R "
+  ],
+  "result": {
+    "id": "datacenterextended:permanent_magnet",
+    "count": 2
+  }
+}

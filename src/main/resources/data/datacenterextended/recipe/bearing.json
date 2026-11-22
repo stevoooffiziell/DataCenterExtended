@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": "#c:nuggets/iron",
+    "R": "datacenterextended:steel_rod"
+  },
+  "pattern": [
+    " N ",
+    "NRN",
+    " N "
+  ],
+  "result": {
+    "id": "datacenterextended:bearing",
+    "count": 2
+  }
+}

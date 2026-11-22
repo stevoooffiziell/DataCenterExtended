@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "T": "datacenterextended:tempered_glass",
+    "C": "datacenterextended:solar_cell",
+    "A": "datacenterextended:aluminium_sheet",
+    "W": "datacenterextended:copper_wire"
+  },
+  "pattern": [
+    "TTT",
+    "CCC",
+    "AWA"
+  ],
+  "result": {
+    "id": "datacenterextended:polycrystalline_solar_panel"
+  }
+}

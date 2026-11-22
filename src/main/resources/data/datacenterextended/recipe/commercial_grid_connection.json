@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "P": "datacenterextended:steel_plate",
+    "I": "datacenterextended:inverter",
+    "C": "datacenterextended:copper_coil",
+    "X": "datacenterextended:residential_grid_connection"
+  },
+  "pattern": [
+    "PIP",
+    "CXC",
+    "PPP"
+  ],
+  "result": {
+    "id": "datacenterextended:commercial_grid_connection"
+  }
+}
